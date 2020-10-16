@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Sulu</RootNamespace>
     <AssemblyName>Sulu</AssemblyName>
+    <StartupObject>Sulu.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
