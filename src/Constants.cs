@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sulu
 {
-    public static class Constants
+    static class Constants
     {
         public static string GetBinaryPath()
         {

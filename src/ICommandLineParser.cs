@@ -2,7 +2,7 @@
 
 namespace Sulu
 {
-    interface IApplicationBuilder
+    interface ICommandLineParser
     {
         IApplication Build(string[] args, Func<object,IApplication> applicationResolver);
     }

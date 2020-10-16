@@ -12,11 +12,11 @@ namespace Sulu
         public CommandLineHelpException(string message) : base(message) { }
     }
 
-    class ApplicationBuilder : IApplicationBuilder
+    class CommandLineHandler : ICommandLineParser
     {
         IEnumerable<IVerb> Verbs { get; }
 
-        public ApplicationBuilder(IEnumerable<IVerb> verbs)
+        public CommandLineHandler(IEnumerable<IVerb> verbs)
         {
             Verbs = verbs;
         }

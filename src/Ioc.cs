@@ -8,12 +8,13 @@ namespace Sulu
 {
     public static class Ioc
     {
-        public static IContainer RegisterApplication()
+        public static IContainer RegisterApplication(Serilog.ILogger logger)
         {
             var builder = new ContainerBuilder();
 
             // Standard type registrations
-            builder.RegisterType<ApplicationBuilder>().As<IApplicationBuilder>().SingleInstance();
+            builder.RegisterInstance(logger).As<Serilog.ILogger>().SingleInstance();
+            builder.RegisterType<CommandLineHandler>().As<ICommandLineParser>().SingleInstance();
             builder.RegisterType<UserInteraction>().AsImplementedInterfaces().SingleInstance();
 
             // Perform platform-specific registrations here
