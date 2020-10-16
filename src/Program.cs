@@ -62,8 +62,11 @@ namespace Sulu
 
         static void ConfigureLogging()
         {
+            var folder = Constants.GetBinaryDir();
+            var logFilePath = System.IO.Path.Combine(folder, "sulu.log");
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
+                .WriteTo.File(logFilePath, shared: true)
                 .MinimumLevel.Debug()
                 .CreateLogger();
         }
