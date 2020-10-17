@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Sulu
+﻿namespace Sulu
 {
     interface IUserInteraction
     {

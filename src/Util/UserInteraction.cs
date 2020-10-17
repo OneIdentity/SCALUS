@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sulu.Util
 {
@@ -16,4 +14,18 @@ namespace Sulu.Util
             Console.WriteLine(message);
         }
     }
+
+    
+    //class GuiUserInteraction : IUserInteraction
+    //{
+    //    public void Error(string error)
+    //    {
+    //        System.Windows.Forms.MessageBox.Show(error);
+    //    }
+
+    //    public void Message(string message)
+    //    {
+    //        System.Windows.Forms.MessageBox.Show(message);
+    //    }
+    //}
 }

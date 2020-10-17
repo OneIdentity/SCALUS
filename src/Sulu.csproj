@@ -1,18 +1,35 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+      <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Sulu</RootNamespace>
     <AssemblyName>Sulu</AssemblyName>
     <StartupObject>Sulu.Program</StartupObject>
+    <!-- For a fancy windows implemenation that drops the console window...
+    <OutputType>WinExe</OutputType>
+    <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+    <UseWindowsForms>true</UseWindowsForms>
+    -->
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Ui\Web\index.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Ui\Web\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="6.0.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.0.2" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
   </ItemGroup>

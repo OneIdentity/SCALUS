@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Sulu.Launch
+﻿namespace Sulu.Launch
 {
     class Application : IApplication
     {
@@ -14,7 +10,7 @@ namespace Sulu.Launch
 
         public int Run()
         {
-            Serilog.Log.Debug($"Launch: {Options.Url}");
+            Serilog.Log.Debug($"Launch is not yet implemented: {Options.Url}");
             return 0;
         }
     }

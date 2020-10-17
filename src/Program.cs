@@ -2,7 +2,6 @@
 using CommandLine;
 using Serilog;
 using System;
-using System.Net.Http.Headers;
 using System.Reflection;
 
 namespace Sulu
@@ -12,16 +11,17 @@ namespace Sulu
         static int Main(string[] args)
         {
             ConfigureLogging();
+
             try
             {
                 // Register components with autofac
-                using var container = Ioc.RegisterApplication();
+                using var container = Ioc.RegisterApplication(Serilog.Log.Logger);
                 using var lifetimeScope = container.BeginLifetimeScope();
                 
-                // Resolve the application builder to parse command line 
-                // and resolve an appropriate application instance
-                var builder = lifetimeScope.Resolve<IApplicationBuilder>();
-                var application = builder.Build(args, x =>
+                // Resolve the command line parser and 
+                // resolve a corresponding application instance
+                var parser = lifetimeScope.Resolve<ICommandLineParser>();
+                var application = parser.Build(args, x =>
                 {
                     var type = x.GetType();
                     var verb = type.GetCustomAttribute<VerbAttribute>().Name;
@@ -64,11 +64,14 @@ namespace Sulu
         {
             var folder = Constants.GetBinaryDir();
             var logFilePath = System.IO.Path.Combine(folder, "sulu.log");
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .WriteTo.File(logFilePath, shared: true)
-                .MinimumLevel.Debug()
-                .CreateLogger();
+
+            var config = new LoggerConfiguration();
+            config.WriteTo.File(logFilePath, shared: true)
+                .MinimumLevel.Debug();
+#if DEBUG
+            config.WriteTo.Console();
+#endif
+            Log.Logger = config.CreateLogger();
         }
     }
 }

@@ -8,14 +8,14 @@ namespace Sulu
 {
     public static class Ioc
     {
-        public static IContainer RegisterApplication()
+        public static IContainer RegisterApplication(Serilog.ILogger logger)
         {
             var builder = new ContainerBuilder();
 
             // Standard type registrations
-            builder.RegisterType<ApplicationBuilder>().As<IApplicationBuilder>().SingleInstance();
-            builder.RegisterType<UserInteraction>().AsImplementedInterfaces().SingleInstance();
-
+            builder.RegisterInstance(logger).As<Serilog.ILogger>().SingleInstance();
+            builder.RegisterType<CommandLineHandler>().As<ICommandLineParser>().SingleInstance();
+            builder.RegisterType<Registration>().As<IRegistration>().SingleInstance();
             // Perform platform-specific registrations here
             builder.RegisterPlatformSpecificComponents();
 
@@ -34,10 +34,12 @@ namespace Sulu
             // Register the "unsupported platform" components with preserve existing defaults, so they only
             // take effect if nothing else registered to implement the service
             builder.RegisterType<UnsupportedPlatformRegistrar>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
+            builder.RegisterType<UserInteraction>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
         }
 
         private static void RegisterWindowsComponents(this ContainerBuilder builder)
         {
+            //builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<WindowsProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
         }
     }
