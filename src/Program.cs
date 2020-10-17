@@ -2,7 +2,6 @@
 using CommandLine;
 using Serilog;
 using System;
-using System.Net.Http.Headers;
 using System.Reflection;
 
 namespace Sulu
@@ -65,11 +64,14 @@ namespace Sulu
         {
             var folder = Constants.GetBinaryDir();
             var logFilePath = System.IO.Path.Combine(folder, "sulu.log");
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .WriteTo.File(logFilePath, shared: true)
-                .MinimumLevel.Debug()
-                .CreateLogger();
+
+            var config = new LoggerConfiguration();
+            config.WriteTo.File(logFilePath, shared: true)
+                .MinimumLevel.Debug();
+#if DEBUG
+            config.WriteTo.Console();
+#endif
+            Log.Logger = config.CreateLogger();
         }
     }
 }

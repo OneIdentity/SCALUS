@@ -1,6 +1,25 @@
 ﻿<html>
+<head>
+    <script language="javascript">
 
+        window.onbeforeunload = closingCode;
+
+        function closingCode(){
+            var currentLocation = window.location;
+            var shutdownEndpoint = "http://" + currentLocation.hostname + ":" + currentLocation.port + "/api/Lifetime";
+            console.log('Page closing. Requesting shutdown: ' + shutdownEndpoint);
+            fetch(shutdownEndpoint,
+                { method: 'POST' }).then(data => {
+                    console.log('Server shutdown requested.');
+                });
+           return null;
+        }
+
+    </script>
+</head>
 <body>
-    HI! It works.
+    Sulu Configuration UI
+    <br />
+    <button onclick="window.close()">Close</button>
 </body>
 </html>

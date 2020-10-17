@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sulu
+﻿namespace Sulu
 {
     public interface IApplication
     {

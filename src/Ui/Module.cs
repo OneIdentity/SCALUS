@@ -1,9 +1,4 @@
 ﻿using Autofac;
-using Autofac.Core;
-using Autofac.Core.Registration;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sulu.Ui
 {
@@ -12,7 +7,7 @@ namespace Sulu.Ui
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<Sulu.Ui.Options>().AsSelf().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<Sulu.Ui.Application>().Named<IApplication>("ui");
+            builder.RegisterType<Sulu.Ui.Application>().Named<IApplication>("ui").SingleInstance();
         }
     }
 }

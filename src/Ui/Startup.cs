@@ -7,11 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Sulu.Ui
 {
@@ -19,7 +15,6 @@ namespace Sulu.Ui
     {
         public Startup(IWebHostEnvironment env)
         {
-            // In ASP.NET Core 3.0 `env` will be an IWebHostEnvironment, not IHostingEnvironment.
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddEnvironmentVariables();
@@ -39,11 +34,7 @@ namespace Sulu.Ui
             // won't get called. Don't create a ContainerBuilder
             // for Autofac here, and don't call builder.Populate() - that
             // happens in the AutofacServiceProviderFactory for you.
-            services
-                .AddMvc(options =>
-                {
-                    options.AllowEmptyInputInBodyModelBinding = true;
-                });
+            services.AddControllers();
         }
 
         // ConfigureContainer is where you can register things directly
@@ -55,15 +46,17 @@ namespace Sulu.Ui
             // Register your own things directly with Autofac here. Don't
             // call builder.Populate(), that happens in AutofacServiceProviderFactory
             // for you.
-            builder.RegisterModule(new Module());
+
+            // This method registers instances that were already registered
+            // with the main autofac container in Program.cs. This is a hack
+            // that I want to remove later, but I haven't figured it out yet.
+            Application.RegisterExternalInstances(builder);
         }
 
         // Configure is where you add middleware. This is called after
         // ConfigureContainer. You can use IApplicationBuilder.ApplicationServices
         // here if you need to resolve things from the container.
-        public void Configure(
-          IApplicationBuilder app,
-          ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
             // If, for some reason, you need a reference to the built container, you
             // can use the convenience extension method GetAutofacRoot.
@@ -82,6 +75,15 @@ namespace Sulu.Ui
             //If a Content-Type mapping doesn't exist, serve the file anyway
             fileServerOptions.StaticFileOptions.ServeUnknownFileTypes = true;
             app.UseFileServer(fileServerOptions);
+
+            // Disable HTTPs for now
+            //app.UseHttpsRedirection();
+
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
