@@ -10,7 +10,9 @@ namespace Sulu
         {
             var command = GetRegisteredCommand(protocol);
             if (string.IsNullOrEmpty(command)) return false;
-            return command.Contains("sulu.exe", StringComparison.OrdinalIgnoreCase);
+            return command.Contains("sulu.exe", StringComparison.OrdinalIgnoreCase)
+                || command.Contains("sulu.so", StringComparison.OrdinalIgnoreCase)
+                || command.Contains("sulu.dll", StringComparison.OrdinalIgnoreCase);
         }
 
         public string GetRegisteredCommand(string protocol)
