@@ -39,3 +39,22 @@ network.protocol-handler.expose.ssh
 
 Pasted these values, click + to add them as BOOL and make sure the value is false:
 network.protocol-handler.warn-external.ssh
+
+# Manual registration on Ubuntu
+
+Run these commands from bash prompt:
+```
+cat << EOF > ~/.local/share/applications/sulu.desktop
+[Desktop Entry]
+Name=Sulu
+Comment=Session URL Launcher Utility
+Exec=/usr/bin/dotnet /<path to sulu>/Sulu.dll launch -u %u
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/ssh;x-scheme-handler/rdp;x-scheme-handler/telnet
+EOF
+
+xdg-mime default sulu.desktop x-scheme-handler/rdp
+xdg-mime default sulu.desktop x-scheme-handler/ssh
+xdg-mime default sulu.desktop x-scheme-handler/telnet
+```

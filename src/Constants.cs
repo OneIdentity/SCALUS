@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -15,7 +16,13 @@ namespace Sulu
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return "/usr/bin/dotnet";
+                var path = "/usr/bin/dotnet";
+                if(!File.Exists(path))
+                {
+                    Serilog.Log.Warning($"dotnet not found at: {path}");
+                }
+                return path;
+
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
@@ -26,8 +33,11 @@ namespace Sulu
 
         public static string GetBinaryPath()
         {
-            return Process.GetCurrentProcess().MainModule.FileName;
-            //return Environment.GetCommandLineArgs().First();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return Process.GetCurrentProcess().MainModule.FileName;
+            }
+            return Environment.GetCommandLineArgs().First();
         }
 
         public static string GetBinaryDir()
