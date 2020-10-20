@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Win32;
 
 namespace Sulu.Util
@@ -43,9 +46,24 @@ namespace Sulu.Util
         {
             ValidateNotNullOrWhiteSpace(path, nameof(path));
             var regKey = GetPrefix(ref path);
-            regKey = regKey?.OpenSubKey(path);
+            regKey = regKey?.OpenSubKey(path, true);
 
             return regKey;
+        }
+
+        public static void DeleteValue(string path, string name)
+        {
+            var key = GetKey(path);
+            if (key == null) return;
+            if (key.GetValue(name) == null) return;
+            key.DeleteValue(name);
+        }
+
+        public static IEnumerable<string> GetValueNames(string path)
+        {
+            var key = GetKey(path);
+            if (key == null) return Enumerable.Empty<string>();
+            return key.GetValueNames();
         }
 
         public static bool DeleteKey(string path)
@@ -55,7 +73,7 @@ namespace Sulu.Util
             var parts = path.Split('\\');
             for (var i = 0; i < parts.Length - 1; i++)
             {
-                regKey = regKey.OpenSubKey(parts[i]);
+                regKey = regKey.OpenSubKey(parts[i], true);
                 if (regKey == null)
                 {
                     return false;

@@ -27,3 +27,15 @@ Uninstall with:
 ```
 sulu.exe unregister -p rdp,ssh
 ```
+
+
+# Configure Firefox to allow SSH protocol handlers:
+
+Navigate to about:config
+
+Pasted these values, click + to add them as BOOL and make sure the value is true:
+network.protocol-handler.external.ssh
+network.protocol-handler.expose.ssh
+
+Pasted these values, click + to add them as BOOL and make sure the value is false:
+network.protocol-handler.warn-external.ssh

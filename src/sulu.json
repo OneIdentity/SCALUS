@@ -1,0 +1,26 @@
+{
+  "protocols": [
+    {
+      "name": "rdp",
+      "parser": {
+        // Use the builtin Safeguard rdp-uri parser, this will parse the URL into
+        // a single variable $rdpfile which contains the path to a temporary .rdp file
+        // which can be passed to mstsc.exe
+        "type": "builtin",
+        "id": "rdp-file"
+      },
+      "exec": "C:\\windows\\system32\\mstsc.exe",
+      "args": "$rdpfile"
+    },
+    {
+      "name": "ssh",
+      "parser": {
+        // Parses an SSH url into $user, $host and $port
+        "type": "builtin",
+        "id": "ssh"
+      },
+      "exec": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+      "args": "$user@$host"
+    }
+  ]
+}

@@ -3,6 +3,13 @@ using CommandLine;
 using Serilog;
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("Sulu.Test, PublicKey=00240000048000009400000006020000002400"+  
+    "0052534131000400000100010099f5235dfcb30256799efe82c00b6aa085fbad16977043cab35fc43317"+
+    "44d27ba5d2347006da0fb8c23e92ce81a934dad77a1d2cdb7946c9b4eb956327d5d6e71c21a2dec18529"+
+    "376f9e828072f9780feaf3f006c02aabef20bdd04d9adcbca40e00abea656d5dbbc1bb9048dc5ab262e9"+
+    "41e30c5ac4b97591d0d507489337ce")]
 
 namespace Sulu
 {

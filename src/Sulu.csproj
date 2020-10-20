@@ -6,6 +6,8 @@
     <RootNamespace>Sulu</RootNamespace>
     <AssemblyName>Sulu</AssemblyName>
     <StartupObject>Sulu.Program</StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <!-- For a fancy windows implemenation that drops the console window...
     <OutputType>WinExe</OutputType>
     <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
@@ -32,6 +34,8 @@
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

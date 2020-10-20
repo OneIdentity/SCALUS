@@ -3,6 +3,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Sulu.Platform;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -20,12 +21,14 @@ namespace Sulu.Ui
         CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
         private IHost GenericHost { get; set; }
         private IUserInteraction UserInteraction { get; }
+        private IOsServices OsServices { get; }
 
-        public Application(Options options, Serilog.ILogger logger, IUserInteraction userInteraction, ILifetimeScope container)
+        public Application(Options options, Serilog.ILogger logger, IUserInteraction userInteraction, IOsServices osServices, ILifetimeScope container)
         {
             Options = options;
             Logger = logger;
             WebPort = GetRandomFreePort();
+            OsServices = osServices;
             UserInteraction = userInteraction;
 
             // This is a hack, see the bottom of the file
@@ -46,7 +49,7 @@ namespace Sulu.Ui
                     Log.Debug($"Web server stopped: {x.Status}");
                     return x;
                 });
-                OpenBrowser($"http://localhost:{WebPort}/index.html");
+                OsServices.OpenDefault($"http://localhost:{WebPort}/index.html");
                 UserInteraction.Message($"Sulu is running at http://localhost:{WebPort}. Close the browser window to quit.");
                 GenericHost.WaitForShutdown();
             }
@@ -76,22 +79,7 @@ namespace Sulu.Ui
                 .UseSerilog(Logger, true);
         }
 
-        public static Process OpenBrowser(string url)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return Process.Start("open", url);
-            }
-            return null;
-        }
+        
 
         private static int GetRandomFreePort()
         {
