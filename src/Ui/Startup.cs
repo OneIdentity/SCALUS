@@ -46,7 +46,7 @@ namespace Sulu.Ui
             // Register your own things directly with Autofac here. Don't
             // call builder.Populate(), that happens in AutofacServiceProviderFactory
             // for you.
-
+            builder.RegisterType<SuluApiConfiguration>().As<ISuluApiConfiguration>();
             // This method registers instances that were already registered
             // with the main autofac container in Program.cs. This is a hack
             // that I want to remove later, but I haven't figured it out yet.

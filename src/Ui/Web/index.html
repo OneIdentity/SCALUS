@@ -2,6 +2,7 @@
 <head>
     <script language="javascript">
 
+        window.onload = load;
         window.onbeforeunload = closingCode;
 
         function closingCode(){
@@ -15,11 +16,25 @@
            return null;
         }
 
+        function load() {
+            var currentLocation = window.location;
+            var config = "http://" + currentLocation.hostname + ":" + currentLocation.port + "/api/Configuration";
+            var headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            fetch(config,
+                { method: 'GET', headers: headers }).then(response => {
+                    response.json().then(body => {
+                        document.getElementById("raw").value = JSON.stringify(body);
+                    })
+                });
+        }
     </script>
 </head>
 <body>
     Sulu Configuration UI
     <br />
+    <textarea id="raw"></textarea>
+
     <button onclick="window.close()">Close</button>
 </body>
 </html>

@@ -34,10 +34,10 @@
         // a single variable $rdpfile which contains the path to a temporary .rdp file
         // which can be passed to mstsc.exe
         "type": "builtin",
-        "id": "rdp-file"
+        "id": "rdp"
       },
       "exec": "/usr/bin/xfreerdp",
-      "args": "/u:$user /v:$host:$port"
+      "args": "/u:$user /v:$host:$port /p:Safeguard"
     },
 
     {
