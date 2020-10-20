@@ -64,7 +64,7 @@ namespace Sulu.Ui
 
             var fileServerOptions = new FileServerOptions
             {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Path.Combine(Constants.GetBinaryDir(), @"Ui\Web"))),
+                FileProvider = new PhysicalFileProvider(Path.Combine(Path.Combine(Constants.GetBinaryDir(), @"Ui/Web"))),
                 EnableDefaultFiles = true
             };
             fileServerOptions.DefaultFilesOptions.DefaultFileNames = new[] { "index.html" };
