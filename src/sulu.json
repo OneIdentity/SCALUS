@@ -6,7 +6,7 @@
     },
     {
       "protocol": "ssh",
-      "id": "windows-openssh"
+      "id": "linux-ssh"
     }
   ], 
   "protocols": [
@@ -51,6 +51,19 @@
       },
       "exec": "cmd ",
       "args": "/c 'C:\\Windows\\System32\\OpenSSH\\ssh.exe $user@$host'"
+    },
+	  
+	{
+      "id": "linux-ssh",
+      "description": "Linux SSH",
+      "protocol": "ssh",
+      "parser": {
+        // Parses an SSH url into $user, $host and $port
+        "type": "builtin",
+        "id": "ssh"
+      },
+      "exec": "gnome-terminal",
+      "args": "-x ssh -t $user@$host"
     }
   ]
 }
