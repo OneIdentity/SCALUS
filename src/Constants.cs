@@ -26,7 +26,8 @@ namespace Sulu
 
         public static string GetBinaryPath()
         {
-            return Environment.GetCommandLineArgs().First();
+            return Process.GetCurrentProcess().MainModule.FileName;
+            //return Environment.GetCommandLineArgs().First();
         }
 
         public static string GetBinaryDir()
