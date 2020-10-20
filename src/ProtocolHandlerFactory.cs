@@ -25,6 +25,8 @@ namespace Sulu
                 switch (config.Parser.Id)
                 {
                     // TODO: Resolve by Id from autofac
+                    case "rdp":
+                        return new ProtocolHandler(uri, new DefaultRdpUrlParser(), config, OsServices);
                     case "rdp-file":
                         return new ProtocolHandler(uri, new RdpFileUrlParser(), config, OsServices);
                     case "ssh":
