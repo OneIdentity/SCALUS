@@ -12,6 +12,7 @@ namespace Sulu.UrlParser
         public override IDictionary<string, string> Parse(string url)
         {
             url = StripProtocol(url);
+            url = url.Trim('/');
             
             var host = url;
             var user = "";
@@ -31,9 +32,9 @@ namespace Sulu.UrlParser
             }
             return new Dictionary<string, string>
             {
-                {"$host", host },
-                {"$user", HttpUtility.UrlDecode(user) },
-                {"$port", port }
+                {"host", host },
+                {"user", HttpUtility.UrlDecode(user) },
+                {"port", port }
             };
 
         }

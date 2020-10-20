@@ -29,6 +29,7 @@ namespace Sulu
             var variables = Parser.Parse(Uri);
             var args = ReplaceArgs(ProtocolConfig.Args, variables);
 
+            Serilog.Log.Debug($"Starting external application: '{ProtocolConfig.Exec}' with args: '{args}'");
             var process = OsServices.Execute(ProtocolConfig.Exec, args);
             if(Parser.WaitForProcessStartup)
             {
