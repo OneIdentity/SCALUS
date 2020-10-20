@@ -6,7 +6,7 @@
     <RootNamespace>Sulu</RootNamespace>
     <AssemblyName>Sulu</AssemblyName>
     <StartupObject>Sulu.Program</StartupObject>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <!-- For a fancy windows implemenation that drops the console window...
     <OutputType>WinExe</OutputType>
