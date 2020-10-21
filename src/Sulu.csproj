@@ -8,6 +8,7 @@
     <StartupObject>Sulu.Program</StartupObject>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <!-- For a fancy windows implemenation that drops the console window...
     <OutputType>WinExe</OutputType>
     <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
@@ -22,7 +23,7 @@
     <None Remove="Ui\Web\main.js" />
     <None Remove="Ui\Web\polyfills.js" />
     <None Remove="Ui\Web\runtime.js" />
-    <None Remove="Ui\Web\styles.js" />
+    <None Remove="Ui\Web\styles.css" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +45,7 @@
     <Content Include="Ui\Web\runtime.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Ui\Web\styles.js">
+    <Content Include="Ui\Web\styles.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

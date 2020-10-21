@@ -4,8 +4,6 @@ using System.Security.Principal;
 
 namespace Sulu.Platform
 {
-    
-
     public class OsServicesBase : IOsServices
     {
         [DllImport("libc")]
