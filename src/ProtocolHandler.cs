@@ -29,7 +29,7 @@ namespace Sulu
             var variables = Parser.Parse(Uri);
             var args = ReplaceArgs(ProtocolConfig.Args, variables);
 
-            Serilog.Log.Debug($"Starting external application: '{ProtocolConfig.Exec}' with args: '{args}'");
+            Serilog.Log.Debug($"Starting external application: '{ProtocolConfig.Exec}' with args: '{string.Join(' ', args)}'");
             var process = OsServices.Execute(ProtocolConfig.Exec, args);
             if(Parser.WaitForProcessStartup)
             {
@@ -37,14 +37,18 @@ namespace Sulu
             }
         }
 
-        private string ReplaceArgs(string args, IDictionary<string,string> variables)
+        private IEnumerable<string> ReplaceArgs(IEnumerable<string> args, IDictionary<string,string> variables)
         {
-            foreach(var variable in variables)
+            foreach (var arg in args)
             {
-                // TODO: Make this more robust
-                args = args.Replace($"${variable.Key}", variable.Value);
+                var yarg = arg;
+                foreach (var variable in variables)
+                {
+                    // TODO: Make this more robust
+                    yarg = yarg.Replace($"${variable.Key}", variable.Value);
+                }
+                yield return yarg;
             }
-            return args;
         }
 
         protected virtual void Dispose(bool disposing)

@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
@@ -28,9 +30,14 @@ namespace Sulu.Platform
             return null;
         }
 
-        public Process Execute(string command, string args)
+        public Process Execute(string command, IEnumerable<string> args)
         {
-            return Process.Start(command, args);
+            var startupInfo = new ProcessStartInfo(command);
+            foreach (var arg in args)
+            {
+                startupInfo.ArgumentList.Add(arg);
+            }
+            return Process.Start(startupInfo);
         }
 
         public bool IsAdministrator()

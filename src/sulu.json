@@ -22,9 +22,8 @@
         "id": "rdp-file"
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
-      "args": "$rdpfile"
+      "args": [ "$rdpfile" ]
     },
-
     {
       "id": "freerdp",
       "description": "FreeRDP",
@@ -37,9 +36,8 @@
         "id": "rdp"
       },
       "exec": "/usr/bin/xfreerdp",
-      "args": "/u:$user /v:$host:$port /p:Safeguard"
+      "args": ["/u:$user", "/v:$host:$port", "/p:Safeguard"]
     },
-
     {
       "id": "windows-openssh",
       "description": "Windows OpenSSH",
@@ -49,8 +47,8 @@
         "type": "builtin",
         "id": "ssh"
       },
-      "exec": "cmd ",
-      "args": "/c 'C:\\Windows\\System32\\OpenSSH\\ssh.exe $user@$host'"
+      "exec": "C:\\windows\\system32\\cmd.exe",
+      "args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "$user@$host" ]
     }
   ]
 }

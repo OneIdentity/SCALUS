@@ -10,7 +10,7 @@ namespace Sulu.Platform
     {
         Process OpenDefault(string file);
 
-        Process Execute(string binary, string args);
+        Process Execute(string binary, IEnumerable<string> args);
 
         bool IsAdministrator();
     }

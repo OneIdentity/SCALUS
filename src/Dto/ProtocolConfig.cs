@@ -1,4 +1,6 @@
-﻿namespace Sulu.Dto
+﻿using System.Collections.Generic;
+
+namespace Sulu.Dto
 {
     public class ProtocolConfig
     {
@@ -7,6 +9,6 @@
         public string Protocol { get; set; }
         public ParserConfig Parser { get; set; }
         public string Exec { get; set; }
-        public string Args { get; set; }
+        public List<string> Args { get; set; }
     }
 }
