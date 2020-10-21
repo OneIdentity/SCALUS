@@ -1,40 +1,15 @@
-﻿<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <script language="javascript">
-
-        window.onload = load;
-        window.onbeforeunload = closingCode;
-
-        function closingCode(){
-            var currentLocation = window.location;
-            var shutdownEndpoint = "http://" + currentLocation.hostname + ":" + currentLocation.port + "/api/Lifetime";
-            console.log('Page closing. Requesting shutdown: ' + shutdownEndpoint);
-            fetch(shutdownEndpoint,
-                { method: 'POST' }).then(data => {
-                    console.log('Server shutdown requested.');
-                });
-           return null;
-        }
-
-        function load() {
-            var currentLocation = window.location;
-            var config = "http://" + currentLocation.hostname + ":" + currentLocation.port + "/api/Configuration";
-            var headers = new Headers();
-            headers.append('Content-Type', 'application/json');
-            fetch(config,
-                { method: 'GET', headers: headers }).then(response => {
-                    response.json().then(body => {
-                        document.getElementById("raw").value = JSON.stringify(body);
-                    })
-                });
-        }
-    </script>
-</head>
+  <meta charset="utf-8">
+  <title>App</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="styles.8a6ab7d60205adeaf002.css"></head>
 <body>
-    Sulu Configuration UI
-    <br />
-    <textarea id="raw"></textarea>
-
-    <button onclick="window.close()">Close</button>
-</body>
+  <app-root></app-root>
+<script src="runtime.acf0dec4155e77772545.js" defer></script><script src="polyfills.35a5ca1855eb057f016a.js" defer></script><script src="main.6a05d4927c2beac9cc8a.js" defer></script></body>
 </html>

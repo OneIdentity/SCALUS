@@ -16,11 +16,35 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Ui\Web\3rdpartylicenses.txt" />
+    <None Remove="Ui\Web\favicon.ico" />
     <None Remove="Ui\Web\index.html" />
+    <None Remove="Ui\Web\main.js" />
+    <None Remove="Ui\Web\polyfills.js" />
+    <None Remove="Ui\Web\runtime.js" />
+    <None Remove="Ui\Web\styles.js" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Ui\Web\3rdpartylicenses.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Ui\Web\favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Ui\Web\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Ui\Web\main.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Ui\Web\polyfills.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Ui\Web\runtime.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Ui\Web\styles.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
