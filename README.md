@@ -6,7 +6,7 @@ This is a proxy/dispatcher for URL protocol handlers. A URL protocol is the part
 First, register sulu to handle the URL protocols you are interested in (you should be administrator for this part):
 
 ```
-sulu.exe register -p rdp,ssh
+sulu.exe register -p rdp ssh
 ```
 
 Next, configure sulu to launch a remote session app for the protocol:
@@ -25,7 +25,7 @@ explorer.exe rdp://123.45.6.7/test/url
 
 Uninstall with:
 ```
-sulu.exe unregister -p rdp,ssh
+sulu.exe unregister -p rdp ssh
 ```
 
 
@@ -33,12 +33,15 @@ sulu.exe unregister -p rdp,ssh
 
 Navigate to about:config
 
-Pasted these values, click + to add them as BOOL and make sure the value is true:
+Paste these values, click + to add them as BOOL and make sure the value is true:
+```
 network.protocol-handler.external.ssh
 network.protocol-handler.expose.ssh
-
-Pasted these values, click + to add them as BOOL and make sure the value is false:
+```
+Paste these values, click + to add them as BOOL and make sure the value is false:
+```
 network.protocol-handler.warn-external.ssh
+```
 
 # Manual registration on Ubuntu
 
