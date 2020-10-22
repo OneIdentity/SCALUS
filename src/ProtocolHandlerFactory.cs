@@ -18,20 +18,17 @@ namespace Sulu
             OsServices = osServices;
         }
 
-        public IProtocolHandler Create(string uri, ProtocolConfig config)
+        public IProtocolHandler Create(string uri, ApplicationConfig config)
         {
-            if(config.Parser.Type == "builtin")
+            switch (config.Parser.Id)
             {
-                switch (config.Parser.Id)
-                {
-                    // TODO: Resolve by Id from autofac
-                    case "rdp":
-                        return new ProtocolHandler(uri, new DefaultRdpUrlParser(), config, OsServices);
-                    case "rdp-file":
-                        return new ProtocolHandler(uri, new RdpFileUrlParser(), config, OsServices);
-                    case "ssh":
-                        return new ProtocolHandler(uri, new DefaultSshUrlParser(), config, OsServices);
-                }
+                // TODO: Resolve by Id from autofac
+                case "rdp":
+                    return new ProtocolHandler(uri, new DefaultRdpUrlParser(), config, OsServices);
+                case "rdp-file":
+                    return new ProtocolHandler(uri, new RdpFileUrlParser(), config, OsServices);
+                case "ssh":
+                    return new ProtocolHandler(uri, new DefaultSshUrlParser(), config, OsServices);
             }
             return null;
         }

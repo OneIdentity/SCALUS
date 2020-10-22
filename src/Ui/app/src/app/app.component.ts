@@ -1,6 +1,6 @@
 import { mapToMapExpression } from '@angular/compiler/src/render3/util';
 import { Component, OnInit } from '@angular/core';
-import { ApiService, SuluConfig, ProtocolConfig } from './api/api.service';
+import { ApiService, SuluConfig, ApplicationConfig } from './api/api.service';
 
 @Component({
   selector: 'app-root',
@@ -12,14 +12,14 @@ export class AppComponent implements OnInit {
   title = 'Sulu';
   state = 'loading';
   config: SuluConfig;
-  selectedRdpAppId: string;
-  rdpApps: ProtocolConfig[];
+  selectedRdpAppId: string = "";
+  rdpApps: ApplicationConfig[];
 
-  selectedSshAppId: string;
-  sshApps: ProtocolConfig[];
+  selectedSshAppId: string = "";
+  sshApps: ApplicationConfig[];
 
-  selectedTelnetAppId: string;
-  telnetApps: ProtocolConfig[];
+  selectedTelnetAppId: string = "";
+  telnetApps: ApplicationConfig[];
 
   constructor(private apiService: ApiService) {
   }
@@ -37,17 +37,17 @@ export class AppComponent implements OnInit {
     });
   }
 
-  getMappedProtocol(config:SuluConfig, protocol:string) : ProtocolConfig {
-    var protocolId = ""
-    config.map.forEach(element => {
+  getMappedProtocol(config:SuluConfig, protocol:string) : ApplicationConfig {
+    var appId = ""
+    config.protocols.forEach(element => {
     if(element.protocol == protocol) {
-        protocolId = element.id;
+        appId = element.appId;
       }
     });
-    var protocolConfig: ProtocolConfig;
-    if(protocolId) {
-      config.protocols.forEach(element => {
-        if(element.id == protocolId) {
+    var protocolConfig: ApplicationConfig;
+    if(appId) {
+      config.applications.forEach(element => {
+        if(element.id == appId) {
           protocolConfig = element;
         }
       })
@@ -56,9 +56,9 @@ export class AppComponent implements OnInit {
   }
 
   setApp(protocol:string, appId:string){
-    this.config.map.forEach(x =>{
+    this.config.protocols.forEach(x =>{
       if(x.protocol == protocol) {
-        x.id = appId;
+        x.appId = appId;
       }
     });
     this.apiService.setConfig(this.config).subscribe(x => {}, 
@@ -67,13 +67,13 @@ export class AppComponent implements OnInit {
     });
   }
 
-  getSelectedRdpDescription() {
-    return this.getProtocolConfig(this.selectedRdpAppId).description;
+  getSelectedDescription(appId:string) {
+    return this.getApplicationConfig(appId)?.description;
   }
 
-  getApps(config:SuluConfig, protocol:string) : ProtocolConfig[] {
+  getApps(config:SuluConfig, protocol:string) : ApplicationConfig[] {
     var result = new Array();
-    config.protocols.forEach(x => {
+    config.applications.forEach(x => {
       if (x.protocol == protocol) {
         result.push(x);
       }
@@ -81,8 +81,11 @@ export class AppComponent implements OnInit {
     return result;
   }
 
-  getProtocolConfig(id:string) {
-    return this.config.protocols.filter(x => x.id == id)[0];
+  getApplicationConfig(id:string) : ApplicationConfig {
+    if(this.config == null) {
+      return null;
+    }
+    return this.config.applications.filter(x => x.id == id)[0];
   }
 
   handleError(error:any, msg:string){

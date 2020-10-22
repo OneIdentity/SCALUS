@@ -8,6 +8,6 @@ namespace Sulu
 {
     interface IProtocolHandlerFactory
     {
-        public IProtocolHandler Create(string uri, ProtocolConfig config);
+        public IProtocolHandler Create(string uri, ApplicationConfig config);
     }
 }

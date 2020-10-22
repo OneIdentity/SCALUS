@@ -1,62 +1,69 @@
 {
-  "map": [
+  "protocols": [
     {
       "protocol": "rdp",
-      "id": "freerdp"
+      "appid": "freerdp"
     },
     {
       "protocol": "ssh",
-      "id": "gnome-terminal-ssh"
+      "appid": "gnome-terminal-ssh"
     }
   ],
-  "protocols": [
+  "applications": [
     {
       "id": "windows-rdp",
       "description": "Windows RDP Client",
+      "name": "Windows RDP Client",
+      "platforms": [ "windows" ],
       "protocol": "rdp",
       "parser": {
         // Use the builtin Safeguard rdp-uri parser, this will parse the URL into
         // a single variable $rdpfile which contains the path to a temporary .rdp file
         // which can be passed to mstsc.exe
-        "type": "builtin",
         "id": "rdp-file"
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
       "args": [ "$rdpfile" ]
     },
+
     {
       "id": "freerdp",
       "description": "FreeRDP",
+      "name": "FreeRDP",
+      "platforms": [ "unix" ],
       "protocol": "rdp",
       "parser": {
         // Use the builtin Safeguard rdp-uri parser, this will parse the URL into
         // a single variable $rdpfile which contains the path to a temporary .rdp file
         // which can be passed to mstsc.exe
-        "type": "builtin",
         "id": "rdp"
       },
       "exec": "/usr/bin/xfreerdp",
-      "args": ["/u:$user", "/v:$host:$port", "/p:Safeguard"]
+      "args": [ "/u:$user", "/v:$host:$port", "/p:Safeguard" ]
     },
+
     {
       "id": "windows-openssh",
       "description": "Windows OpenSSH",
+      "name": "Windows OpenSSH",
+      "platforms": [ "windows" ],
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
-        "type": "builtin",
         "id": "ssh"
       },
       "exec": "C:\\windows\\system32\\cmd.exe",
       "args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "$user@$host" ]
     },
+
     {
       "id": "gnome-terminal-ssh",
+      "name":  "Gnome Terminal SSH",
       "description": "Open Gnome Terminal on Linux with the SSH connection information",
+      "platforms": ["linux"],
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
-        "type": "builtin",
         "id": "ssh"
       },
       "exec": "gnome-terminal",
@@ -65,11 +72,12 @@
 
     {
       "id": "Terminal-ssh",
+      "name": "Terminal SSH",
       "description": "Open Terminal on Mac OS with the SSH connection information",
+      "platforms": ["mac"],
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
-        "type": "builtin",
         "id": "ssh"
       },
       "exec": "/usr/bin/osascript",

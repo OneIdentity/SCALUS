@@ -20,11 +20,12 @@
               <mat-label>Select an Application</mat-label>
               <mat-select [(value)]='selectedRdpAppId' (selectionChange)="setApp('rdp', selectedRdpAppId)" >
                 <mat-option *ngFor="let r of rdpApps" [value]="r.id">
-                  {{r.description}}
+                  {{r.name}}
                 </mat-option>
               </mat-select>
             </mat-form-field>
           </div>
+          <p>{{getSelectedDescription(selectedRdpAppId)}}</p>
         </mat-card-content>
       </mat-card>
 
@@ -39,11 +40,12 @@
               <mat-label>Select an Application</mat-label>
               <mat-select [(value)]='selectedSshAppId' (selectionChange)="setApp('ssh', selectedSshAppId)" >
                 <mat-option *ngFor="let r of sshApps" [value]="r.id">
-                  {{r.description}}
+                  {{r.name}}
                 </mat-option>
               </mat-select>
             </mat-form-field>
           </div>
+          <p>{{getSelectedDescription(selectedSshAppId)}}</p>
         </mat-card-content>
       </mat-card>
 
@@ -58,11 +60,12 @@
               <mat-label>Select an Application</mat-label>
               <mat-select [(value)]='selectedTelnetAppId' (selectionChange)="setApp('telnet', selectedSshAppId)" >
                 <mat-option *ngFor="let r of telnetApps" [value]="r.id">
-                  {{r.description}}
+                  {{r.name}}
                 </mat-option>
               </mat-select>
             </mat-form-field>
           </div>
+          <p>{{getSelectedDescription(selectedTelnetAppId)}}</p>
         </mat-card-content>
       </mat-card>
     </div>

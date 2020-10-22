@@ -91,17 +91,19 @@ namespace Sulu
             {
                 protocol = uri.Substring(0, index);
             }
-            var protocolMap = Config.Map.FirstOrDefault(x => string.Equals(x.Protocol, protocol, StringComparison.OrdinalIgnoreCase));
+            var protocolMap = Config.Protocols.FirstOrDefault(x => string.Equals(x.Protocol, protocol, StringComparison.OrdinalIgnoreCase));
             if(protocolMap == null)
             {
                 Serilog.Log.Warning($"There is no application configured for protocol {protocol}");
+                // TODO: Restart in UI mode
                 return null;
             }
 
-            var protocolConfig = Config.Protocols.FirstOrDefault(x => string.Equals(x.Id, protocolMap.Id, StringComparison.OrdinalIgnoreCase));
+            var protocolConfig = Config.Applications.FirstOrDefault(x => string.Equals(x.Id, protocolMap.AppId, StringComparison.OrdinalIgnoreCase));
             if (protocolConfig == null)
             {
-                Serilog.Log.Warning($"Mapped protocol configuration {protocolMap.Id} for {protocol} was not found in sulu.json.");
+                Serilog.Log.Warning($"Application configuration '{protocolMap.AppId}' for '{protocol}' was not found in sulu.json config.");
+                // TODO: Restart in UI mode
                 return null;
             }
 

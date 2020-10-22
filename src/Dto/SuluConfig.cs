@@ -8,7 +8,7 @@ namespace Sulu.Dto
 
     public class SuluConfig
     {
-        public List<ProtocolMapping> Map { get; set; }
-        public List<ProtocolConfig> Protocols { get; set; }
+        public List<ProtocolMapping> Protocols { get; set; }
+        public List<ApplicationConfig> Applications { get; set; }
     }
 }

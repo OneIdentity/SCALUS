@@ -15,22 +15,22 @@ namespace Sulu
         IUrlParser Parser { get; }
         string Uri { get; }
         IOsServices OsServices { get; }
-        ProtocolConfig ProtocolConfig { get; }
-        public ProtocolHandler(string uri, IUrlParser urlParser, ProtocolConfig protocolConfig, IOsServices osServices)
+        ApplicationConfig ApplicationConfig { get; }
+        public ProtocolHandler(string uri, IUrlParser urlParser, ApplicationConfig applicationConfig, IOsServices osServices)
         {
             Uri = uri;
             Parser = urlParser;
             OsServices = osServices;
-            ProtocolConfig = protocolConfig;
+            ApplicationConfig = applicationConfig;
         }
 
         public void Run()
         {
             var variables = Parser.Parse(Uri);
-            var args = ReplaceArgs(ProtocolConfig.Args, variables);
+            var args = ReplaceArgs(ApplicationConfig.Args, variables);
 
-            Serilog.Log.Debug($"Starting external application: '{ProtocolConfig.Exec}' with args: '{string.Join(' ', args)}'");
-            var process = OsServices.Execute(ProtocolConfig.Exec, args);
+            Serilog.Log.Debug($"Starting external application: '{ApplicationConfig.Exec}' with args: '{string.Join(' ', args)}'");
+            var process = OsServices.Execute(ApplicationConfig.Exec, args);
             if(Parser.WaitForProcessStartup)
             {
                 process.WaitForInputIdle();
@@ -44,7 +44,7 @@ namespace Sulu
                 var yarg = arg;
                 foreach (var variable in variables)
                 {
-                    // TODO: Make this more robust
+                    // TODO: Make this more robust. Edge case escapes don't work.
                     yarg = yarg.Replace($"${variable.Key}", variable.Value);
                 }
                 yield return yarg;
