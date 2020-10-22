@@ -15,6 +15,13 @@
     <UseWindowsForms>true</UseWindowsForms>
     -->
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="Ui\app\**" />
+    <Content Remove="Ui\app\**" />
+    <EmbeddedResource Remove="Ui\app\**" />
+    <None Remove="Ui\app\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Ui\Web\3rdpartylicenses.txt" />
