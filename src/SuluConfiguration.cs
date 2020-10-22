@@ -2,10 +2,8 @@
 using Newtonsoft.Json.Serialization;
 using Sulu.Dto;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sulu
 {
@@ -18,7 +16,12 @@ namespace Sulu
         {
             Load();
         }
-        
+
+        public SuluConfig GetConfiguration()
+        {
+            return Config;
+        }
+
         protected void Load()
         {
             var configFile = Path.Combine(Constants.GetBinaryDir(), "sulu.json");
@@ -41,10 +44,7 @@ namespace Sulu
     {
         public SuluApiConfiguration() : base() { }
 
-        public SuluConfig GetConfiguration()
-        {
-            return Config;
-        }
+        
 
         public SuluConfig SaveConfiguration(SuluConfig configuration)
         {

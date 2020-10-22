@@ -1,8 +1,9 @@
-﻿using Sulu.Platform;
+﻿using Sulu.Dto;
+using Sulu.Platform;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Security.Policy;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Sulu.Launch
 {
@@ -32,7 +33,7 @@ namespace Sulu.Launch
                 {
                     // We are the registered application, but we can't parse the config
                     // or nothing is configured, show an error somehow
-                    LaunchTextFile($"Sulu configuration does not provide a method to handle the URL: {Options.Url}");
+                    OsServices.OpenText($"Sulu configuration does not provide a method to handle the URL: {Options.Url}");
                     return 1;
                 }
                 handler.Run();
@@ -40,27 +41,43 @@ namespace Sulu.Launch
             }
             catch(Exception ex)
             {
-                Serilog.Log.Error($"Failed launching URL: {ex.Message}", ex);
+                HandleLaunchError(ex, Options.Url);
             }
             return 1;
         }
 
-        private void LaunchTextFile(string text)
+        private void HandleLaunchError(Exception ex, string url)
         {
-            var tempFile = Path.GetTempFileName() + ".txt";
-            try
-            {
-                File.WriteAllText(tempFile, text);
-                OsServices.OpenDefault(tempFile).WaitForExit();
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Error($"Failed launching URL: {ex.Message}", ex);
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
+            var application = GetApplicationForProtocol(Config.GetConfiguration(), GetProtocol(url));
+            var suluJsonPath = Path.Combine(Constants.GetBinaryDir(), "sulu.json");
+            var msg =
+$@"[SULU]: Failed to launch registered URL handler.
+  URL:           {url}
+  Error:         {ex.Message}
+
+  ApplicationId: {application?.Id ?? "<none>"}
+  Command:       {application?.Exec ?? "<none>"}
+  Args:          {(application.Args != null ? string.Join(" ", application.Args) : "<none>")}
+
+  Config File:   {suluJsonPath}  
+
+Check the configuration for this URL protocol.";
+            OsServices.OpenText(msg);
+            Serilog.Log.Error(msg, ex);
+        }
+
+        private string GetProtocol(string url)
+        {
+            var protocolSeparatorIndex = url.IndexOf("://");
+            if (protocolSeparatorIndex == -1) return "";
+            return url.Substring(0, protocolSeparatorIndex);
+        }
+
+        private ApplicationConfig GetApplicationForProtocol(SuluConfig config, string protocol)
+        {
+            var application = config.Protocols.FirstOrDefault(x => x.Protocol == protocol);
+            if (application == null) return null;
+            return config.Applications.FirstOrDefault(x => x.Id == application.AppId);
         }
     }
 }

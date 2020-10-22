@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sulu.Platform
 {
@@ -11,6 +8,11 @@ namespace Sulu.Platform
         Process OpenDefault(string file);
 
         Process Execute(string binary, IEnumerable<string> args);
+
+        /// <summary>
+        /// Open a text editor to display message
+        /// </summary>
+        void OpenText(string message);
 
         bool IsAdministrator();
     }

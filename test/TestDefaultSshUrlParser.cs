@@ -1,5 +1,4 @@
 using Sulu.UrlParser;
-using System;
 using Xunit;
 
 namespace Sulu.Test

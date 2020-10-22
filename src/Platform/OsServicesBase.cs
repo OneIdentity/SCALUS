@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
@@ -8,6 +8,8 @@ namespace Sulu.Platform
 {
     public class OsServicesBase : IOsServices
     {
+        public object OsServices { get; private set; }
+
         [DllImport("libc")]
         public static extern uint geteuid();
 
@@ -54,6 +56,24 @@ namespace Sulu.Platform
             else
             {
                 return geteuid() == 0;
+            }
+        }
+
+        public void OpenText(string message)
+        {
+            var tempFile = Path.GetTempFileName() + ".txt";
+            try
+            {
+                File.WriteAllText(tempFile, message);
+                OpenDefault(tempFile).WaitForExit();
+            }
+            catch (System.Exception ex)
+            {
+                Serilog.Log.Error($"Failed launching URL: {ex.Message}", ex);
+            }
+            finally
+            {
+                File.Delete(tempFile);
             }
         }
     }

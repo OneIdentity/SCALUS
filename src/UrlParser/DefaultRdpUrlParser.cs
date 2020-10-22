@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Sulu.UrlParser
@@ -20,8 +18,22 @@ namespace Sulu.UrlParser
             {
                 return ParseSafeguardRdpUrl(url);
             }
+            Uri result;
+            if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out result))
+            {
+                return ParseStandardUrl(result);
+            }
             Serilog.Log.Warning($"sulu doesn't know how to parse rdp url: {url}");
-            return new Dictionary<string, string>();
+            return null;
+        }
+
+        IDictionary<string, string> ParseStandardUrl(Uri url)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            result.Add("host", url.GetComponents(UriComponents.Host, UriFormat.Unescaped));
+            result.Add("user", url.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped));
+            result.Add("port", url.GetComponents(UriComponents.Port, UriFormat.Unescaped));
+            return result;
         }
 
         IDictionary<string,string> ParseSafeguardRdpUrl(string url)

@@ -1,8 +1,5 @@
 ﻿using Sulu.Dto;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sulu
 {
@@ -14,6 +11,8 @@ namespace Sulu
     interface ISuluConfiguration
     {
         IProtocolHandler GetProtocolHandler(string uri);
+
+        SuluConfig GetConfiguration();
     }
 
     public interface ISuluApiConfiguration

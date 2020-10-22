@@ -5,10 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Sulu.Platform;
 using System;
-using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Sulu.Ui

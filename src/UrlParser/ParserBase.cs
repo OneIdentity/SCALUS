@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Disposables;
-using System.Threading.Tasks;
 
 namespace Sulu.UrlParser
 {
