@@ -48,7 +48,27 @@ namespace Sulu
 
         public SuluConfig SaveConfiguration(SuluConfig configuration)
         {
-            throw new NotImplementedException();
+            // TODO: Save the file and keep the comments and formatting
+            // I think this can be done by switching the config file to
+            // json5 and adding a parser for that where we would read the
+            // config as json5 replace the values from the incoming config
+            // object and then write it out again
+
+            Save(configuration);
+            Load();
+            return Config;
+        }
+
+        private void Save(SuluConfig configuration)
+        {
+            var configFile = Path.Combine(Constants.GetBinaryDir(), "sulu.json");
+            
+            var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            serializerSettings.Formatting = Formatting.Indented;
+            
+            var json = JsonConvert.SerializeObject(configuration, serializerSettings);
+            File.WriteAllText(configFile, json);
         }
     }
 
