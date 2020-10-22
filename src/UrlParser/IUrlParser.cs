@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Sulu.UrlParser
 {
     interface IUrlParser : IDisposable
     {
         IDictionary<string, string> Parse(string url);
-        bool WaitForProcessStartup { get; }
+        void PostExecute(Process process);
     }
 }

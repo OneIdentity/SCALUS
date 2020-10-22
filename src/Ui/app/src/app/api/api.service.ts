@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 export interface ParserConfig {
   id: string;
+  options: string[];
 }
 
 export interface ProtocolMapping {

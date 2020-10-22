@@ -20,11 +20,11 @@ namespace Sulu
             {
                 // TODO: Resolve by Id from autofac
                 case "rdp":
-                    return new ProtocolHandler(uri, new DefaultRdpUrlParser(), config, OsServices);
+                    return new ProtocolHandler(uri, new DefaultRdpUrlParser(config.Parser), config, OsServices);
                 case "rdp-file":
-                    return new ProtocolHandler(uri, new RdpFileUrlParser(), config, OsServices);
+                    return new ProtocolHandler(uri, new RdpFileUrlParser(config.Parser), config, OsServices);
                 case "ssh":
-                    return new ProtocolHandler(uri, new DefaultSshUrlParser(), config, OsServices);
+                    return new ProtocolHandler(uri, new DefaultSshUrlParser(config.Parser), config, OsServices);
             }
             return null;
         }

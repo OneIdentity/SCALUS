@@ -20,7 +20,8 @@
         // Use the builtin Safeguard rdp-uri parser, this will parse the URL into
         // a single variable $rdpfile which contains the path to a temporary .rdp file
         // which can be passed to mstsc.exe
-        "id": "rdp-file"
+        "id": "rdp-file",
+        "options":  ["waitForInputIdle"]
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
       "args": [ "$rdpfile" ]
@@ -36,7 +37,8 @@
         // Use the builtin Safeguard rdp-uri parser, this will parse the URL into
         // a single variable $rdpfile which contains the path to a temporary .rdp file
         // which can be passed to mstsc.exe
-        "id": "rdp"
+        "id": "rdp",
+        "options": []
       },
       "exec": "/usr/bin/xfreerdp",
       "args": [ "/u:$user", "/v:$host:$port", "/p:Safeguard" ]
@@ -50,7 +52,8 @@
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
-        "id": "ssh"
+        "id": "ssh",
+        "options": []
       },
       "exec": "C:\\windows\\system32\\cmd.exe",
       "args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "$user@$host" ]
@@ -64,7 +67,8 @@
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
-        "id": "ssh"
+        "id": "ssh",
+        "options": []
       },
       "exec": "gnome-terminal",
       "args": [ "-x", "ssh", "-t", "$user@$host" ]
@@ -78,7 +82,8 @@
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
-        "id": "ssh"
+        "id": "ssh",
+        "options": []
       },
       "exec": "/usr/bin/osascript",
       "args": [ "-e", "tell application \"Terminal\" to do script \"ssh -t $user@$host;exit\"" ]

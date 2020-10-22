@@ -6,10 +6,17 @@ ng build --prod
 
 if(test-path dist/app)
 {
-    Copy-Item dist/app/main.* ../Web/main.js
-    Copy-Item dist/app/polyfills.* ../Web/polyfills.js
-    Copy-Item dist/app/runtime.* ../Web/runtime.js
-    Copy-Item dist/app/styles.* ../Web/styles.css
+    "Copying build artifacts to ../Web for inclusion"
+    foreach($item in (("main","js"), 
+                      ("polyfills","js"), 
+                      ("runtime", "js"), 
+                      ("styles", "css")))
+    {
+        $path = resolve-path "dist/app/$($item[0]).*"
+        $target = "../Web/$($item[0]).$($item[1])"
+        "Copying $($path) => $($target)"
+        Copy-Item $path $target
+    }
 }
 else 
 {

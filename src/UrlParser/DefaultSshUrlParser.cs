@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Sulu.Dto;
+using System.Collections.Generic;
 using System.Web;
 
 namespace Sulu.UrlParser
 {
     internal class DefaultSshUrlParser : ParserBase
     {
+        public DefaultSshUrlParser(ParserConfig config) : base(config) { }
+
         public override IDictionary<string, string> Parse(string url)
         {
             url = StripProtocol(url);

@@ -29,10 +29,9 @@ namespace Sulu
 
             Serilog.Log.Debug($"Starting external application: '{ApplicationConfig.Exec}' with args: '{string.Join(' ', args)}'");
             var process = OsServices.Execute(ApplicationConfig.Exec, args);
-            if(Parser.WaitForProcessStartup)
-            {
-                process.WaitForInputIdle();
-            }
+            Serilog.Log.Debug("Post execute starting.");
+            Parser.PostExecute(process);
+            Serilog.Log.Debug("Post execute complete.");
         }
 
         private IEnumerable<string> ReplaceArgs(IEnumerable<string> args, IDictionary<string,string> variables)

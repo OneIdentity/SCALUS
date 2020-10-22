@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Sulu.Dto;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Disposables;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -10,6 +12,8 @@ namespace Sulu.UrlParser
 {
     class RdpFileUrlParser : ParserBase
     {
+        public RdpFileUrlParser(ParserConfig config) : base(config) { }
+
         public override IDictionary<string, string> Parse(string url)
         {
             var tempFile = Path.GetTempFileName() + ".rdp";
@@ -24,8 +28,6 @@ namespace Sulu.UrlParser
             };
             return result;
         }
-
-        public override bool WaitForProcessStartup => true;
 
         private static readonly Dictionary<string, string> defaultArgs = new Dictionary<string, string>()
         {
@@ -138,10 +140,12 @@ namespace Sulu.UrlParser
                 }
             }
 
-            //Add hashed password so that the user isn't prompted to enter a password
-            var passwordHash = GenerateRdpPasswordHash();
-            list.Add(RdpPasswordHashKey + ":" + passwordHash);
-
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                //Add hashed password so that the user isn't prompted to enter a password
+                var passwordHash = GenerateRdpPasswordHash();
+                list.Add(RdpPasswordHashKey + ":" + passwordHash);
+            }
             return list;
         }
 
