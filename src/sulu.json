@@ -6,9 +6,9 @@
     },
     {
       "protocol": "ssh",
-      "id": "linux-ssh"
+      "id": "gnome-terminal-ssh"
     }
-  ], 
+  ],
   "protocols": [
     {
       "id": "windows-rdp",
@@ -51,8 +51,8 @@
       "args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "$user@$host" ]
     },
     {
-      "id": "linux-ssh",
-      "description": "Linux SSH",
+      "id": "gnome-terminal-ssh",
+      "description": "Open Gnome Terminal on Linux with the SSH connection information",
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
@@ -60,7 +60,20 @@
         "id": "ssh"
       },
       "exec": "gnome-terminal",
-      "args": "-x ssh -t $user@$host"
+      "args": [ "-x", "ssh", "-t", "$user@$host" ]
+    },
+
+    {
+      "id": "Terminal-ssh",
+      "description": "Open Terminal on Mac OS with the SSH connection information",
+      "protocol": "ssh",
+      "parser": {
+        // Parses an SSH url into $user, $host and $port
+        "type": "builtin",
+        "id": "ssh"
+      },
+      "exec": "/usr/bin/osascript",
+      "args": [ "-e", "tell application \"Terminal\" to do script \"ssh -t $user@$host;exit\"" ]
     }
   ]
 }

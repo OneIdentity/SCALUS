@@ -83,6 +83,9 @@ namespace Sulu.Ui
 
         private static int GetRandomFreePort()
         {
+#if DEBUG
+            return 42000;
+#else
             var listener = new TcpListener(IPAddress.Loopback, 0);
             try
             {
@@ -93,6 +96,7 @@ namespace Sulu.Ui
             {
                 listener.Stop();
             }
+#endif
         }
 
         // HAXX: This is a hack because we have two different autofac containers. 

@@ -1,0 +1,108 @@
+<div class="container">
+  <div class="header">
+  <mat-toolbar >
+    SESSION URI LAUNCHER UTILITY (SULU)
+  </mat-toolbar>
+  </div>
+
+  <div class="content" role="main" >
+    <h2>Configure Applications for Session Protocols</h2>
+    
+    <div class="row">
+      <mat-card class="protocol-config">
+        <mat-card-header>
+          <mat-card-title>RDP Protocol</mat-card-title>
+          <mat-card-subtitle>Set or change the application you want to launch RDP sessions on this machine.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Select an Application</mat-label>
+              <mat-select [(value)]='selectedRdpAppId' (selectionChange)="setApp('rdp', selectedRdpAppId)" >
+                <mat-option *ngFor="let r of rdpApps" [value]="r.id">
+                  {{r.description}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="protocol-config spaced">
+        <mat-card-header>
+          <mat-card-title>SSH Protocol</mat-card-title>
+          <mat-card-subtitle>Set or change the application you want to launch SSH sessions on this machine.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Select an Application</mat-label>
+              <mat-select [(value)]='selectedSshAppId' (selectionChange)="setApp('ssh', selectedSshAppId)" >
+                <mat-option *ngFor="let r of sshApps" [value]="r.id">
+                  {{r.description}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="protocol-config spaced">
+        <mat-card-header>
+          <mat-card-title>Telnet Protocol</mat-card-title>
+          <mat-card-subtitle>Set or change the application you want to launch Telnet sessions on this machine.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Select an Application</mat-label>
+              <mat-select [(value)]='selectedTelnetAppId' (selectionChange)="setApp('telnet', selectedSshAppId)" >
+                <mat-option *ngFor="let r of telnetApps" [value]="r.id">
+                  {{r.description}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <h2>Import / Export SULU Configurations</h2>
+    <div class="row">
+      <mat-card class="import-export">
+        <mat-card-header>
+          <mat-card-title>Import Configuration File</mat-card-title>
+          <mat-card-subtitle>Browse to the configuration file you wish to import.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <button mat-flat-button color="primary">Import</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="import-export spaced">
+        <mat-card-header>
+          <mat-card-title>Export Configuration File</mat-card-title>
+          <mat-card-subtitle>Browse to the configuration file you wish to import.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <button mat-flat-button color="primary">Export</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="footer">
+    <mat-toolbar>
+      <div>
+        <button mat-button color="accent">HELP</button>
+      </div>
+      <div style="margin-left:auto; display:table">
+        <span style="font-size: 12px; font-weight: normal; display:table-cell; vertical-align: middle;">Powered by: &nbsp; </span>
+        <span style="display:table-cell; vertical-align: middle;">ONE IDENTITY</span>
+      </div>
+    </mat-toolbar>
+  </div>
+</div>
