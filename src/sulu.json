@@ -6,9 +6,9 @@
     },
     {
       "protocol": "ssh",
-      "id": "linux-ssh"
+      "id": "gnome-terminal-ssh"
     }
-  ], 
+  ],
   "protocols": [
     {
       "id": "windows-rdp",
@@ -22,9 +22,8 @@
         "id": "rdp-file"
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
-      "args": "$rdpfile"
+      "args": [ "$rdpfile" ]
     },
-
     {
       "id": "freerdp",
       "description": "FreeRDP",
@@ -37,9 +36,8 @@
         "id": "rdp"
       },
       "exec": "/usr/bin/xfreerdp",
-      "args": "/u:$user /v:$host:$port /p:Safeguard"
+      "args": ["/u:$user", "/v:$host:$port", "/p:Safeguard"]
     },
-
     {
       "id": "windows-openssh",
       "description": "Windows OpenSSH",
@@ -49,13 +47,12 @@
         "type": "builtin",
         "id": "ssh"
       },
-      "exec": "cmd ",
-      "args": "/c 'C:\\Windows\\System32\\OpenSSH\\ssh.exe $user@$host'"
+      "exec": "C:\\windows\\system32\\cmd.exe",
+      "args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "$user@$host" ]
     },
-	  
-	{
-      "id": "linux-ssh",
-      "description": "Linux SSH",
+    {
+      "id": "gnome-terminal-ssh",
+      "description": "Open Gnome Terminal on Linux with the SSH connection information",
       "protocol": "ssh",
       "parser": {
         // Parses an SSH url into $user, $host and $port
@@ -63,7 +60,20 @@
         "id": "ssh"
       },
       "exec": "gnome-terminal",
-      "args": "-x ssh -t $user@$host"
+      "args": [ "-x", "ssh", "-t", "$user@$host" ]
+    },
+
+    {
+      "id": "Terminal-ssh",
+      "description": "Open Terminal on Mac OS with the SSH connection information",
+      "protocol": "ssh",
+      "parser": {
+        // Parses an SSH url into $user, $host and $port
+        "type": "builtin",
+        "id": "ssh"
+      },
+      "exec": "/usr/bin/osascript",
+      "args": [ "-e", "tell application \"Terminal\" to do script \"ssh -t $user@$host;exit\"" ]
     }
   ]
 }
