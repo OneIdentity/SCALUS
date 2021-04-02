@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sulu
+namespace scalus
 {
     interface IRegistration
     {

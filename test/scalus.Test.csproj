@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Sulu.csproj" />
+    <ProjectReference Include="..\src\scalus.csproj" />
   </ItemGroup>
 
 </Project>

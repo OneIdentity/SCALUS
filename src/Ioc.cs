@@ -1,10 +1,10 @@
 ﻿using Autofac;
-using Sulu.Platform;
-using Sulu.Util;
+using scalus.Platform;
+using scalus.Util;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Sulu
+namespace scalus
 {
     public static class Ioc
     {
@@ -16,7 +16,7 @@ namespace Sulu
             builder.RegisterInstance(logger).As<Serilog.ILogger>().SingleInstance();
             builder.RegisterType<CommandLineHandler>().As<ICommandLineParser>().SingleInstance();
             builder.RegisterType<Registration>().As<IRegistration>().SingleInstance();
-            builder.RegisterType<SuluConfiguration>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ScalusConfiguration>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<ProtocolHandlerFactory>().AsImplementedInterfaces().SingleInstance();
 
             // Perform platform-specific registrations here

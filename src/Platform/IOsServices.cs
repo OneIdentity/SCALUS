@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Sulu.Platform
+namespace scalus.Platform
 {
     public interface IOsServices
     {

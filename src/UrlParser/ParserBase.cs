@@ -1,4 +1,4 @@
-﻿using Sulu.Dto;
+﻿using scalus.Dto;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +7,7 @@ using System.Reactive.Disposables;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
-namespace Sulu.UrlParser
+namespace scalus.UrlParser
 {
     abstract class ParserBase : IUrlParser
     {

@@ -1,4 +1,4 @@
-﻿using Sulu.Dto;
+﻿using scalus.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 
-namespace Sulu.UrlParser
+namespace scalus.UrlParser
 {
     class RdpFileUrlParser : ParserBase
     {

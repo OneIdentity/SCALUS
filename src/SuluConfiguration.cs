@@ -1,30 +1,30 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Sulu.Dto;
+using scalus.Dto;
 using System;
 using System.IO;
 using System.Linq;
 
-namespace Sulu
+namespace scalus
 {
 
-    class SuluConfigurationBase
+    class ScalusConfigurationBase
     {
-        protected SuluConfig Config { get; set; } = new SuluConfig();
+        protected ScalusConfig Config { get; set; } = new ScalusConfig();
 
-        protected SuluConfigurationBase()
+        protected ScalusConfigurationBase()
         {
             Load();
         }
 
-        public SuluConfig GetConfiguration()
+        public ScalusConfig GetConfiguration()
         {
             return Config;
         }
 
         protected void Load()
         {
-            var configFile = Path.Combine(Constants.GetBinaryDir(), "sulu.json");
+            var configFile = Path.Combine(Constants.GetBinaryDir(), "scalus.json");
             if (!File.Exists(configFile))
             {
                 Serilog.Log.Warning($"config file not found at: {configFile}");
@@ -36,17 +36,17 @@ namespace Sulu
             var serializerSettings = new JsonSerializerSettings();
             serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             var json = JsonConvert.SerializeObject(configJson, serializerSettings);
-            Config = JsonConvert.DeserializeObject<SuluConfig>(configJson);
+            Config = JsonConvert.DeserializeObject<ScalusConfig>(configJson);
         }
     }
 
-    class SuluApiConfiguration : SuluConfigurationBase, ISuluApiConfiguration
+    class ScalusApiConfiguration : ScalusConfigurationBase, IScalusApiConfiguration
     {
-        public SuluApiConfiguration() : base() { }
+        public ScalusApiConfiguration() : base() { }
 
         
 
-        public SuluConfig SaveConfiguration(SuluConfig configuration)
+        public ScalusConfig SaveConfiguration(ScalusConfig configuration)
         {
             // TODO: Save the file and keep the comments and formatting
             // I think this can be done by switching the config file to
@@ -59,9 +59,9 @@ namespace Sulu
             return Config;
         }
 
-        private void Save(SuluConfig configuration)
+        private void Save(ScalusConfig configuration)
         {
-            var configFile = Path.Combine(Constants.GetBinaryDir(), "sulu.json");
+            var configFile = Path.Combine(Constants.GetBinaryDir(), "scalus.json");
             
             var serializerSettings = new JsonSerializerSettings();
             serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -73,11 +73,11 @@ namespace Sulu
     }
 
 
-    class SuluConfiguration : SuluConfigurationBase, ISuluConfiguration
+    class ScalusConfiguration : ScalusConfigurationBase, IScalusConfiguration
     {
         IProtocolHandlerFactory ProtocolHandlerFactory { get; }
 
-        public SuluConfiguration(IProtocolHandlerFactory protocolHandlerFactory) : base()
+        public ScalusConfiguration(IProtocolHandlerFactory protocolHandlerFactory) : base()
         {
             ProtocolHandlerFactory = protocolHandlerFactory;
         }
@@ -102,7 +102,7 @@ namespace Sulu
             var protocolConfig = Config.Applications.FirstOrDefault(x => string.Equals(x.Id, protocolMap.AppId, StringComparison.OrdinalIgnoreCase));
             if (protocolConfig == null)
             {
-                Serilog.Log.Warning($"Application configuration '{protocolMap.AppId}' for '{protocol}' was not found in sulu.json config.");
+                Serilog.Log.Warning($"Application configuration '{protocolMap.AppId}' for '{protocol}' was not found in scalus.json config.");
                 // TODO: Restart in UI mode
                 return null;
             }

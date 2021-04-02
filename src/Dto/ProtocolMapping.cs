@@ -1,4 +1,4 @@
-﻿namespace Sulu.Dto
+﻿namespace scalus.Dto
 {
     public class ProtocolMapping
     {

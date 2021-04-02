@@ -1,8 +1,8 @@
-﻿using Sulu.Dto;
+﻿using scalus.Dto;
 using System.Collections.Generic;
 using System.Web;
 
-namespace Sulu.UrlParser
+namespace scalus.UrlParser
 {
     internal class DefaultSshUrlParser : ParserBase
     {

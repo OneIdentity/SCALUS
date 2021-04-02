@@ -1,4 +1,4 @@
-﻿namespace Sulu.Unregister
+﻿namespace scalus.Unregister
 {
     class Application : IApplication
     {

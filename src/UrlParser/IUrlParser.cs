@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Sulu.UrlParser
+namespace scalus.UrlParser
 {
     interface IUrlParser : IDisposable
     {

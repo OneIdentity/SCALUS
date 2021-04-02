@@ -1,4 +1,4 @@
-﻿namespace Sulu.Ui
+﻿namespace scalus.Ui
 {
     public interface IWebServer
     {
