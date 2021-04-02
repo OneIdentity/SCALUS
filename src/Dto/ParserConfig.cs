@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sulu.Dto
+namespace scalus.Dto
 {
     public class ParserConfig
     {

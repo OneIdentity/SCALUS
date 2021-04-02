@@ -1,7 +1,7 @@
-using Sulu.UrlParser;
+using scalus.UrlParser;
 using Xunit;
 
-namespace Sulu.Test
+namespace scalus.Test
 {
     public class TestDefaultRdpUrlParser
     {

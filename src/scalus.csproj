@@ -3,9 +3,9 @@
   <PropertyGroup>
       <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Sulu</RootNamespace>
-    <AssemblyName>Sulu</AssemblyName>
-    <StartupObject>Sulu.Program</StartupObject>
+    <RootNamespace>scalus</RootNamespace>
+    <AssemblyName>scalus</AssemblyName>
+    <StartupObject>scalus.Program</StartupObject>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>

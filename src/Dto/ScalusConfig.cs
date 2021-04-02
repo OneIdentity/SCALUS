@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace Sulu.Dto
+namespace scalus.Dto
 {
 
-    public class SuluConfig
+    public class ScalusConfig
     {
         public List<ProtocolMapping> Protocols { get; set; }
         public List<ApplicationConfig> Applications { get; set; }

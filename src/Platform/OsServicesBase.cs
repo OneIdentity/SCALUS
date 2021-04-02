@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
-namespace Sulu.Platform
+namespace scalus.Platform
 {
     public class OsServicesBase : IOsServices
     {

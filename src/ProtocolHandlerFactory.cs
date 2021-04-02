@@ -1,8 +1,8 @@
-﻿using Sulu.Dto;
-using Sulu.Platform;
-using Sulu.UrlParser;
+﻿using scalus.Dto;
+using scalus.Platform;
+using scalus.UrlParser;
 
-namespace Sulu
+namespace scalus
 {
     class ProtocolHandlerFactory : IProtocolHandlerFactory
     {

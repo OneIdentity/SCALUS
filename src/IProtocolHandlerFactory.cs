@@ -1,6 +1,6 @@
-﻿using Sulu.Dto;
+﻿using scalus.Dto;
 
-namespace Sulu
+namespace scalus
 {
     interface IProtocolHandlerFactory
     {

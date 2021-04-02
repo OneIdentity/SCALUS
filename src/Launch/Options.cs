@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace Sulu.Launch
+namespace scalus.Launch
 {
     [Verb("launch", HelpText = "Launch an app configured for the specified URL")]
     public class Options : IVerb

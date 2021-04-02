@@ -1,20 +1,20 @@
-﻿using Sulu.Util;
+﻿using scalus.Util;
 using System.Linq;
 
-namespace Sulu
+namespace scalus
 {
     class WindowsProtocolRegistrar : IProtocolRegistrar
     {
 
-        private static readonly string AppName = "SULU Protocol Handler";
-        private static readonly string Clsid = "Sulu.URLHandler.1";
-        private static readonly string AppId = "Sulu";
+        private static readonly string AppName = "SCALUS Protocol Handler";
+        private static readonly string Clsid = "scalus.URLHandler.1";
+        private static readonly string AppId = "SCALUS";
         private static readonly string AppCapabilitiesFragment = $"Software\\{AppId}\\Capabilities";
         private static readonly string CapabilitiesFragment = @"\Capabilities";
         private static readonly string CapabilitiesUrlAssociationsFragment = @$"{CapabilitiesFragment}\UrlAssociations";
 
 
-        public bool IsSuluRegistered(string protocol)
+        public bool IsScalusRegistered(string protocol)
         {
             return RegistryUtils.GetStringValue(GetAppPath() + CapabilitiesUrlAssociationsFragment, protocol) == Clsid;
         }

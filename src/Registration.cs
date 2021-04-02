@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sulu
+namespace scalus
 {
     class Registration : IRegistration
     {
@@ -21,7 +21,7 @@ namespace Sulu
                 foreach (var registrar in Registrars)
                 {
                     var command = registrar.GetRegisteredCommand(protocol);
-                    if (!string.IsNullOrEmpty(command) && !registrar.IsSuluRegistered(protocol) && !force)
+                    if (!string.IsNullOrEmpty(command) && !registrar.IsScalusRegistered(protocol) && !force)
                     {
                         UserInteraction.Error($"{protocol}: Protocol is already registered by another application ({command}). Use -f to overwrite.");
                         continue;
@@ -35,11 +35,11 @@ namespace Sulu
 
                     if (registrar.Register(protocol))
                     {
-                        UserInteraction.Message($"{protocol}: Successfully registered Sulu as the default protocol handler.");
+                        UserInteraction.Message($"{protocol}: Successfully registered SCALUS as the default protocol handler.");
                     }
                     else
                     {
-                        UserInteraction.Error($"{protocol}: Failed to register Sulu as the default protocol handler. Try running this program again with administrator privileges.");
+                        UserInteraction.Error($"{protocol}: Failed to register SCALUS as the default protocol handler. Try running this program again with administrator privileges.");
                         continue;
                     }
                     retval = true;
@@ -59,20 +59,20 @@ namespace Sulu
             {
                 foreach (var registrar in Registrars)
                 {
-                    if (registrar.IsSuluRegistered(protocol))
+                    if (registrar.IsScalusRegistered(protocol))
                     {
                         if (!registrar.Unregister(protocol))
                         {
-                            UserInteraction.Error($"{protocol}: Unable to remove Sulu protocol registration. Try running this program again with administrator privileges.");
+                            UserInteraction.Error($"{protocol}: Unable to remove SCALUS protocol registration. Try running this program again with administrator privileges.");
                             return false;
                         }
                     }
                     else
                     {
-                        UserInteraction.Error($"{protocol}: Sulu does not appear to be registered for this protocol, skipping.");
+                        UserInteraction.Error($"{protocol}: SCALUS does not appear to be registered for this protocol, skipping.");
                     }
                 }
-                UserInteraction.Message($"{protocol}: Unregistered Sulu as default URL protocol handler.");
+                UserInteraction.Message($"{protocol}: Unregistered SCALUS as default URL protocol handler.");
             }
             return true;
         }

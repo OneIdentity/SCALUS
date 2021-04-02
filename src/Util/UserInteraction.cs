@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sulu.Util
+namespace scalus.Util
 {
     class UserInteraction : IUserInteraction
     {

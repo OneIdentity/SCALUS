@@ -1,4 +1,4 @@
-﻿namespace Sulu
+﻿namespace scalus
 {
     public interface IApplication
     {

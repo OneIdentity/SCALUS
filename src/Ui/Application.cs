@@ -3,13 +3,13 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Sulu.Platform;
+using scalus.Platform;
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace Sulu.Ui
+namespace scalus.Ui
 {
     class Application : IApplication, IWebServer
     {
@@ -39,7 +39,7 @@ namespace Sulu.Ui
 
         public int Run()
         {
-            UserInteraction.Message($"Sulu is starting up...");
+            UserInteraction.Message($"SCALUS is starting up...");
             using (GenericHost = CreateHost())
             {
                 var serverTask = GenericHost.RunAsync(CancellationTokenSource.Token).ContinueWith(x =>
@@ -48,7 +48,7 @@ namespace Sulu.Ui
                     return x;
                 });
                 OsServices.OpenDefault($"http://localhost:{WebPort}/index.html");
-                UserInteraction.Message($"Sulu is running at http://localhost:{WebPort}. Close the browser window to quit.");
+                UserInteraction.Message($"SCALUS is running at http://localhost:{WebPort}. Close the browser window to quit.");
                 GenericHost.WaitForShutdown();
             }
             return 0;

@@ -1,4 +1,4 @@
-﻿namespace Sulu.Register
+﻿namespace scalus.Register
 {
     class Application : IApplication
     {

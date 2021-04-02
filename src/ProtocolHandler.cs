@@ -1,10 +1,10 @@
-﻿using Sulu.Dto;
-using Sulu.Platform;
-using Sulu.UrlParser;
+﻿using scalus.Dto;
+using scalus.Platform;
+using scalus.UrlParser;
 using System;
 using System.Collections.Generic;
 
-namespace Sulu
+namespace scalus
 {
     class ProtocolHandler : IProtocolHandler
     {

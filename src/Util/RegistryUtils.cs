@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 
-namespace Sulu.Util
+namespace scalus.Util
 {
     public static class RegistryUtils
     {

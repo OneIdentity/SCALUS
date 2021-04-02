@@ -1,9 +1,9 @@
 ﻿using CommandLine;
 using System.Collections.Generic;
 
-namespace Sulu.Register
+namespace scalus.Register
 {
-    [Verb("register", HelpText = "Register Sulu to handle URLs")]
+    [Verb("register", HelpText = "Register SCALUS to handle URLs")]
     public class Options : IVerb
     {
         [Option('f', "force", Required = false, HelpText = "Overwrite an existing registration")]

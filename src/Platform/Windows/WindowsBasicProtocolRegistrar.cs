@@ -1,17 +1,17 @@
-﻿using Sulu.Util;
+﻿using scalus.Util;
 using System;
 
-namespace Sulu
+namespace scalus
 {
     class WindowsBasicProtocolRegistrar : IProtocolRegistrar
     {
-        public bool IsSuluRegistered(string protocol)
+        public bool IsScalusRegistered(string protocol)
         {
             var command = GetRegisteredCommand(protocol);
             if (string.IsNullOrEmpty(command)) return false;
-            return command.Contains("sulu.exe", StringComparison.OrdinalIgnoreCase)
-                || command.Contains("sulu.so", StringComparison.OrdinalIgnoreCase)
-                || command.Contains("sulu.dll", StringComparison.OrdinalIgnoreCase);
+            return command.Contains("scalus.exe", StringComparison.OrdinalIgnoreCase)
+                || command.Contains("scalus.so", StringComparison.OrdinalIgnoreCase)
+                || command.Contains("scalus.dll", StringComparison.OrdinalIgnoreCase);
         }
 
         public string GetRegisteredCommand(string protocol)
@@ -32,7 +32,7 @@ namespace Sulu
             var registrationCommand = Constants.GetLaunchCommand("%1");
             Serilog.Log.Debug($"Registering to run {registrationCommand} for {protocol} URLs.");
 
-            if (RegistryUtils.SetValue(path, "", $"Sulu {protocol} Handler") &&
+            if (RegistryUtils.SetValue(path, "", $"SCALUS {protocol} Handler") &&
                 RegistryUtils.SetValue(path, "URL Protocol", "") &&
                 RegistryUtils.SetValue(path + "\\DefaultIcon", "", "%systemroot%\\system32\\mstsc.exe") &&
                 RegistryUtils.SetValue(path + "\\shell\\open\\command", "", registrationCommand))

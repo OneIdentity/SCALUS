@@ -1,10 +1,10 @@
-﻿using Sulu.Dto;
+﻿using scalus.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Sulu.UrlParser
+namespace scalus.UrlParser
 {
     class DefaultRdpUrlParser : ParserBase
     {
@@ -26,7 +26,7 @@ namespace Sulu.UrlParser
             {
                 return ParseStandardUrl(result);
             }
-            Serilog.Log.Warning($"sulu doesn't know how to parse rdp url: {url}");
+            Serilog.Log.Warning($"SCALUS doesn't know how to parse rdp url: {url}");
             return null;
         }
 

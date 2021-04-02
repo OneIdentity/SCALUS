@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Sulu
+namespace scalus
 {
     class CommandLineHelpException : InvalidOperationException
     {
@@ -42,8 +42,8 @@ namespace Sulu
 
         static void HandleErrors<T>(ParserResult<T> parserResult, IEnumerable<Error> errs)
         {
-            var header = "Session URL Launcher Utility (sulu)";
-            var copyright = "Copyright (c) 2020 Sulu Team";
+            var header = "Session Client Application Launch Uri System (SCALUS)";
+            var copyright = "Copyright (c) 2021 One Identity LLC";
 
             // Handle version 
             if (errs.IsVersion())

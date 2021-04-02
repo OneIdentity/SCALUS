@@ -9,7 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using System.IO;
 
-namespace Sulu.Ui
+namespace scalus.Ui
 {
     public class Startup
     {
@@ -46,7 +46,7 @@ namespace Sulu.Ui
             // Register your own things directly with Autofac here. Don't
             // call builder.Populate(), that happens in AutofacServiceProviderFactory
             // for you.
-            builder.RegisterType<SuluApiConfiguration>().As<ISuluApiConfiguration>();
+            builder.RegisterType<ScalusApiConfiguration>().As<IScalusApiConfiguration>();
             // This method registers instances that were already registered
             // with the main autofac container in Program.cs. This is a hack
             // that I want to remove later, but I haven't figured it out yet.

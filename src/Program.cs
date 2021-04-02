@@ -5,9 +5,9 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("Sulu.Test")]
+[assembly:InternalsVisibleTo("scalus.Test")]
 
-namespace Sulu
+namespace scalus
 {
     class Program
     {
@@ -66,7 +66,7 @@ namespace Sulu
         static void ConfigureLogging()
         {
             var folder = Constants.GetBinaryDir();
-            var logFilePath = System.IO.Path.Combine(folder, "sulu.log");
+            var logFilePath = System.IO.Path.Combine(folder, "scalus.log");
 
             var config = new LoggerConfiguration();
             config.WriteTo.File(logFilePath, shared: true)
