@@ -79,7 +79,8 @@
         </mat-card-header>
         <mat-card-content>
           <div>
-            <button mat-flat-button color="primary">Import</button>
+            <button mat-flat-button color="primary"
+              (click)="import()">Import</button>
           </div>
         </mat-card-content>
       </mat-card>
@@ -90,7 +91,8 @@
         </mat-card-header>
         <mat-card-content>
           <div>
-            <button mat-flat-button color="primary">Export</button>
+            <button mat-flat-button color="primary"
+              (click)="export()">Export</button>
           </div>
         </mat-card-content>
       </mat-card>
