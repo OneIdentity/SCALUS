@@ -1,6 +1,8 @@
 import { mapToMapExpression } from '@angular/compiler/src/render3/util';
 import { Component, OnInit } from '@angular/core';
 import { ApiService, SuluConfig, ApplicationConfig } from './api/api.service';
+import { saveAs } from 'file-saver';
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-root',
@@ -26,15 +28,20 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.apiService.getConfig().subscribe(x => {
-      this.config = x;
-      this.rdpApps = this.getApps(this.config, 'rdp');
-      this.sshApps = this.getApps(this.config, 'ssh');
-      this.selectedRdpAppId = this.getMappedProtocol(this.config, "rdp")?.id;
-      this.selectedSshAppId = this.getMappedProtocol(this.config, "ssh")?.id;
+      this.loadConfig(x);
       this.state = 'loaded';
     }, error => {
       this.handleError(error, "Failed to load configuration");
     });
+  }
+
+  loadConfig(config:SuluConfig)
+  {
+    this.config = config;
+    this.rdpApps = this.getApps(this.config, 'rdp');
+    this.sshApps = this.getApps(this.config, 'ssh');
+    this.selectedRdpAppId = this.getMappedProtocol(this.config, "rdp")?.id;
+    this.selectedSshAppId = this.getMappedProtocol(this.config, "ssh")?.id;
   }
 
   getMappedProtocol(config:SuluConfig, protocol:string) : ApplicationConfig {
@@ -91,4 +98,31 @@ export class AppComponent implements OnInit {
   handleError(error:any, msg:string){
     alert("ERROR: " + msg + " (" + error + ")");
   }
+
+  import() {
+    var fileInput = $('<input type="file"/>');
+    fileInput.on('change', () => {
+      var file = fileInput.prop('files')[0];
+      var fileReader: FileReader = new FileReader();
+      fileReader.onloadend = (e) => {
+        var config = JSON.parse(fileReader.result as string);
+        this.apiService.setConfig(config).subscribe(
+          x => {
+            this.loadConfig(config);
+          }, 
+          error => {
+            this.handleError(error, "Failed to save configuration");
+        });
+      }
+      fileReader.readAsText(file);
+    });
+    fileInput.trigger("click");
+  }
+
+  export() {
+    var configString = JSON.stringify(this.config);
+    var blob = new Blob([configString], {type : 'application/json'});
+    saveAs(blob, 'scalus.json');
+  }
+
 }
