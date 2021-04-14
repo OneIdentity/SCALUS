@@ -2,11 +2,11 @@
   "protocols": [
     {
       "protocol": "rdp",
-      "appid": "freerdp"
+      "appid": "windows-rdp"
     },
     {
       "protocol": "ssh",
-      "appid": "gnome-terminal-ssh"
+      "appid": "mycustom-ssh"
     }
   ],
   "applications": [
@@ -16,15 +16,35 @@
       "name": "Windows RDP Client",
       "platforms": [ "windows" ],
       "protocol": "rdp",
+      //Use the builtin rdp parser
       "parser": {
-        // Use the builtin Safeguard rdp-uri parser, this will parse the URL into
-        // a single variable $rdpfile which contains the path to a temporary .rdp file
-        // which can be passed to mstsc.exe
-        "id": "rdp-file",
-        "options":  ["waitForInputIdle"]
+        "id": "rdp",
+        "options": [ "waitForInputIdle" ],
+        //Generate a temporary template file, with default settings for MS RDP
+        "UseDefaultTemplate": true,
+        //Use a local command to customise the generated file before running the application
+        "PostProcessingCmd": [ "C:/program files/git/usr/bin/perl.exe", "%HOME%/pluggable.pl", "%GeneratedFile%" ]
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
-      "args": [ "$rdpfile" ]
+      "args": [ "%GeneratedFile%" ]
+    },
+    {
+      "id": "windows-rdp-withtemplate",
+      "description": "Windows RDP Client",
+      "name": "Windows RDP Client with template",
+      "platforms": [ "windows" ],
+      "protocol": "rdp",
+      //Use the builtin rdp parser
+      "parser": {
+        "id": "rdp",
+        // Provide a template, which is copied to a temporary file, identified by %GeneratedFile%,
+        "UseTemplateFile": "%HOME%\\scalus\\mstemplate.rdp",
+        "options": [ "waitForInputIdle" ]
+      },
+      "exec": "C:\\windows\\system32\\mstsc.exe",
+      "args": [ "%GeneratedFile%" ],
+      "options": [ "waitForInputIdle" ]
+
     },
 
     {
@@ -33,60 +53,104 @@
       "name": "FreeRDP",
       "platforms": [ "unix" ],
       "protocol": "rdp",
+      //Use the builtin rdp parser
       "parser": {
-        // Use the builtin Safeguard rdp-uri parser, this will parse the URL into
-        // a single variable $rdpfile which contains the path to a temporary .rdp file
-        // which can be passed to mstsc.exe
         "id": "rdp",
         "options": []
       },
       "exec": "/usr/bin/xfreerdp",
-      "args": [ "/u:$user", "/v:$host:$port", "/p:Safeguard" ]
+      "args": [ "/u:%User%", "/v:%host%:%Port%", "/p:Safeguard" ]
     },
+    {
+      "id": "custom_rdp",
+      "description": "My custom Rdp handler",
+      "name": "CustomRDP",
+      "platforms": [ "unix" ],
+      "protocol": "rdp",
+      //Use the builtin rdp parser
+      "parser": {
+        "id": "rdp",
+        "options": [ "waitforexit" ],
+        // Provide a template, which is copied to a temporary file, identified by %GeneratedFile%,
+        "UseTemplateFile": "%HOME%/Mycustomtemplate.myextension"
+      },
+      "exec": "/usr/bin/mycustomApp",
+      "args": [ "%GeneratedFile%" ]
 
+    },
     {
       "id": "windows-openssh",
       "description": "Windows OpenSSH",
       "name": "Windows OpenSSH",
       "platforms": [ "windows" ],
       "protocol": "ssh",
+      //Use the builtin ssh parser
       "parser": {
-        // Parses an SSH url into $user, $host and $port
         "id": "ssh",
         "options": []
       },
       "exec": "C:\\windows\\system32\\cmd.exe",
-      "args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "$user@$host" ]
+      "args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "%User%@%Host%" ]
     },
 
     {
       "id": "gnome-terminal-ssh",
-      "name":  "Gnome Terminal SSH",
+      "name": "Gnome Terminal SSH",
       "description": "Open Gnome Terminal on Linux with the SSH connection information",
-      "platforms": ["linux"],
+      "platforms": [ "linux" ],
       "protocol": "ssh",
+      //Use the builtin ssh parser
       "parser": {
-        // Parses an SSH url into $user, $host and $port
         "id": "ssh",
         "options": []
       },
       "exec": "gnome-terminal",
-      "args": [ "-x", "ssh", "-t", "$user@$host" ]
+      "args": [ "-x", "ssh", "-t", "%User%@%Host%" ]
     },
 
     {
       "id": "Terminal-ssh",
       "name": "Terminal SSH",
       "description": "Open Terminal on Mac OS with the SSH connection information",
-      "platforms": ["mac"],
+      "platforms": [ "mac" ],
       "protocol": "ssh",
+      //Use the builtin ssh parser
       "parser": {
-        // Parses an SSH url into $user, $host and $port
         "id": "ssh",
         "options": []
       },
       "exec": "/usr/bin/osascript",
-      "args": [ "-e", "tell application \"Terminal\" to do script \"ssh -t $user@$host;exit\"" ]
+      "args": [ "-e", "tell application \"Terminal\" to do script \"ssh -t %User%@%Host%;exit\"" ]
+    },
+    {
+      "id": "putty-ssh",
+      "description": "Putty client",
+      "name": "Putty",
+      "platforms": [ "windows" ],
+      "protocol": "ssh",
+      //Use the builtin ssh parser
+      "parser": {
+        "id": "ssh",
+        "options": []
+      },
+      "exec": "C:\\windows\\system32\\cmd.exe",
+      "args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-ssh", "%user%@%host%" ]
+    },
+
+    {
+      "id": "mycustom-url",
+      "description": "Use a custom application on ubuntu",
+      "name": "MyCustomSshHandler",
+      "platforms": [ "unix" ],
+      "protocol": "custom",
+      //Use the builtin url parser, which will handle any valid standard URL
+      "parser": {
+        "id": "url",
+        "UseTemplateFile": "mycustomconfig.ssh",
+        "options": [ "waitforexit" ]
+      },
+      "exec": "/usr/bin/MyCustomApp",
+      "args": [ "%GeneratedFile%" ]
     }
   ]
 }

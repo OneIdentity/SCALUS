@@ -2,7 +2,7 @@
 using scalus.Platform;
 using scalus.UrlParser;
 using System;
-using System.Collections.Generic;
+using System.IO;
 
 namespace scalus
 {
@@ -21,33 +21,35 @@ namespace scalus
             OsServices = osServices;
             ApplicationConfig = applicationConfig;
         }
+        
 
         public void Run()
         {
-            var variables = Parser.Parse(Uri);
-            var args = ReplaceArgs(ApplicationConfig.Args, variables);
-
-            Serilog.Log.Debug($"Starting external application: '{ApplicationConfig.Exec}' with args: '{string.Join(' ', args)}'");
-            var process = OsServices.Execute(ApplicationConfig.Exec, args);
-            Serilog.Log.Debug("Post execute starting.");
-            Parser.PostExecute(process);
-            Serilog.Log.Debug("Post execute complete.");
-        }
-
-        private IEnumerable<string> ReplaceArgs(IEnumerable<string> args, IDictionary<string,string> variables)
-        {
-            foreach (var arg in args)
-            {
-                var yarg = arg;
-                foreach (var variable in variables)
+            try {
+                var dictionary = Parser.Parse(Uri);
+                Parser.PreExecute(OsServices);           
+                var args = Parser.ReplaceTokens(ApplicationConfig.Args);          
+                Serilog.Log.Debug($"Starting external application: '{ApplicationConfig.Exec}' with args: '{string.Join(' ', args)}'");
+                if (!File.Exists(ApplicationConfig.Exec))
                 {
-                    // TODO: Make this more robust. Edge case escapes don't work.
-                    yarg = yarg.Replace($"${variable.Key}", variable.Value);
+                    Serilog.Log.Error($"Selected application does not exist:{ApplicationConfig.Exec}");
+                    OsServices.OpenText($"Selected application does not exist:{ApplicationConfig.Exec}");
+
+                    return;
                 }
-                yield return yarg;
+                var process = OsServices.Execute(ApplicationConfig.Exec, args);
+                Serilog.Log.Debug("Post execute starting.");
+                Parser.PostExecute(process);
+                Serilog.Log.Debug("Post execute complete.");
+            }
+            catch (Exception e)
+            {
+                 OsServices.OpenText($"Launch failed: {e.Message}");
+
             }
         }
 
+    
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
