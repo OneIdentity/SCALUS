@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Xunit;
 using scalus.UrlParser;
 using scalus.Dto;
+using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.Test
 {

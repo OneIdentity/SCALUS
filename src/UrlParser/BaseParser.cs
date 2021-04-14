@@ -9,6 +9,7 @@ using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
 {
@@ -24,25 +25,7 @@ namespace scalus.UrlParser
 
         protected ParserConfig Config { get; }
           
-        public Dictionary<Token, string> TokenDescription {get; }  = new Dictionary<Token, string>
-        {
-            {  Token.OriginalUrl, "The full string passed to the application. This is available even if it is not a valid URL" },
-            {  Token.Protocol, "The protocol to use, eg. scheme part of the URL" },
-            {  Token.User, "The user (userinfo of the URL). For Safeguard URLs, this will contain the auth token information" },
-            {  Token.Host, "The host part of the URL" },
-            {  Token.Port, "The port part of the URL" },
-            {  Token.Path, "The path part of a standard URL" },
-            {  Token.Query, "The optional query of a standard URL" },
-            {  Token.Fragment, "The fragment part of a standard URL" },
-            {  Token.Vault, "The vault address of a Safeguard URL" },
-            {  Token.Token, "The token string of a Safeguard URL" },
-            {  Token.TargetUser, "The target user part of a Safeguard URL" },
-            {  Token.TargetHost, "The target host part of a Safeguard URL" },
-            {  Token.GeneratedFile, "The generated file that will be passed to the application. The file extension will be set to that of the template (if provided), or determined by the parser" },
-            {  Token.TempPath, "The user's temp directory on this platform" },
-            {  Token.Home, "The user's home directory on this platform" },
-       };
-
+        
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
        
@@ -78,16 +61,15 @@ namespace scalus.UrlParser
             if(Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforexit.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
                 process.WaitForExit();
+                Serilog.Log.Information($"Application completed with exit code: {process.ExitCode}");
             }
             if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforinputidle.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
-
                 process.WaitForInputIdle();
             }
             var wait = Config.Options.FirstOrDefault(x => x.StartsWith($"{ProcessingOptions.wait}:", StringComparison.OrdinalIgnoreCase));
             if(!string.IsNullOrEmpty(wait))
             {
-
                 var parts = wait.Split(":");
                 int time = 0;
                 if (parts.Length > 1)
@@ -97,6 +79,10 @@ namespace scalus.UrlParser
                 if(time > 0)
                 {
                     Task.Delay(time * 1000).Wait();
+                    if (process.HasExited)
+                    {
+                        Serilog.Log.Information($"Application exited with exit code: {process.ExitCode}");
+                    }
                 }
             }
         }
@@ -212,7 +198,15 @@ namespace scalus.UrlParser
             }
             return newline;
         }
-
+        public string GetFullPath(string path)
+        {
+            if (Path.IsPathFullyQualified(path))
+            {
+                return path;
+            }
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            return Path.Combine(dir, path);
+        }
         protected void ParseConfig()
         {
             Dictionary[Token.Home]= Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -225,6 +219,8 @@ namespace scalus.UrlParser
             else if (!string.IsNullOrEmpty(Config.UseTemplateFile))
             {
                 var templatefile = ReplaceTokens(Config.UseTemplateFile);
+                templatefile = GetFullPath(templatefile);
+
                 if (!File.Exists(templatefile))
                 {
                     Serilog.Log.Error($"Application template does not exist:{templatefile}");

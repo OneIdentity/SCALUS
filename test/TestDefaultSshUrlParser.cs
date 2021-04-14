@@ -1,6 +1,7 @@
 using scalus.Dto;
 using scalus.UrlParser;
 using Xunit;
+using static scalus.Dto.ParserConfigDefinitions;
 using static scalus.UrlParser.UrlParser;
 
 namespace scalus.Test

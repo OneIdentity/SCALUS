@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
+using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.Test
 {

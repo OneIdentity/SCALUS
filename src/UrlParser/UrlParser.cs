@@ -1,6 +1,7 @@
 ﻿using scalus.Dto;
 using System;
 using System.Collections.Generic;
+using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
 {

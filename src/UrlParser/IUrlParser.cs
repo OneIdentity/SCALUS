@@ -1,8 +1,8 @@
-﻿using scalus.Dto;
-using scalus.Platform;
+﻿using scalus.Platform;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
 {
@@ -27,6 +27,5 @@ namespace scalus.UrlParser
         void PostExecute(Process process);
         List<string> ReplaceTokens(List<string> args);
         void PreExecute(IOsServices services);
-        Dictionary<Token, string> TokenDescription { get; }
     }
 }

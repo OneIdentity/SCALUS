@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
 {

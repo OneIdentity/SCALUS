@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
 {
