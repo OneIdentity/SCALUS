@@ -1,6 +1,9 @@
 ﻿using scalus.Dto;
 using scalus.Platform;
 using scalus.UrlParser;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace scalus
 {
@@ -16,17 +19,23 @@ namespace scalus
 
         public IProtocolHandler Create(string uri, ApplicationConfig config)
         {
-            switch (config.Parser.Id)
+ 
+            var tlist = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
+                .Where(x => typeof(IUrlParser).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+               .ToList();
+
+            foreach (var t in tlist)
             {
-                // TODO: Resolve by Id from autofac
-                case "rdp":
-                    return new ProtocolHandler(uri, new DefaultRdpUrlParser(config.Parser), config, OsServices);
-                case "rdp-file":
-                    return new ProtocolHandler(uri, new RdpFileUrlParser(config.Parser), config, OsServices);
-                case "ssh":
-                    return new ProtocolHandler(uri, new DefaultSshUrlParser(config.Parser), config, OsServices);
+                if ((t.GetCustomAttribute(typeof(ParserName))) is ParserName c && 
+                    (c.GetName().Equals(config.Parser.Id)))
+                {
+                    Serilog.Log.Information($"Found parser:{t.Name}");
+                    return new ProtocolHandler(uri, (IUrlParser)Activator.CreateInstance(t, config.Parser), config, OsServices);
+                }
             }
-            return null;
+            //default to url handler
+            Serilog.Log.Information($"No specific parser found for:{config.Parser.Id}, defaulting to urlParser");
+            return new ProtocolHandler(uri, new UrlParser.UrlParser(config.Parser), config, OsServices);
         }
     }
 }
