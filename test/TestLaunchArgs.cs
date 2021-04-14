@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Xunit;
 using scalus.UrlParser;
+using scalus.Dto;
 
 namespace scalus.Test
 {

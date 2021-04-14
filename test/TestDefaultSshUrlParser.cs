@@ -1,3 +1,4 @@
+using scalus.Dto;
 using scalus.UrlParser;
 using Xunit;
 using static scalus.UrlParser.UrlParser;

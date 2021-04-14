@@ -1,3 +1,4 @@
+using scalus.Dto;
 using scalus.UrlParser;
 using System.Collections.Generic;
 using System.IO;
