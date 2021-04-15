@@ -2,6 +2,7 @@
 using scalus.Platform;
 using scalus.UrlParser;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -16,7 +17,19 @@ namespace scalus
         {
             OsServices = osServices;
         }
-
+        public static  List<string> GetSupportedParsers()
+        {
+            var tlist = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
+                .Where(x => typeof(IUrlParser).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+               .ToList();
+            var nameList = new List<string>();
+            foreach(var t in tlist)
+            {
+                var name = t.GetCustomAttribute(typeof(ParserName)) as ParserName; 
+                nameList.Add(name.GetName()); 
+            }
+            return nameList;
+        }
         public IProtocolHandler Create(string uri, ApplicationConfig config)
         {
  

@@ -188,6 +188,18 @@ namespace scalus.Test
             Assert.False(dictionary.ContainsKey(Token.GeneratedFile));
 
         }
+        [Fact]
+        public void Test5()
+        {
+            var sut = new DefaultTelnetUrlParser(new Dto.ParserConfig());
+            var dictionary=sut.Parse("tel://myuser@myhost");
+            Assert.Equal("tel://myuser@myhost", dictionary[Token.OriginalUrl]);
+            Assert.Equal("myuser@myhost", dictionary[Token.RelativeUrl]);
+            Assert.Equal("tel", dictionary[Token.Protocol]);
+            Assert.Equal("myuser", dictionary[Token.User]);
+            Assert.Equal("myhost", dictionary[Token.Host]);
+
+        }
         
     }
 }

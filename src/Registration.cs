@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using scalus.Platform;
+using System.Collections.Generic;
 
 namespace scalus
 {
@@ -6,10 +7,13 @@ namespace scalus
     {
         private IEnumerable<IProtocolRegistrar> Registrars { get; }
         private IUserInteraction UserInteraction { get; }
-        public Registration(IEnumerable<IProtocolRegistrar> registrars, IUserInteraction userInteraction)
+        private IOsServices OsServices { get; }
+        public Registration(IEnumerable<IProtocolRegistrar> registrars, IUserInteraction userInteraction, 
+            IOsServices osServices)
         {
             Registrars = registrars;
             UserInteraction = userInteraction;
+            OsServices = osServices;
         }
 
         public bool Register(IEnumerable<string> protocols, bool force)
@@ -17,7 +21,7 @@ namespace scalus
             var retval = false;
             foreach (var protocol in protocols)
             {
-                retval = false;
+                retval = true;
                 foreach (var registrar in Registrars)
                 {
                     var command = registrar.GetRegisteredCommand(protocol);
@@ -26,11 +30,13 @@ namespace scalus
                         UserInteraction.Error($"{protocol}: Protocol is already registered by another application ({command}). Use -f to overwrite.");
                         continue;
                     }
-
-                    if (!registrar.Unregister(protocol))
+                    if (!string.IsNullOrEmpty(command))
                     {
-                        UserInteraction.Error($"{protocol}: Unable to remove existing protocol registration. Try running this program again with administrator privileges.");
-                        continue;
+                        if (!registrar.Unregister(protocol))
+                        {
+                            UserInteraction.Error($"{protocol}: Unable to remove existing protocol registration. Try running this program again with administrator privileges.");
+                            continue;
+                        }
                     }
 
                     if (registrar.Register(protocol))
@@ -40,9 +46,9 @@ namespace scalus
                     else
                     {
                         UserInteraction.Error($"{protocol}: Failed to register SCALUS as the default protocol handler. Try running this program again with administrator privileges.");
+                        retval = false;
                         continue;
                     }
-                    retval = true;
                 }
                 if (retval == false)
                 {

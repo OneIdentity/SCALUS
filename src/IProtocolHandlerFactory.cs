@@ -1,4 +1,5 @@
 ﻿using scalus.Dto;
+using System.Collections.Generic;
 
 namespace scalus
 {

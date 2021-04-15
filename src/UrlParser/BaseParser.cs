@@ -142,17 +142,17 @@ namespace scalus.UrlParser
             Dictionary[Token.GeneratedFile] = tempFile;
             _fileProcessorArgs = new List<string>();
             _fileProcessorExe = string.Empty;
-            if (Config.PostProcessingCmd?.Count > 0)
+            if (!string.IsNullOrEmpty(Config.PostProcessingExec))
             {              
                 var found = false;
-                _fileProcessorExe = ReplaceTokens(Config.PostProcessingCmd[0]);
-                for (var c=1; c<Config.PostProcessingCmd.Count; c++ )
+                _fileProcessorExe = ReplaceTokens(Config.PostProcessingExec);
+                foreach (var arg in Config.PostProcessingArgs)
                 {
-                    if (Config.PostProcessingCmd[c].Contains($"%{Token.GeneratedFile}%"))
+                    if (arg.Contains($"%{Token.GeneratedFile}%"))
                     { 
                         found = true;
                     }
-                    _fileProcessorArgs.Add(ReplaceTokens(Config.PostProcessingCmd[c]));
+                    _fileProcessorArgs.Add(ReplaceTokens(arg));
                 }
                 if (!found)
                 {

@@ -6,7 +6,7 @@ using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true) ]  
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false) ]  
     public class ParserName : Attribute  
     {  
         private string _name;   

@@ -40,6 +40,20 @@ namespace scalus.Platform
             return Process.Start(startupInfo);
         }
 
+        public Process Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr)
+        {
+            stdOut = string.Empty;
+            stdErr = string.Empty;
+            var startupInfo = new ProcessStartInfo(command);
+            foreach (var arg in args)
+            {
+                startupInfo.ArgumentList.Add(arg);
+            }
+            startupInfo.RedirectStandardOutput = true;
+            startupInfo.RedirectStandardError = true;
+            return Process.Start(startupInfo);
+        }
+
         public bool IsAdministrator()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

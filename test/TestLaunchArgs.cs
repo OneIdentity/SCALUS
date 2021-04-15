@@ -147,5 +147,16 @@ namespace scalus.Test
 
         }
 
+        [Fact]
+        public void Test2()
+        {
+            var list = ProtocolHandlerFactory.GetSupportedParsers();
+            Assert.True(list.Count >0);
+            Assert.Contains("ssh", list);
+            Assert.Contains("rdp", list);
+            Assert.Contains("url", list);
+            Assert.Contains("telnet", list);
+
+        }
     }
 }

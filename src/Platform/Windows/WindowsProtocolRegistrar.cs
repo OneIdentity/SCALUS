@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace scalus
 {
-    class WindowsProtocolRegistrar : IProtocolRegistrar
+    class ProtocolRegistrar : IProtocolRegistrar
     {
 
         private static readonly string AppName = "SCALUS Protocol Handler";

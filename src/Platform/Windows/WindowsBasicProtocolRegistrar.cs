@@ -5,13 +5,13 @@ namespace scalus
 {
     class WindowsBasicProtocolRegistrar : IProtocolRegistrar
     {
+        
         public bool IsScalusRegistered(string protocol)
         {
             var command = GetRegisteredCommand(protocol);
+            
             if (string.IsNullOrEmpty(command)) return false;
-            return command.Contains("scalus.exe", StringComparison.OrdinalIgnoreCase)
-                || command.Contains("scalus.so", StringComparison.OrdinalIgnoreCase)
-                || command.Contains("scalus.dll", StringComparison.OrdinalIgnoreCase);
+            return command.Contains(Constants.GetBinaryName(), StringComparison.OrdinalIgnoreCase);
         }
 
         public string GetRegisteredCommand(string protocol)

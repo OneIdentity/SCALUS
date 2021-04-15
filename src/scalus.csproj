@@ -70,4 +70,8 @@
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Platform\MacOS\" />
+  </ItemGroup>
+
 </Project>
