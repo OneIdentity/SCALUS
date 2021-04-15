@@ -13,7 +13,7 @@ namespace scalus
     {
         private const string xdgConfigPath = ".config";
         private const string xdgApp = "xdg-settings";
-        private const string updateCacheCmd = "update-desktop-cache";
+        private const string updateCacheCmd = "update-desktop-database";
         private IOsServices OsServices;
         private string _preferredPath = null;
 
@@ -58,12 +58,12 @@ namespace scalus
                 {
                     var fname = match.Groups[1].Value;
                     _preferredPath = Path.GetDirectoryName(fname);
-                    Serilog.Log.Information($"SHOUT -  prefPath is {_preferredPath}");
+                    Serilog.Log.Information($"preferred Path is {_preferredPath}");
                     return _preferredPath ;
                 }
             }
             _preferredPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), xdgConfigPath);
-            Serilog.Log.Information($"SHOUT -  using default config path:{_preferredPath}");
+            Serilog.Log.Information($"using default config path:{_preferredPath}");
             return _preferredPath ;
         }
         public string GetRegisteredCommand(string protocol)
@@ -83,7 +83,6 @@ namespace scalus
                 {
                     output = process.StandardError?.ReadToEnd() ;
                     err = process.StandardError?.ReadToEnd();
-                                    Serilog.Log.Information($"SHOUT xdg ok: out:{output}, err:{err}");
                     return true;
                 } 
                 output = process.StandardError?.ReadToEnd() ;
