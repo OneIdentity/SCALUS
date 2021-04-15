@@ -31,6 +31,7 @@ mat-toolbar {
 
 .protocol-config {
   width: 350px;
+  margin-right:30px;
 }
 
 .import-export {
@@ -45,4 +46,8 @@ div.row {
 
 .spaced {
   margin-left:30px;  
+}
+
+:host ::ng-deep .mat-card-header-text {
+  margin: 0;
 }

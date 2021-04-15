@@ -1,6 +1,6 @@
 import { mapToMapExpression } from '@angular/compiler/src/render3/util';
 import { Component, OnInit } from '@angular/core';
-import { ApiService, SuluConfig, ApplicationConfig } from './api/api.service';
+import { ApiService, SuluConfig, ApplicationConfig, ProtocolMapping, SuluProtocol } from './api/api.service';
 import { saveAs } from 'file-saver';
 import * as $ from 'jquery';
 
@@ -11,9 +11,15 @@ import * as $ from 'jquery';
 })
 export class AppComponent implements OnInit {
 
-  title = 'Sulu';
+  title = 'SCALUS';
   state = 'loading';
+
+  protocolName: string = '';
+
   config: SuluConfig;
+
+  protocols: SuluProtocol[];
+  
   selectedRdpAppId: string = "";
   rdpApps: ApplicationConfig[];
 
@@ -38,10 +44,30 @@ export class AppComponent implements OnInit {
   loadConfig(config:SuluConfig)
   {
     this.config = config;
-    this.rdpApps = this.getApps(this.config, 'rdp');
-    this.sshApps = this.getApps(this.config, 'ssh');
-    this.selectedRdpAppId = this.getMappedProtocol(this.config, "rdp")?.id;
-    this.selectedSshAppId = this.getMappedProtocol(this.config, "ssh")?.id;
+    this.protocols = this.getProtocols(this.config);
+    //this.rdpApps = this.getApps(this.config, 'rdp');
+    //this.sshApps = this.getApps(this.config, 'ssh');
+    //this.selectedRdpAppId = this.getMappedProtocol(this.config, "rdp")?.id;
+    //this.selectedSshAppId = this.getMappedProtocol(this.config, "ssh")?.id;
+  }
+
+  getProtocols(config: SuluConfig) {
+    var protocols: SuluProtocol[] = new Array();
+    
+    this.config.protocols.forEach(pm => {
+      var suluProtocol: SuluProtocol = <SuluProtocol>{};
+      suluProtocol.id = pm.protocol;
+      suluProtocol.mapping = pm;
+      suluProtocol.configs = new Array();
+      config.applications.forEach(ac => {
+        if (ac.protocol == pm.protocol) {
+          suluProtocol.configs.push(ac);
+        }
+      });
+      protocols.push(suluProtocol);
+    });
+
+    return protocols;
   }
 
   getMappedProtocol(config:SuluConfig, protocol:string) : ApplicationConfig {
@@ -97,6 +123,20 @@ export class AppComponent implements OnInit {
 
   handleError(error:any, msg:string){
     alert("ERROR: " + msg + " (" + error + ")");
+  }
+
+  addProtocol() {
+    var mapping:ProtocolMapping = <ProtocolMapping>{};
+    mapping.protocol = this.protocolName;
+    this.config.protocols.push(mapping);
+    this.apiService.setConfig(this.config).subscribe(
+      x => {
+        this.protocolName = "";
+        this.loadConfig(this.config);
+      }, 
+      error => {
+        this.handleError(error, "Failed to save configuration");
+    });
   }
 
   import() {

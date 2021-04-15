@@ -1,11 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-export interface ParserConfig {
-  id: string;
-  options: string[];
-}
-
 export interface ProtocolMapping {
   protocol: string;
   appId: string;
@@ -22,9 +17,20 @@ export interface ApplicationConfig {
   args: string;
 }
 
+export interface ParserConfig {
+  id: string;
+  options: string[];
+}
+
 export interface SuluConfig {
   protocols: ProtocolMapping[];
   applications: ApplicationConfig[];
+}
+
+export interface SuluProtocol {
+  id: string;
+  mapping: ProtocolMapping;
+  configs: ApplicationConfig[];
 }
 
 

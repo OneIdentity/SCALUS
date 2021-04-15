@@ -47,7 +47,7 @@ namespace scalus.Ui
                     Log.Debug($"Web server stopped: {x.Status}");
                     return x;
                 });
-                //OsServices.OpenDefault($"http://localhost:{WebPort}/index.html");
+                OsServices.OpenDefault($"http://localhost:{WebPort}/index.html");
                 UserInteraction.Message($"SCALUS is running at http://localhost:{WebPort}. Close the browser window to quit.");
                 GenericHost.WaitForShutdown();
             }

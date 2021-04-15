@@ -1,15 +1,53 @@
 <div class="container">
   <div class="header">
   <mat-toolbar >
-    SESSION URI LAUNCHER UTILITY (SULU)
+    Session Client Application Launch Uri System (SCALUS)
   </mat-toolbar>
   </div>
 
   <div class="content" role="main" >
-    <h2>Configure Applications for Session Protocols</h2>
+    <h2>Configure Applications for SCALUS Protocols</h2>
     
     <div class="row">
+      <mat-card class="protocol-config" *ngFor="let p of protocols">
+        <mat-card-header>
+          <mat-card-title>{{p.id}} Protocol</mat-card-title>
+          <mat-card-subtitle>Set or change the application you want to launch {{p.id}} sessions on this machine.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Select an Application</mat-label>
+              <mat-select [(value)]='p.mapping.appId' (selectionChange)="setApp('p.id', p.mapping.appId)" >
+                <mat-option *ngFor="let c of p.configs" [value]="c.id">
+                  {{c.name}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <p>{{getSelectedDescription(p.mapping.appId)}}</p>
+        </mat-card-content>
+      </mat-card>
+
       <mat-card class="protocol-config">
+        <mat-card-header>
+          <mat-card-title>Add Protocol</mat-card-title>
+          <mat-card-subtitle>Please type the name of the protocal you would like to add.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input type="text" matInput [(ngModel)]="protocolName">
+            </mat-form-field>
+          </div>
+          <button mat-flat-button color="primary"
+              (click)="addProtocol()">Add Protocol</button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+      <!--<mat-card class="protocol-config">
         <mat-card-header>
           <mat-card-title>RDP Protocol</mat-card-title>
           <mat-card-subtitle>Set or change the application you want to launch RDP sessions on this machine.</mat-card-subtitle>
@@ -68,14 +106,14 @@
           <p>{{getSelectedDescription(selectedTelnetAppId)}}</p>
         </mat-card-content>
       </mat-card>
-    </div>
+    </div>-->
     
-    <h2>Import / Export SULU Configurations</h2>
+    <h2>Import / Export SCALUS Configuration</h2>
     <div class="row">
       <mat-card class="import-export">
         <mat-card-header>
           <mat-card-title>Import Configuration File</mat-card-title>
-          <mat-card-subtitle>Browse to the configuration file you wish to import.</mat-card-subtitle>
+          <mat-card-subtitle>Browse to the SCALUS configuration file you wish to import.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <div>
@@ -87,7 +125,7 @@
       <mat-card class="import-export spaced">
         <mat-card-header>
           <mat-card-title>Export Configuration File</mat-card-title>
-          <mat-card-subtitle>Browse to the configuration file you wish to import.</mat-card-subtitle>
+          <mat-card-subtitle>Export the SCALUS configuration file.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <div>
