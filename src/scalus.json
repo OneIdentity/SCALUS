@@ -23,7 +23,9 @@
         //Generate a temporary template file, with default settings for MS RDP
         "UseDefaultTemplate": true,
         //Use a local command to customise the generated file before running the application
-        "PostProcessingCmd": [ "C:/program files/git/usr/bin/perl.exe", "%HOME%/pluggable.pl", "%GeneratedFile%" ]
+        "PostProcessingExec": "C:/program files/git/usr/bin/perl.exe",
+        "PostProcessingArgs": [ "%HOME%/pluggable.pl" ]
+
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
       "args": [ "%GeneratedFile%" ]
@@ -42,9 +44,7 @@
         "options": [ "waitForInputIdle" ]
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
-      "args": [ "%GeneratedFile%" ],
-      "options": [ "waitForInputIdle" ]
-
+      "args": [ "%GeneratedFile%" ]
     },
 
     {
@@ -136,7 +136,20 @@
       "exec": "C:\\windows\\system32\\cmd.exe",
       "args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-ssh", "%user%@%host%" ]
     },
-
+    {
+      "id": "putty-telnet",
+      "description": "Putty client",
+      "name": "Putty Telnet",
+      "platforms": [ "windows" ],
+      "protocol": "telnet",
+      //Use the builtin ssh parser
+      "parser": {
+        "id": "telnet",
+        "options": []
+      },
+      "exec": "C:\\windows\\system32\\cmd.exe",
+      "args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-telnet", "%user%@%host%" ]
+    },
     {
       "id": "mycustom-url",
       "description": "Use a custom application on ubuntu",

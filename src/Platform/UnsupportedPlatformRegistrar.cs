@@ -22,7 +22,7 @@
         {
             var registrationCommand = Constants.GetLaunchCommand();
             var message = $@"
-SCALUS doesn't know how to register as a URL protocol handler on this platform.
+SCALUS doesn't know how to register a URL protocol handler on this platform.
 You can register SCALUS manually using this command: {registrationCommand}
 ";
             UserInteraction.Message(message);

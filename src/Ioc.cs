@@ -33,6 +33,10 @@ namespace scalus
             {
                 builder.RegisterWindowsComponents();
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                builder.RegisterLinuxComponents();
+            }
             else
             {
                 // Register the "unsupported platform" components with preserve existing defaults, so they only
@@ -48,7 +52,13 @@ namespace scalus
         {
             //builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<WindowsBasicProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<WindowsProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+        }
+
+        private static void RegisterLinuxComponents(this ContainerBuilder builder)
+        {
+            builder.RegisterType<UnixProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+
         }
     }
 }

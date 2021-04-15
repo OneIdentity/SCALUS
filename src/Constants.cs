@@ -22,7 +22,6 @@ namespace scalus
                     Serilog.Log.Warning($"dotnet not found at: {path}");
                 }
                 return path;
-
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
@@ -30,10 +29,14 @@ namespace scalus
             }
             return null;
         }
-
+        public static string GetBinaryName()
+        {
+            return Path.GetFileName(GetBinaryPath());
+        }
         public static string GetBinaryPath()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return Process.GetCurrentProcess().MainModule.FileName;
             }
@@ -56,9 +59,9 @@ namespace scalus
             {
                 binPath = $"\"{binPath}\"";
             }
-            return $"{binPath} launch -u \"{urlString}\"";
+            var cmd = $"{binPath} launch -u \"{urlString}\"";
+            Serilog.Log.Information($"Launch cmd:{cmd}");
+            return cmd;
         }
-
-
     }
 }
