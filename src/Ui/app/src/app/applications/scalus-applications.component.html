@@ -1,0 +1,81 @@
+<div class="container">
+    <div class='content'>
+        <mat-accordion class="applications">
+            <mat-expansion-panel class="application" *ngFor="let a of applications">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                {{a.id}}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+                <div class="form">
+                    <mat-form-field appearance="outline">
+                        <mat-label>ID</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.id">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Name</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Description</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.description">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Platforms - comma separated list, options (windows,unix,linux,mac)</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.platforms">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Protocol</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.protocol">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Exec</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.exec">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Args - comma separated list</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.args">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Parser</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.parser.id">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Parser Options - comma separated list</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.parser.options">
+                    </mat-form-field>
+                    <mat-checkbox [(ngModel)]="a.parser.useDefaultTemplate" style="margin-bottom: 18px;">
+                        Use Default Parser Template
+                    </mat-checkbox>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Parser Template File</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.parser.useTemplateFile">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Parser Post Processing Exec</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.parser.postProcessingExec">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Parser Post Processing Args - comma separated list</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.parser.postProcessingArgs">
+                    </mat-form-field>
+                    <div class="row-reverse">
+                        <button mat-flat-button color="primary" (click)="delete(a.id)">Delete</button>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+
+    <div class="footer">
+        <div class="row-reverse">
+            <button mat-flat-button color="primary" style="margin-left: 10px;"
+              (click)="cancel()">Cancel</button>
+            <button mat-flat-button color="primary" style="margin-left: 10px;"
+              (click)="save()">Save</button>
+            <button mat-flat-button color="primary" 
+              (click)="add()">Add</button>
+        </div>
+    </div>
+    
+</div>

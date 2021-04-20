@@ -16,7 +16,6 @@ mat-toolbar {
 }
 
 .content{
-  
   flex-shrink: 1;
   flex-grow: 1;
   position: relative;
@@ -34,8 +33,9 @@ mat-toolbar {
   margin-right:30px;
 }
 
-.import-export {
+.configuration {
   width: 250px;
+  margin-right:30px;
 }
 
 div.row {
@@ -44,8 +44,12 @@ div.row {
   justify-content: top;  
 }
 
-.spaced {
-  margin-left:30px;  
+.applications {
+  width: 100%;
+}
+
+.application{
+  margin-bottom:20px;
 }
 
 :host ::ng-deep .mat-card-header-text {
