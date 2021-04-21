@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Threading.Tasks;
 
 namespace scalus.Platform
 {
@@ -27,6 +28,7 @@ namespace scalus.Platform
             {
                 return Process.Start("open", url);
             }
+            Serilog.Log.Information($"unknown platform {RuntimeInformation.OSDescription}- cant prompt");
             return null;
         }
 
@@ -66,20 +68,35 @@ namespace scalus.Platform
                 }
 
                 return isAdmin;
-            }
-            else
-            {
-                return geteuid() == 0;
-            }
+            } 
+            return geteuid() == 0;
+        }
+
+        private string GetTempFile(string ext)
+        {
+            var tempFile = Path.GetTempFileName();
+            string renamed = Path.ChangeExtension(tempFile, ext);
+            Serilog.Log.Information($"SHOUT - tmp:{tempFile}, rename:{renamed}");
+            File.Move(tempFile, renamed);
+            return renamed;
         }
 
         public void OpenText(string message)
         {
-            var tempFile = Path.GetTempFileName() + ".txt";
+            var tempFile = GetTempFile(".txt");
             try
             {
                 File.WriteAllText(tempFile, message);
-                OpenDefault(tempFile).WaitForExit();
+                var l = File.ReadAllText(tempFile);
+                var process = OpenDefault(tempFile);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    process.WaitForExit();
+                }
+                else
+                {
+                    Task.Delay(10* 1000).Wait();
+                }
             }
             catch (System.Exception ex)
             {
@@ -87,6 +104,7 @@ namespace scalus.Platform
             }
             finally
             {
+                Serilog.Log.Information($"SHOUT - deleting :{tempFile}");
                 File.Delete(tempFile);
             }
         }

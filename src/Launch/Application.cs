@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using scalus.Util;
 
 namespace scalus.Launch
 {
@@ -48,8 +49,19 @@ namespace scalus.Launch
 
         private void HandleLaunchError(Exception ex, string url)
         {
-            var application = GetApplicationForProtocol(Config.GetConfiguration(), GetProtocol(url));
-            var scalusJsonPath = Path.Combine(Constants.GetBinaryDir(), "scalus.json");
+            ApplicationConfig application = null;
+            var scalusJsonPath = string.Empty;
+
+            try
+            {
+                application = GetApplicationForProtocol(Config.GetConfiguration(), GetProtocol(url));
+                scalusJsonPath = ConfigurationManager.ScalusJson;
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error($"Failed to read config:{e.Message}");
+            }
+
             var msg =
 $@"[SCALUS]: Failed to launch registered URL handler.
   URL:           {url}

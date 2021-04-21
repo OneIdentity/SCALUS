@@ -9,6 +9,7 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <RuntimeIdentifiers>win10-x64;ubuntu.20.04-x64;osx.10.15-x64</RuntimeIdentifiers>
     <!-- For a fancy windows implemenation that drops the console window...
     <OutputType>WinExe</OutputType>
     <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
@@ -68,10 +69,6 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="System.Reactive" Version="4.4.1" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Platform\MacOS\" />
   </ItemGroup>
 
 </Project>

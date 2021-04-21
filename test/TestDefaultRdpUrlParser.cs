@@ -10,7 +10,7 @@ namespace scalus.Test
 {
     public class TestDefaultRdpUrlParser
     {
-        
+      
         [Fact]
         public void Test1()
         {
@@ -166,7 +166,7 @@ namespace scalus.Test
             var dictionary = sut.Parse(str);
             Assert.Equal(str, dictionary[Token.OriginalUrl]);
             Assert.Equal(str, dictionary[Token.RelativeUrl]);
-            Assert.Null(dictionary[Token.Protocol]);
+            Assert.Equal("rdp", dictionary[Token.Protocol]);
 
             //standard URI
             //myprot://myuser:mypass@myhost:2222/thisisapath?queryit#fragment

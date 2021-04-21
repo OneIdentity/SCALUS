@@ -109,8 +109,8 @@
     },
 
     {
-      "id": "Terminal-ssh",
-      "name": "Terminal SSH",
+      "id": "mac-ssh",
+      "name": "MAC TerminalSSH",
       "description": "Open Terminal on Mac OS with the SSH connection information",
       "platforms": [ "mac" ],
       "protocol": "ssh",
@@ -122,6 +122,25 @@
       "exec": "/usr/bin/osascript",
       "args": [ "-e", "tell application \"Terminal\" to do script \"ssh -t %User%@%Host%;exit\"" ]
     },
+    {
+      "id": "mac-rdp",
+      "name": "Mac RDP",
+      "description": "Run MS Windows RDP on MAC",
+      "platforms": [ "mac" ],
+      "protocol": "rdp",
+      //Use the builtin ssh parser
+      "parser": {
+        "id": "rdp",
+        "options": [ "wait:60" ]
+      },
+      "exec": "open",
+      "args": [
+        "-na",
+        "/Applications/Microsoft Remote Desktop.app/Contents/MacOS/Microsoft Remote Desktop",
+        "%GeneratedFile%"
+      ]
+    },
+
     {
       "id": "putty-ssh",
       "description": "Putty client",
@@ -163,6 +182,36 @@
         "options": [ "waitforexit" ]
       },
       "exec": "/usr/bin/MyCustomApp",
+      "args": [ "%GeneratedFile%" ]
+    },
+    {
+      "id": "remmina-rdp",
+      "description": "Use remmina client on linux",
+      "name": "remmina Rdp client",
+      "platforms": [ "unix" ],
+      "protocol": "rdp",
+      //Use the builtin url parser, which will handle any valid standard URL
+      "parser": {
+        "id": "rdp",
+        "UseTemplateFile": "%HOME%/.scalus/remmina.rdp",
+        "options": [ "waitforexit" ]
+      },
+      "exec": "/usr/bin/remmina",
+      "args": [ "%GeneratedFile%" ]
+    },
+    {
+      "id": "remmina-ssh",
+      "description": "Use remmina client on ubuntu",
+      "name": "remmina SSH client",
+      "platforms": [ "unix" ],
+      "protocol": "ssh",
+      //Use the builtin url parser, which will handle any valid standard URL
+      "parser": {
+        "id": "ssh",
+        "UseTemplateFile": "%HOME%/.scalus/remmina.ssh",
+        "options": [ "waitforexit" ]
+      },
+      "exec": "/usr/bin/remmina",
       "args": [ "%GeneratedFile%" ]
     }
   ]

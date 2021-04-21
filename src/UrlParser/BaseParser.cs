@@ -214,12 +214,15 @@ namespace scalus.UrlParser
             IEnumerable<string> fileLines = null;
             if (Config.UseDefaultTemplate)
             {
+                Serilog.Log.Information("Using default template");
                 fileLines = GetDefaultTemplate();
             }
             else if (!string.IsNullOrEmpty(Config.UseTemplateFile))
             {
+                Serilog.Log.Information($"Using template :{Config.UseTemplateFile}");
                 var templatefile = ReplaceTokens(Config.UseTemplateFile);
                 templatefile = GetFullPath(templatefile);
+                Serilog.Log.Information($"Using template file:{templatefile}");
 
                 if (!File.Exists(templatefile))
                 {

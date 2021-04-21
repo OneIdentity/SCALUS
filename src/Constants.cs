@@ -33,13 +33,21 @@ namespace scalus
         {
             return Path.GetFileName(GetBinaryPath());
         }
+
+        public static string GetBinaryDirectory()
+        {
+            return Path.GetDirectoryName(GetBinaryPath());
+        }
         public static string GetBinaryPath()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return Process.GetCurrentProcess().MainModule.FileName;
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            { 
+                var str = Process.GetCurrentProcess().MainModule.FileName;
+                 return str;
             }
+
             return Environment.GetCommandLineArgs().First();
         }
 
@@ -53,13 +61,13 @@ namespace scalus
             var binPath = GetBinaryPath().Trim();
             if (binPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || binPath.EndsWith(".so", StringComparison.OrdinalIgnoreCase))
             {
-                binPath = $"\"{DotNetPath()}\" \"{binPath}\"";
+                binPath = $"\"{DotNetPath()}\" {binPath}";
             }
             else
             {
-                binPath = $"\"{binPath}\"";
+                binPath = $"{binPath}";
             }
-            var cmd = $"{binPath} launch -u \"{urlString}\"";
+            var cmd = $"{binPath} launch -u {urlString}";
             Serilog.Log.Information($"Launch cmd:{cmd}");
             return cmd;
         }

@@ -26,7 +26,7 @@ namespace scalus
 
         public bool Register(string protocol)
         {
-            var registrationCommand = Constants.GetLaunchCommand("%1");
+            var registrationCommand = Constants.GetLaunchCommand("\"%1\"");
             Serilog.Log.Debug($"Registering to run {registrationCommand} for {protocol} URLs.");
 
             if(!RegisterClassId(registrationCommand))

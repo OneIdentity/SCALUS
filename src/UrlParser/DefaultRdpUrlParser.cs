@@ -54,6 +54,12 @@ namespace scalus.UrlParser
         
         public override  IDictionary<Token,string> Parse(string url)
         {
+            Dictionary = new Dictionary<Token, string>();
+            Dictionary[Token.OriginalUrl] = url; 
+            Dictionary[Token.Protocol] = Protocol(url)??"rdp";
+            Dictionary[Token.RelativeUrl] = StripProtocol(url).TrimEnd('/');            
+            Dictionary[Token.Port] = "3389";
+            
             var match = RdpPattern.Match(url.TrimEnd('/'));
             if (!match.Success)
             {
@@ -62,18 +68,12 @@ namespace scalus.UrlParser
                     Parse(result);
                     return Dictionary;
                 }
-                Dictionary[Token.OriginalUrl] = url;
-                Dictionary[Token.Protocol] = Protocol(url);
-                Dictionary[Token.RelativeUrl] = StripProtocol(url);
-                Dictionary[Token.Port] = "3389";
-                return Dictionary;
+            }
+            else
+            {
+                ParseArgs(match.Groups[3].Value);
             }
 
-            Dictionary[Token.OriginalUrl] = url;
-            SetValue(match, 2, Token.Protocol, false, "rdp");
-            SetValue(match, 3, Token.RelativeUrl, false);
-
-            ParseArgs(match.Groups[3].Value);
             ParseConfig();
             return Dictionary;           
         }
@@ -82,56 +82,80 @@ namespace scalus.UrlParser
             return _msArgList;
         }
 
-        private static readonly Dictionary<string, string> defaultArgs = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> defaultArgs = new Dictionary<string, string>()
         {
-            {"full address", ":s:%Host%" },
-            {"username", ":s:%user%" },
+            {"full address", ":s:%Host%"},
+            {"username", ":s:%user%"},
             {"screen mode id", ":i:2"},
             {"use multimon", ":i:0"},
             {"desktopwidth", ":i:1024"},
             {"desktopheight", ":i:768"},
-            {"session bpp", ":i:16"},
-            {"winposstr", ":s:0,3,0,0,1024,768"},
+          //  {"session bpp", ":i:16"},
+          //  {"winposstr", ":s:0,3,0,0,1024,768"},
             {"compression", ":i:1"},
             {"keyboardhook", ":i:2"},
             {"audiocapturemode", ":i:0"},
             {"videoplaybackmode", ":i:1"},
-            {"connection type", ":i:7"},
+           // {"connection type", ":i:7"},
             {"networkautodetect", ":i:1"},
             {"bandwidthautodetect", ":i:1"},
-            {"displayconnectionbar", ":i:1"},
-            {"enableworkspacereconnect", ":i:0"},
-            {"disable wallpaper", ":i:1"},
-            {"allow font smoothing", ":i:1"},
-            {"allow desktop composition", ":i:1"},
-            {"disable full window drag", ":i:1"},
-            {"disable menu anims", ":i:1"},
-            {"disable themes", ":i:0"},
-            {"disable cursor setting", ":i:0"},
-            {"bitmapcachepersistenable", ":i:1"},
+            //{"displayconnectionbar", ":i:1"},
+            //{"enableworkspacereconnect", ":i:0"},
+            //{"disable wallpaper", ":i:1"},
+            //{"allow font smoothing", ":i:1"},
+            //{"allow desktop composition", ":i:1"},
+            //{"disable full window drag", ":i:1"},
+            //{"disable menu anims", ":i:1"},
+            //{"disable themes", ":i:0"},
+            //{"disable cursor setting", ":i:0"},
+            //{"bitmapcachepersistenable", ":i:1"},
             {"audiomode", ":i:0"},
             {"redirectprinters", ":i:1"},
             {"redirectcomports", ":i:0"},
             {"redirectsmartcards", ":i:1"},
             {"redirectclipboard", ":i:1"},
-            {"redirectposdevices", ":i:0"},
+            //{"redirectposdevices", ":i:0"},
             {"autoreconnection enabled", ":i:1"},
             {"authentication level", ":i:2"},
-            {"prompt for credentials", ":i:0"},
-            {"prompt for credentials on client", ":i:0"},
-            {"negotiate security layer", ":i:1"},
+            //{"prompt for credentials", ":i:0"},
+            //{"prompt for credentials on client", ":i:0"},
+            //{"negotiate security layer", ":i:1"},
             {"remoteapplicationmode", ":i:0"},
             {"alternate shell", ":s:"},
-            {"shell working directory", ":s:"},
+            //{"shell working directory", ":s:"},
             {"gatewayhostname", ":s:"},
             {"gatewayusagemethod", ":i:4"},
             {"gatewaycredentialssource", ":i:4"},
             {"gatewayprofileusagemethod", ":i:0"},
             {"promptcredentialonce", ":i:0"},
-            {"gatewaybrokeringtype", ":i:0"},
-            {"use redirection server name", ":i:0"},
-            {"rdgiskdcproxy", ":i:0"},
-            {"kdcproxyname", ":s:"}
+            //{"gatewaybrokeringtype", ":i:0"},
+            //{"use redirection server name", ":i:0"},
+            //{"rdgiskdcproxy", ":i:0"},
+            //{"kdcproxyname", ":s:"},
+
+            {"alternate full address", "s:"},
+            {"domain", "s:"},
+            {"enablecredsspsupport", ":i:0"},
+            {"disableconnectionsharing", ":i:0"},
+            {"encode redirected video capture", ":i:1"},
+            {"redirected video capture encoding quality", ":i:0"},
+            {"camerastoredirect", "s:"},
+            {"devicestoredirect", ":s:"},
+            {"drivestoredirect", ":s:"},
+            {"usbdevicestoredirect", ":s:"},
+            {"selectedmonitors", ":s:"},
+            {"maximizetocurrentdisplays", ":i:0"},
+            {"singlemoninwindowedmode", ":i:0"},
+            {"smart sizing", ":i:0"},
+            {"dynamic resolution", ":i:1"},
+            {"desktop size id", ":i:1"},
+            {"desktopscalefactor", ":i:100"},
+            {"remoteapplicationexpandcmdline", ":i:1"},
+            {"remoteapplicationexpandworkingdir", ":i:1"},
+            {"remoteapplicationexpandworkingdir", ":i:1"},
+            {"remoteapplicationicon", ":s:"},
+            {"remoteapplicationname", "s:"},
+            {"remoteapplicationprogram", "s:"},
         };
 
         private const string RdpPasswordHashKey = "password 51:b";

@@ -19,15 +19,19 @@ namespace scalus.UrlParser
         }
         public override IDictionary<Token, string> Parse(string url)
         {
-            if (Uri.TryCreate(url, UriKind.Absolute, out Uri result))
-            {
-                Parse(result);
-                return Dictionary;
-            }
-            Serilog.Log.Warning($"The string does not appear to be a valid URL: {url}");
+            Dictionary = new Dictionary<Token, string>();
             Dictionary[Token.OriginalUrl] = url;
             Dictionary[Token.Protocol] = Protocol(url);
             Dictionary[Token.RelativeUrl] = StripProtocol(url);
+            if (Uri.TryCreate(url, UriKind.Absolute, out Uri result))
+            {
+                Parse(result);
+            }
+            else
+            {
+                Serilog.Log.Warning($"The string does not appear to be a valid URL: {url}");
+            }
+
             ParseConfig();            
             return Dictionary;
         }    
