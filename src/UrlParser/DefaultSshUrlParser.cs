@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Web;
 using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
@@ -27,11 +28,20 @@ namespace scalus.UrlParser
         
         public override IDictionary<Token, string> Parse(string url)
         {
+            Dictionary = new Dictionary<Token, string>();
             Dictionary[Token.OriginalUrl] = url;
-            Dictionary[Token.Protocol] = Protocol(url);
+            Dictionary[Token.Protocol] = Protocol(url)??"ssh";
             Dictionary[Token.RelativeUrl] = StripProtocol(url);
             url = url.TrimEnd('/');
             var match = ScpPattern.Match(url);
+            if (!match.Success)
+            {
+                if (url.Contains("%40"))
+                {
+                    var decoded = HttpUtility.UrlDecode(url);
+                    match = ScpPattern.Match(decoded);
+                }
+            }
             if (!match.Success)
             {
                 if (Uri.TryCreate(url, UriKind.Absolute, out Uri result))
@@ -39,15 +49,18 @@ namespace scalus.UrlParser
                     Parse(result);
                     return Dictionary;
                 }
-                return Dictionary;
             }
-            SetValue(match, 2, Token.Protocol, false, "ssh");
-            SetValue(match, 3, Token.RelativeUrl , false);
-            SetValue(match, 4, Token.User , true);
-            SetValue(match, 5, Token.Host, false );
-            SetValue(match, 7, Token.Port, false, "22");
+            else
+            {
+                SetValue(match, 2, Token.Protocol, false, "ssh");
+                SetValue(match, 3, Token.RelativeUrl, false);
+                SetValue(match, 4, Token.User, true);
+                SetValue(match, 5, Token.Host, false);
+                SetValue(match, 7, Token.Port, false, "22");
 
-            GetSafeguardUserValue();
+                GetSafeguardUserValue();
+            }
+
             ParseConfig();
             return Dictionary;        
         }

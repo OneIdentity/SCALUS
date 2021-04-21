@@ -4,6 +4,8 @@ using scalus.Dto;
 using System;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
+using scalus.Util;
 
 namespace scalus
 {
@@ -24,7 +26,7 @@ namespace scalus
 
         protected void Load()
         {
-            var configFile = Path.Combine(Constants.GetBinaryDir(), "scalus.json");
+            var configFile = ConfigurationManager.ScalusJson ;
             if (!File.Exists(configFile))
             {
                 Serilog.Log.Warning($"config file not found at: {configFile}");
@@ -61,7 +63,7 @@ namespace scalus
 
         private void Save(ScalusConfig configuration)
         {
-            var configFile = Path.Combine(Constants.GetBinaryDir(), "scalus.json");
+            var configFile = ConfigurationManager.ScalusJson ;
             
             var serializerSettings = new JsonSerializerSettings();
             serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -84,12 +86,19 @@ namespace scalus
 
         public IProtocolHandler GetProtocolHandler(string uri)
         {
+            Serilog.Log.Information($"Checking configuration for url:{uri}");
             // var manually parse out the protocol
             var index = uri.IndexOf("://");
             var protocol = "";
             if (index >= 0)
             {
                 protocol = uri.Substring(0, index);
+            }
+
+            if (string.IsNullOrEmpty(protocol))
+            {
+                Serilog.Log.Warning($"No protocol was specified in the url:{uri}");
+                return null;
             }
             var protocolMap = Config.Protocols.FirstOrDefault(x => string.Equals(x.Protocol, protocol, StringComparison.OrdinalIgnoreCase));
             if(protocolMap == null)
@@ -102,7 +111,7 @@ namespace scalus
             var protocolConfig = Config.Applications.FirstOrDefault(x => string.Equals(x.Id, protocolMap.AppId, StringComparison.OrdinalIgnoreCase));
             if (protocolConfig == null)
             {
-                Serilog.Log.Warning($"Application configuration '{protocolMap.AppId}' for '{protocol}' was not found in scalus.json config.");
+                Serilog.Log.Warning($"Application configuration '{protocolMap.AppId}' for '{protocol}' was not found in {ConfigurationManager.ScalusJson} config.");
                 // TODO: Restart in UI mode
                 return null;
             }

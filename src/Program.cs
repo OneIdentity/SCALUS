@@ -2,8 +2,13 @@
 using CommandLine;
 using Serilog;
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Configuration;
+using scalus.Util;
+using Serilog.Core;
+using Serilog.Events;
 
 [assembly:InternalsVisibleTo("scalus.Test")]
 
@@ -65,12 +70,10 @@ namespace scalus
 
         static void ConfigureLogging()
         {
-            var folder = Constants.GetBinaryDir();
-            var logFilePath = System.IO.Path.Combine(folder, "scalus.log");
-
+            var logFilePath = ConfigurationManager.LogFile;
             var config = new LoggerConfiguration();
             config.WriteTo.File(logFilePath, shared: true)
-                .MinimumLevel.Debug();
+                .MinimumLevel.ControlledBy(new LoggingLevelSwitch(ConfigurationManager.MinLogLevel));
 #if DEBUG
             config.WriteTo.Console();
 #endif

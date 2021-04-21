@@ -37,6 +37,10 @@ namespace scalus
             {
                 builder.RegisterLinuxComponents();
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                builder.RegisterOsxComponents();
+            }
             else
             {
                 // Register the "unsupported platform" components with preserve existing defaults, so they only
@@ -58,6 +62,11 @@ namespace scalus
         private static void RegisterLinuxComponents(this ContainerBuilder builder)
         {
             builder.RegisterType<UnixProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+
+        }
+        private static void RegisterOsxComponents(this ContainerBuilder builder)
+        {
+            builder.RegisterType<MacOSProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
 
         }
     }

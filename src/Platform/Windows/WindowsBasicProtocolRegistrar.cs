@@ -29,7 +29,7 @@ namespace scalus
         public bool Register(string protocol)
         {
             var path = GetPathRoot(protocol);
-            var registrationCommand = Constants.GetLaunchCommand("%1");
+            var registrationCommand = Constants.GetLaunchCommand("\"%1\"");
             Serilog.Log.Debug($"Registering to run {registrationCommand} for {protocol} URLs.");
 
             if (RegistryUtils.SetValue(path, "", $"SCALUS {protocol} Handler") &&
