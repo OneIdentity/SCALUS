@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { AppComponent } from './app.component';
+import { ScalusApplicationsComponent } from './scalus-applications.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,11 +15,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { FormsModule } from "@angular/forms";
 import { EuiCoreModule } from '@elemental-ui/core';
-import { ScalusApplicationsModule } from './applications/scalus-applications.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    ScalusApplicationsComponent
   ],
   imports: [
     BrowserModule,
@@ -36,10 +35,8 @@ import { ScalusApplicationsModule } from './applications/scalus-applications.mod
     MatExpansionModule,
     MatIconModule,
     MatTableModule,
-    FormsModule,
-    ScalusApplicationsModule
+    FormsModule
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: []
 })
-export class AppModule { }
+export class ScalusApplicationsModule { }

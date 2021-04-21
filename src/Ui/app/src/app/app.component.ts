@@ -1,6 +1,8 @@
 import { mapToMapExpression } from '@angular/compiler/src/render3/util';
 import { Component, OnInit } from '@angular/core';
-import { ApiService, SuluConfig, ApplicationConfig } from './api/api.service';
+import { EuiSidesheetService, EuiSidesheetConfig } from '@elemental-ui/core';
+import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay } from './api/api.service';
+import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
 import { saveAs } from 'file-saver';
 import * as $ from 'jquery';
 
@@ -11,19 +13,27 @@ import * as $ from 'jquery';
 })
 export class AppComponent implements OnInit {
 
-  title = 'Sulu';
+  title = 'SCALUS';
   state = 'loading';
-  config: SuluConfig;
-  selectedRdpAppId: string = "";
-  rdpApps: ApplicationConfig[];
 
-  selectedSshAppId: string = "";
-  sshApps: ApplicationConfig[];
+  protocolName: string = '';
 
-  selectedTelnetAppId: string = "";
-  telnetApps: ApplicationConfig[];
+  config: ScalusConfig;
 
-  constructor(private apiService: ApiService) {
+  protocols: ProtocolMappingDisplay[];
+  
+  //selectedRdpAppId: string = "";
+  //rdpApps: ApplicationConfig[];
+
+  //selectedSshAppId: string = "";
+  //sshApps: ApplicationConfig[];
+
+  //selectedTelnetAppId: string = "";
+  //telnetApps: ApplicationConfig[];
+
+  constructor(
+    private apiService: ApiService,
+    private sidesheetService: EuiSidesheetService) {
   }
 
   ngOnInit(): void {
@@ -35,32 +45,52 @@ export class AppComponent implements OnInit {
     });
   }
 
-  loadConfig(config:SuluConfig)
+  loadConfig(config:ScalusConfig)
   {
     this.config = config;
-    this.rdpApps = this.getApps(this.config, 'rdp');
-    this.sshApps = this.getApps(this.config, 'ssh');
-    this.selectedRdpAppId = this.getMappedProtocol(this.config, "rdp")?.id;
-    this.selectedSshAppId = this.getMappedProtocol(this.config, "ssh")?.id;
+    this.protocols = this.getProtocols(this.config);
+    //this.rdpApps = this.getApps(this.config, 'rdp');
+    //this.sshApps = this.getApps(this.config, 'ssh');
+    //this.selectedRdpAppId = this.getMappedProtocol(this.config, "rdp")?.id;
+    //this.selectedSshAppId = this.getMappedProtocol(this.config, "ssh")?.id;
   }
 
-  getMappedProtocol(config:SuluConfig, protocol:string) : ApplicationConfig {
-    var appId = ""
-    config.protocols.forEach(element => {
-    if(element.protocol == protocol) {
-        appId = element.appId;
-      }
-    });
-    var protocolConfig: ApplicationConfig;
-    if(appId) {
-      config.applications.forEach(element => {
-        if(element.id == appId) {
-          protocolConfig = element;
+  getProtocols(config: ScalusConfig) {
+    var protocols: ProtocolMappingDisplay[] = new Array();
+    
+    this.config.protocols.forEach(pm => {
+      var protocolMapping: ProtocolMappingDisplay = <ProtocolMappingDisplay>{};
+      protocolMapping.id = pm.protocol;
+      protocolMapping.mapping = pm;
+      protocolMapping.configs = new Array();
+      config.applications.forEach(ac => {
+        if (ac.protocol == pm.protocol) {
+          protocolMapping.configs.push(ac);
         }
-      })
-    }
-    return protocolConfig;
+      });
+      protocols.push(protocolMapping);
+    });
+
+    return protocols;
   }
+
+  // getMappedProtocol(config:SuluConfig, protocol:string) : ApplicationConfig {
+  //   var appId = ""
+  //   config.protocols.forEach(element => {
+  //   if(element.protocol == protocol) {
+  //       appId = element.appId;
+  //     }
+  //   });
+  //   var protocolConfig: ApplicationConfig;
+  //   if(appId) {
+  //     config.applications.forEach(element => {
+  //       if(element.id == appId) {
+  //         protocolConfig = element;
+  //       }
+  //     })
+  //   }
+  //   return protocolConfig;
+  // }
 
   setApp(protocol:string, appId:string){
     this.config.protocols.forEach(x =>{
@@ -78,15 +108,15 @@ export class AppComponent implements OnInit {
     return this.getApplicationConfig(appId)?.description;
   }
 
-  getApps(config:SuluConfig, protocol:string) : ApplicationConfig[] {
-    var result = new Array();
-    config.applications.forEach(x => {
-      if (x.protocol == protocol) {
-        result.push(x);
-      }
-    });
-    return result;
-  }
+  // getApps(config:SuluConfig, protocol:string) : ApplicationConfig[] {
+  //   var result = new Array();
+  //   config.applications.forEach(x => {
+  //     if (x.protocol == protocol) {
+  //       result.push(x);
+  //     }
+  //   });
+  //   return result;
+  // }
 
   getApplicationConfig(id:string) : ApplicationConfig {
     if(this.config == null) {
@@ -97,6 +127,54 @@ export class AppComponent implements OnInit {
 
   handleError(error:any, msg:string){
     alert("ERROR: " + msg + " (" + error + ")");
+  }
+
+  canAddProtocol() {
+    return this.protocolName.length === 0; 
+  }
+
+  addProtocol() {
+    var mapping:ProtocolMapping = <ProtocolMapping>{};
+    mapping.protocol = this.protocolName;
+    this.config.protocols.push(mapping);
+    this.apiService.setConfig(this.config).subscribe(
+      x => {
+        this.protocolName = "";
+        this.loadConfig(this.config);
+      }, 
+      error => {
+        this.handleError(error, "Failed to save configuration");
+    });
+  }
+
+  deleteProtocol(id: string) {
+    this.config.protocols.forEach((element, index) => {
+      if(element.protocol == id) {
+        this.config.protocols.splice(index,1);
+      }
+    });
+
+    this.apiService.setConfig(this.config).subscribe(
+      x => {
+        this.protocolName = "";
+        this.loadConfig(this.config);
+      }, 
+      error => {
+        this.handleError(error, "Failed to save configuration");
+    });
+  }
+
+  manageApplications() {
+    const config: EuiSidesheetConfig = {
+      title: 'Applications',
+      testId: 'applications-sidesheet',
+      data: this.config
+    };
+    var ref = this.sidesheetService.open(ScalusApplicationsComponent, config);
+    ref.afterClosed().subscribe(
+      () => {
+        this.loadConfig(this.config);
+      });
   }
 
   import() {
