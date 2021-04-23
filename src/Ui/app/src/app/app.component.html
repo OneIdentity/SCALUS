@@ -29,7 +29,7 @@
           <div class="row">
             <div style="flex-grow: 1;">{{getSelectedDescription(p.mapping.appId)}}</div>
             <mat-icon aria-hidden="false" style="flex-grow: 0; justify-content: bottom; cursor: pointer;" 
-                      (click)="deleteProtocol(p.id)">delete</mat-icon>
+              matTooltip="Delete Protocol" (click)="deleteProtocol(p.id)">delete</mat-icon>
           </div>
         </mat-card-content>
       </mat-card>

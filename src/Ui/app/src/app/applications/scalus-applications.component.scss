@@ -16,8 +16,7 @@
 .footer{
   flex-shrink: 0;
   flex-grow: 0;
-  margin-top: 10px;
-  margin-bottom: 36px;
+  margin-top: 20px;
 }
 .browse{
   margin-right: 10px;
@@ -49,4 +48,9 @@ div.form {
 
 mat-expansion-panel.application{
   margin-bottom:10px;
+}
+
+.tokens-icon {
+  cursor: pointer; 
+  margin: 16px 10px 16px 0px;
 }

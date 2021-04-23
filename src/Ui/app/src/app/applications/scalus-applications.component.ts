@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, ViewEncapsulation } from '@angular/core';
 import { ApiService, ScalusConfig, ApplicationConfig, ApplicationConfigDisplay, ParserConfig, ParserConfigDisplay } from '../api/api.service';
 import { EuiSidesheetService, EUI_SIDESHEET_DATA } from '@elemental-ui/core';
-import * as $ from 'jquery';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
   selector: 'applications',
@@ -17,6 +17,7 @@ export class ScalusApplicationsComponent implements OnInit {
 
   constructor(private apiService: ApiService,
     private sidesheetService: EuiSidesheetService,
+    private matDialog: MatDialog,
     @Inject(EUI_SIDESHEET_DATA) public sidesheetdata?: any) {
       this.config = <ScalusConfig>sidesheetdata;
       
@@ -114,4 +115,28 @@ export class ScalusApplicationsComponent implements OnInit {
 
     return app;
   }
+
+  showTokens() {
+    const dialogRef = this.matDialog.open(ScalusApplicationsTokensDialogComponent, {
+      
+    });
+
+  }
+}
+
+@Component({
+  selector: 'applications-tokens-dialog',
+  templateUrl: 'scalus-applications-tokens-dialog.component.html',
+})
+export class ScalusApplicationsTokensDialogComponent {
+
+  constructor(
+    public dialogRef: MatDialogRef<ScalusApplicationsTokensDialogComponent>) {
+
+  }
+
+  close(): void {
+    this.dialogRef.close();
+  }
+
 }
