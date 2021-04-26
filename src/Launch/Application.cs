@@ -50,16 +50,15 @@ namespace scalus.Launch
         private void HandleLaunchError(Exception ex, string url)
         {
             ApplicationConfig application = null;
-            var scalusJsonPath = string.Empty;
+            var scalusJsonPath = ConfigurationManager.ScalusJson;
 
             try
             {
                 application = GetApplicationForProtocol(Config.GetConfiguration(), GetProtocol(url));
-                scalusJsonPath = ConfigurationManager.ScalusJson;
             }
             catch (Exception e)
             {
-                Serilog.Log.Error($"Failed to read config:{e.Message}");
+                Serilog.Log.Error($"Failed to read config file:{scalusJsonPath}:{e.Message}");
             }
 
             var msg =

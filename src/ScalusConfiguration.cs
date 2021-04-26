@@ -106,7 +106,7 @@ namespace scalus
                 Serilog.Log.Warning($"No protocol was specified in the url:{uri}");
                 return null;
             }
-            var protocolMap = Config.Protocols.FirstOrDefault(x => string.Equals(x.Protocol, protocol, StringComparison.OrdinalIgnoreCase));
+            var protocolMap = Config?.Protocols?.FirstOrDefault(x => string.Equals(x.Protocol, protocol, StringComparison.OrdinalIgnoreCase));
             if(protocolMap == null)
             {
                 Serilog.Log.Warning($"There is no application configured for protocol {protocol}");
@@ -114,7 +114,7 @@ namespace scalus
                 return null;
             }
 
-            var protocolConfig = Config.Applications.FirstOrDefault(x => string.Equals(x.Id, protocolMap.AppId, StringComparison.OrdinalIgnoreCase));
+            var protocolConfig = Config?.Applications?.FirstOrDefault(x => string.Equals(x.Id, protocolMap.AppId, StringComparison.OrdinalIgnoreCase));
             if (protocolConfig == null)
             {
                 Serilog.Log.Warning($"Application configuration '{protocolMap.AppId}' for '{protocol}' was not found in {ConfigurationManager.ScalusJson} config.");
