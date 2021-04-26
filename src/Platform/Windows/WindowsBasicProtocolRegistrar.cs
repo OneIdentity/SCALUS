@@ -26,7 +26,7 @@ namespace scalus
             return RegistryUtils.GetStringValue(commandPath, "");
         }
 
-        public bool Register(string protocol)
+        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
         {
             var path = GetPathRoot(protocol);
             var registrationCommand = Constants.GetLaunchCommand("\"%1\"");
@@ -42,7 +42,7 @@ namespace scalus
             return false;
         }
 
-        public bool Unregister(string protocol)
+        public bool Unregister(string protocol, bool userMode = false, bool useSudo= false)
         {
             var path = GetPathRoot(protocol);
             if (RegistryUtils.PathExists(path) && !RegistryUtils.DeleteKey(path))
@@ -56,5 +56,15 @@ namespace scalus
         {
             return $"HKEY_CURRENT_USER\\SOFTWARE\\Classes\\{protocol}";
         }
+        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        {
+            var res =Unregister(protocol, userMode, useSudo);
+            if (res)
+            {
+                res = Register(protocol, userMode, useSudo);
+            }
+            return res;
+        }
+
     }
 }

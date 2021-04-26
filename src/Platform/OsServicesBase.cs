@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -34,26 +35,59 @@ namespace scalus.Platform
 
         public Process Execute(string command, IEnumerable<string> args)
         {
-            var startupInfo = new ProcessStartInfo(command);
+            if (string.IsNullOrEmpty(command))
+            {
+                throw new Exception("Missing command");
+            }
+            var startupInfo = new ProcessStartInfo(command)
+            {
+                CreateNoWindow = false,
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Normal
+            };
             foreach (var arg in args)
             {
                 startupInfo.ArgumentList.Add(arg);
             }
-            return Process.Start(startupInfo);
+            var process = Process.Start(startupInfo);
+            Serilog.Log.Information($"Started process, id:{process.Id}, exited:{process.HasExited}");
+            return process;
         }
-
-        public Process Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr)
+        //execute a command, wait for it to end, return the exit code and retrieve the stdout & stderr
+        public int Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr)
         {
             stdOut = string.Empty;
             stdErr = string.Empty;
-            var startupInfo = new ProcessStartInfo(command);
-            foreach (var arg in args)
+            if (string.IsNullOrEmpty(command))
             {
-                startupInfo.ArgumentList.Add(arg);
+                throw new Exception("missing command");
             }
-            startupInfo.RedirectStandardOutput = true;
-            startupInfo.RedirectStandardError = true;
-            return Process.Start(startupInfo);
+            Serilog.Log.Information($"Running:{command}, args:{string.Join(',', args)}");
+            var startupInfo = new ProcessStartInfo(command)
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+            if (args != null)
+            {
+                foreach (var arg in args)
+                {
+                    startupInfo.ArgumentList.Add(arg);
+                }
+            }
+            var process = Process.Start(startupInfo);
+            if (process == null)
+            {
+                throw new Exception($"Failed to run:{command}");
+            }
+
+            process.WaitForExit();
+            stdOut = process.StandardOutput.ReadToEnd() ;
+            stdErr = process.StandardError.ReadToEnd();
+            Serilog.Log.Information($"Result:{process.ExitCode}, output:{stdOut}, err:{stdErr}");
+            return process.ExitCode;
         }
 
         public bool IsAdministrator()
@@ -76,7 +110,6 @@ namespace scalus.Platform
         {
             var tempFile = Path.GetTempFileName();
             string renamed = Path.ChangeExtension(tempFile, ext);
-            Serilog.Log.Information($"SHOUT - tmp:{tempFile}, rename:{renamed}");
             File.Move(tempFile, renamed);
             return renamed;
         }
@@ -104,7 +137,6 @@ namespace scalus.Platform
             }
             finally
             {
-                Serilog.Log.Information($"SHOUT - deleting :{tempFile}");
                 File.Delete(tempFile);
             }
         }

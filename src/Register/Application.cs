@@ -13,7 +13,7 @@
 
         public int Run()
         {
-            return Registration.Register(Options.Protocols, Options.Force) ? 0 : 1;
+            return Registration.Register(Options.Protocols, Options.Force, Options.UserMode, Options.UseSudo) ? 0 : 1;
         }
     }
 }

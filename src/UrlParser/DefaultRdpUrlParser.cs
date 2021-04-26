@@ -152,7 +152,6 @@ namespace scalus.UrlParser
             {"desktopscalefactor", ":i:100"},
             {"remoteapplicationexpandcmdline", ":i:1"},
             {"remoteapplicationexpandworkingdir", ":i:1"},
-            {"remoteapplicationexpandworkingdir", ":i:1"},
             {"remoteapplicationicon", ":s:"},
             {"remoteapplicationname", "s:"},
             {"remoteapplicationprogram", "s:"},

@@ -52,8 +52,11 @@ namespace scalus.UrlParser
                 Serilog.Log.Error($"Selected file preprocessor does not exist:{_fileProcessorExe}");
                 return;
             }
-            var process = services.Execute(_fileProcessorExe, _fileProcessorArgs);
-            process.WaitForExit();
+            string output;
+            string err;
+            var res = services.Execute(_fileProcessorExe, _fileProcessorArgs, out output, out err);
+            Serilog.Log.Information($"File preprocess result:{res}, output:{output}, err:{err}");
+            
         }
 
         public virtual void PostExecute(Process process)
@@ -61,7 +64,6 @@ namespace scalus.UrlParser
             if(Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforexit.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
                 process.WaitForExit();
-                Serilog.Log.Information($"Application completed with exit code: {process.ExitCode}");
             }
             if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforinputidle.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
@@ -79,11 +81,11 @@ namespace scalus.UrlParser
                 if(time > 0)
                 {
                     Task.Delay(time * 1000).Wait();
-                    if (process.HasExited)
-                    {
-                        Serilog.Log.Information($"Application exited with exit code: {process.ExitCode}");
-                    }
                 }
+            }
+            if (process.HasExited)
+            {
+                Serilog.Log.Information($"Application exited with exit code: {process.ExitCode}");
             }
         }
 
@@ -122,7 +124,6 @@ namespace scalus.UrlParser
 
         private void WriteTempFile(IEnumerable<string> lines, string ext)
         {
-            //TODO check platform specific
             var tempFile = Path.GetTempFileName();
             string renamed = Path.ChangeExtension(tempFile, ext);
             File.Move(tempFile, renamed);

@@ -15,6 +15,6 @@ namespace scalus.Platform
         void OpenText(string message);
 
         bool IsAdministrator();
-        Process Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr);
+        int Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr);
     }
 }
