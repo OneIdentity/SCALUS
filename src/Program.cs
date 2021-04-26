@@ -23,7 +23,7 @@ namespace scalus
             try
             {
                 // Register components with autofac
-                using var container = Ioc.RegisterApplication(Serilog.Log.Logger);
+                using var container = Ioc.RegisterApplication(Log.Logger);
                 using var lifetimeScope = container.BeginLifetimeScope();
                 
                 // Resolve the command line parser and 
@@ -72,11 +72,15 @@ namespace scalus
         {
             var logFilePath = ConfigurationManager.LogFile;
             var config = new LoggerConfiguration();
-            config.WriteTo.File(logFilePath, shared: true)
-                .MinimumLevel.ControlledBy(new LoggingLevelSwitch(ConfigurationManager.MinLogLevel));
-#if DEBUG
-            config.WriteTo.Console();
-#endif
+            config.WriteTo.File(logFilePath, shared: true);
+            if (ConfigurationManager.MinLogLevel != null)
+            {
+                config.MinimumLevel.ControlledBy(new LoggingLevelSwitch(ConfigurationManager.MinLogLevel.Value));
+            }
+            if (ConfigurationManager.LogToConsole)
+            {
+                config.WriteTo.Console();
+            }
             Log.Logger = config.CreateLogger();
         }
     }

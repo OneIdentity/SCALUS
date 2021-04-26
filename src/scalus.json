@@ -117,10 +117,10 @@
       //Use the builtin ssh parser
       "parser": {
         "id": "ssh",
-        "options": []
+        "options": ["waitforexit"]
       },
-      "exec": "/usr/bin/osascript",
-      "args": [ "-e", "tell application \"Terminal\" to do script \"ssh -t %User%@%Host%;exit\"" ]
+      "exec": "/usr/bin/open",
+      "args": [ "-b", "com.apple.terminal", "%OriginalURL%" ]
     },
     {
       "id": "mac-rdp",
@@ -133,10 +133,10 @@
         "id": "rdp",
         "options": [ "wait:60" ]
       },
-      "exec": "open",
+      "exec": "/usr/bin/open",
       "args": [
-        "-na",
-        "/Applications/Microsoft Remote Desktop.app/Contents/MacOS/Microsoft Remote Desktop",
+        "-nb",
+        "com.microsoft.rdc.macos",
         "%GeneratedFile%"
       ]
     },

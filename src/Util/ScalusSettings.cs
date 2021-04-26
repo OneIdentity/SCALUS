@@ -10,7 +10,8 @@ namespace scalus.Util
         private static IConfiguration _appSetting;
         private const string LogFileSetting = "Logging:fileName";
         private const string ConfigFileSetting = "Configuration:fileName";
-        private const string MinLogLevelSettings = "Logging:MinLevel";
+        private const string MinLogLevelSetting = "Logging:MinLevel";
+        private const string LogToConsoleSetting = "Logging:Console";
 
         private static string FullPath(string path)
         {
@@ -18,7 +19,7 @@ namespace scalus.Util
             {
                 return path;
             }
-
+            
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), path);
         }
         
@@ -28,10 +29,8 @@ namespace scalus.Util
             var fname = Path.Combine(path, "appsettings.json");
             if (!File.Exists(fname))
             {
-                Console.WriteLine($"SHOUT - where is {fname}");
                 throw new Exception($"Missing appsettings.json is {fname}");
             }
-            Console.WriteLine($"SHOUT Reading configuration from path:{fname}");
             _appSetting = new ConfigurationBuilder()
                 
                 .SetBasePath(path)
@@ -48,12 +47,26 @@ namespace scalus.Util
                     : FullPath(_appSetting[ConfigFileSetting]);
 
 
-        private static LogEventLevel ParseLevel()
+        private static LogEventLevel? ParseLevel()
         {
-            var val = _appSetting[MinLogLevelSettings];
+            var val = _appSetting[MinLogLevelSetting];
+            if (string.IsNullOrEmpty(val))
+                return null;
             object res;
             return Enum.TryParse(typeof(LogEventLevel), val, true, out res) ? Enum.Parse <LogEventLevel> (val) : LogEventLevel.Error;
         }
-        public static LogEventLevel MinLogLevel => ParseLevel();
+        public static LogEventLevel? MinLogLevel => ParseLevel();
+
+        private static bool ParseConsoleLogging()
+        {
+            var val = _appSetting[LogToConsoleSetting];
+            bool  bval = false;
+            if (bool.TryParse(val, out bval))
+            {
+                return bval;
+            }
+            return false;
+        }
+        public static bool LogToConsole => ParseConsoleLogging(); 
     }
 }

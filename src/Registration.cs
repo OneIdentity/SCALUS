@@ -16,34 +16,35 @@ namespace scalus
             OsServices = osServices;
         }
 
-        public bool Register(IEnumerable<string> protocols, bool force)
+        public bool Register(IEnumerable<string> protocols, bool force, bool userMode = false, bool useSudo=false)
         {
             var retval = false;
+
+            
+
             foreach (var protocol in protocols)
             {
                 retval = true;
+
                 foreach (var registrar in Registrars)
                 {
                     var command = registrar.GetRegisteredCommand(protocol);
-                    if (!string.IsNullOrEmpty(command) && !registrar.IsScalusRegistered(protocol) && !force)
+                    var res = false;
+                    if (string.IsNullOrEmpty(command))
                     {
-                        UserInteraction.Error($"{protocol}: Protocol is already registered by another application ({command}). Use -f to overwrite.");
-                        continue;
-                    }
-                    if (!string.IsNullOrEmpty(command))
-                    {
-                        if (!registrar.Unregister(protocol))
+                        if (registrar.IsScalusRegistered(protocol) && !force)
                         {
-                            UserInteraction.Error($"{protocol}: Unable to remove existing protocol registration. Try running this program again with administrator privileges.");
+                            UserInteraction.Error($"{protocol}: Protocol is already registered by another application ({command}). Use -f to overwrite.");
                             continue;
-                        }
-                    }
 
-                    if (registrar.Register(protocol))
-                    {
-                        UserInteraction.Message($"{protocol}: Successfully registered SCALUS as the default protocol handler.");
+                        }
+                        res = registrar.ReplaceRegistration(protocol, userMode, useSudo);
                     }
                     else
+                    {
+                        res = registrar.Register(protocol, userMode, useSudo);
+                    }
+                    if (!res)
                     {
                         UserInteraction.Error($"{protocol}: Failed to register SCALUS as the default protocol handler. Try running this program again with administrator privileges.");
                         retval = false;
@@ -59,7 +60,7 @@ namespace scalus
             return retval;
         }
 
-        public bool UnRegister(IEnumerable<string> protocols)
+        public bool UnRegister(IEnumerable<string> protocols, bool userMode = false, bool useSudo= false)
         {
             foreach (var protocol in protocols)
             {
@@ -67,7 +68,7 @@ namespace scalus
                 {
                     if (registrar.IsScalusRegistered(protocol))
                     {
-                        if (!registrar.Unregister(protocol))
+                        if (!registrar.Unregister(protocol, userMode, useSudo))
                         {
                             UserInteraction.Error($"{protocol}: Unable to remove SCALUS protocol registration. Try running this program again with administrator privileges.");
                             return false;

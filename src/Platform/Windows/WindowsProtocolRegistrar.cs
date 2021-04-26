@@ -24,7 +24,7 @@ namespace scalus
             return "";
         }
 
-        public bool Register(string protocol)
+        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
         {
             var registrationCommand = Constants.GetLaunchCommand("\"%1\"");
             Serilog.Log.Debug($"Registering to run {registrationCommand} for {protocol} URLs.");
@@ -56,7 +56,7 @@ namespace scalus
             return true;
         }
 
-        public bool Unregister(string protocol)
+        public bool Unregister(string protocol, bool userMode = false, bool useSudo= false)
         {
             // Remove the protocol registration
             var urlAssociationsPath = GetAppPath() + CapabilitiesUrlAssociationsFragment;
@@ -116,5 +116,15 @@ namespace scalus
         {
             return @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts";
         }
+        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        {
+            var res =Unregister(protocol, userMode, useSudo);
+            if (res)
+            {
+                res = Register(protocol, userMode, useSudo);
+            }
+            return res;
+        }
+
     }
 }

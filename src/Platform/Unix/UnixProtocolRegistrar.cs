@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml.Xsl;
 
 namespace scalus
 {
@@ -49,8 +48,8 @@ namespace scalus
         {
             string filepath;
             var args = new List<string> { "-c", $"XDG_UTILS_DEBUG_LEVEL=2 {XdgSettings} get default-url-scheme-handler" };
-            var result = RunCommand( "sh", args, out var stdOut, out _);
-            if (result)
+            var exitCode = _osServices.Execute( "sh", args, out var stdOut, out _);
+            if (exitCode == 0)
             {
                 var lines = stdOut.Split("\n");
                 if (lines.Any())
@@ -174,46 +173,23 @@ namespace scalus
             if (File.Exists(XdgSettings))
             {
                 var args = new List<string> { "get", "default-url-scheme-handler", protocol };
-                var result = RunCommand( XdgSettings, args, out string stdOut, out string stdErr);
-                if (result)
+                var exitCode = _osServices.Execute( XdgSettings, args, out string stdOut, out string stdErr);
+                if (exitCode == 0)
                 {
                     return (stdOut );
                 }
             }
             return GetDefaultHandlerForProtocol(protocol);
         }
-        private bool RunCommand(string exe, IEnumerable<string> args, out string output, out string err)
-        {
-            output = string.Empty;
-            err = string.Empty;
-            try {
-                var process = _osServices.Execute(exe, args, out output, out err);
-                process.WaitForExit();
-                if (process.ExitCode == 0)
-                {
-                    output = process.StandardError?.ReadToEnd() ;
-                    err = process.StandardError?.ReadToEnd();
-                    return true;
-                } 
-                output = process.StandardError?.ReadToEnd() ;
-                err = process.StandardError?.ReadToEnd();
-                Serilog.Log.Error($"Failed to run {exe} : (exitcode:{process.ExitCode},(stdout:{output}, err:{err}");
-                return false;
-            }
-            catch (Exception e)
-            {
-                Serilog.Log.Information($"Failed to run {exe}: {e.Message}");
-                return false;
-            }            
-        }
+       
 
         private void UpdateDefaultHandler(string protocol)
         {
             if (File.Exists(XdgMime))
             {
                 var args = new List<string> {"default", ScalusDesktop, $"{SchemeHandler}{protocol}"};
-                var result = RunCommand(XdgMime, args, out string stdOut, out string stdErr);
-                if (!result)
+                var exitCode = _osServices.Execute(XdgMime, args, out string stdOut, out string stdErr);
+                if (exitCode!=0)
                 {
                     Serilog.Log.Warning($"Failed to run {XdgMime}, stdout:{stdOut}, stderr:{stdErr}");
                 }
@@ -226,8 +202,8 @@ namespace scalus
         {
             if (File.Exists(UpdateDesktopDatabase))
             {
-                var result = RunCommand(UpdateDesktopDatabase, new List<string> { AppDataPath }, out string stdOut, out string stdErr);
-                if (!result)
+                var exitCode = _osServices.Execute(UpdateDesktopDatabase, new List<string> { AppDataPath }, out string stdOut, out string stdErr);
+                if (exitCode!=0)
                 {
                     Serilog.Log.Warning($"Failed to run {UpdateDesktopDatabase}: Stdoutput: {stdOut}, StdErr:{stdErr}");
                 }
@@ -261,7 +237,7 @@ namespace scalus
 
         }
 
-        public bool Register(string protocol)
+        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
         {
             try {
                 Serilog.Log.Debug($"Registering {ScalusDesktop} for {protocol} URLs.");
@@ -291,7 +267,7 @@ namespace scalus
             }
         }
 
-        public bool Unregister(string protocol)
+        public bool Unregister(string protocol, bool userMode = false, bool useSudo= false)
         { 
             Serilog.Log.Debug($"Unregistering {ScalusDesktop} for {protocol} URLs.");
             try
@@ -321,6 +297,16 @@ namespace scalus
                 Serilog.Log.Error(e, $"Failed to unregister {ScalusDesktop} for protocol: {protocol}");
                 return false;
             }
-        }      
+        }
+
+        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        {
+            var res =Unregister(protocol, userMode, useSudo);
+            if (res)
+            {
+                res = Register(protocol, userMode, useSudo);
+            }
+            return res;
+        }
     }
 }

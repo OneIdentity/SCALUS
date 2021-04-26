@@ -38,7 +38,13 @@ namespace scalus
             var serializerSettings = new JsonSerializerSettings();
             serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             var json = JsonConvert.SerializeObject(configJson, serializerSettings);
-            Config = JsonConvert.DeserializeObject<ScalusConfig>(configJson);
+            try{
+                Config = JsonConvert.DeserializeObject<ScalusConfig>(configJson);
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error(e, $"Failed to parse file:{configJson}: {e.Message}");
+            }
         }
     }
 

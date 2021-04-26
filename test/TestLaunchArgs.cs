@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Xunit;
 using scalus.UrlParser;
 using scalus.Dto;
+using scalus.Platform;
 using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.Test
@@ -158,5 +160,34 @@ namespace scalus.Test
             Assert.Contains("telnet", list);
 
         }
+
+        [Fact]
+        public void TestMacParsing()
+        {
+            var str = @"(
+        {
+        CFBundleURLName = ""com.oneidentity.scalus.macos"";
+        CFBundleURLSchemes =         (
+            ssh,
+            rdp, 
+            telnet
+        );
+        Another = ""sldkfjdk2"";
+        Some = (
+        One = ""two"";
+        );
+    }
+)";
+            var list = MacOSProtocolRegistrar.ParseList(str);
+            Assert.True(list.Count > 0, $"first:{list[0]}, second:{list[1]}");
+            Assert.Equal(3, list.Count);
+            Assert.Equal("ssh", list[0]);
+            Assert.Equal("rdp", list[1]);
+            Assert.Equal("telnet", list[2]);
+
+            var newstr = MacOSProtocolRegistrar.ConstructNewValue(list);
+
+        }
+
     }
 }

@@ -18,7 +18,7 @@
             return false;
         }
 
-        public bool Register(string protocol)
+        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
         {
             var registrationCommand = Constants.GetLaunchCommand();
             var message = $@"
@@ -29,10 +29,21 @@ You can register SCALUS manually using this command: {registrationCommand}
             return true;
         }
 
-        public bool Unregister(string protocol)
+        public bool Unregister(string protocol, bool userMode = false, bool useSudo = false)
         {
             UserInteraction.Message("SCALUS doesn't know how to unregister as a URL protocol handler on this platform.");
             return true;
         }
+
+        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        {
+            var res =Unregister(protocol, userMode, useSudo);
+            if (res)
+            {
+                res = Register(protocol, userMode, useSudo);
+            }
+            return res;
+        }
+
     }
 }

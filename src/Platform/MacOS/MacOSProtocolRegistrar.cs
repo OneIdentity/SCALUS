@@ -13,84 +13,117 @@ namespace scalus
         private readonly IOsServices _osServices;
         private static readonly string _scalusHandler = "com.oneidentity.scalus.macos";
 
-        //private readonly string _userPath = "Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure";
+        //user preferences are saved in "~Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist";
 
         private readonly string _lsRegisterCmd =
             "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
 
         private  readonly List<string> _lsRegisterArgs = new List<string> {"-kill", "-r", "-domain", "local", "-domain", "system", "-domain", "user"};
 
+        private const string AppPath = "/Applications/scalus.app";
+        private string _appPath;
+        private string _appInfo;
 
-        private static readonly string _appInfo = "/Applications/scalus.app/Contents/Info";
-
-        private readonly string _appInfoPlist = $"{_appInfo}.plist";
+        private string _appInfoPlist;
         public MacOSProtocolRegistrar(IOsServices osServices)
         {
             _osServices = osServices;
-        }
-
-        public bool RunCommand(string cmd, List<string> args, out string output)
-        {
-            Serilog.Log.Information($"DEBUG: running:{cmd} args:{string.Join(',', args)}");
-            var process = _osServices.Execute(cmd, args, out output, out string err);
-            process.WaitForExit();
-            Serilog.Log.Information($"DEBUG: exit:{process.ExitCode}, output:{output}, err:{err}");
-            if (process.HasExited)
+            string path;
+            string err;
+            var res = _osServices.Execute("/usr/bin/mdfind", new List<string>{$"kMDItemCFBundleIdentifier='{_scalusHandler}'" }, out path, out err);
+            path = Regex.Replace(path, "[\r\n ]", "", RegexOptions.Singleline);
+            if (res != 0 || string.IsNullOrEmpty(path))
             {
-                if (process.ExitCode != 0)
-                {
-                    Serilog.Log.Error($"Failed to run command:{err}");
-                    output = err;
-                }
-
-                return process.ExitCode == 0;
+                Serilog.Log.Warning($"Handler:{_scalusHandler} is not installed");
+                _appPath = AppPath;
             }
-            Serilog.Log.Error($"Command has not finished:{err}");
-            return false;
+            if (!Directory.Exists(path))
+            {
+                Serilog.Log.Warning($"Handler path:{path} does not exist or is not accessible - using default path");
+                _appPath = AppPath;
+            }
+            else
+            {
+                _appPath = path;
+            }
+            _appInfo = $"{_appPath}/Contents/Info";
+            _appInfoPlist = $"{_appInfo}.plist";
+            Serilog.Log.Information($"Using configured app from path: {_appPath}");
         }
-
-       
-
-        private bool UpdateConfiguredDefault(string protocol, bool add)
+        private bool RunCommand(string cmd, List<string> args,  out string output)
         {
-            var handler = add ? _scalusHandler : "none";
+            try {
+                string err;
+                var res = _osServices.Execute(cmd, args, out output, out err);
+                if (res == 0)
+                {
+                    return true;
+                }
+                if (!string.IsNullOrEmpty(err))
+                {
+                    output = $"{output}\n{err}";
+                }
+                return res == 0;
+            }
+            catch (Exception e)
+            {
+                output = e.Message;
+                return false;
+            }
+        }
+        
+        private bool UpdateConfiguredDefault(string protocol, bool add = true)
+        {
+            var handler = add ? _scalusHandler : string.Empty;
+            string output;
             var res= RunCommand( "python", 
                 new List<string> {
                     "-c",
                     $"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme(\"{protocol}\", \"{handler}\")"}, 
-                out _);
-
+                out output);
+            if (!res)
+            {
+                Serilog.Log.Error($"Failed to update the configured default:{output}");
+            }
             return res;
         }
-
+        //get the current configured default 
         public string GetRegisteredCommand(string protocol)
         {
-            string output;
             var res =
-                RunCommand( "python", 
-                    new List<string>{ "-c", $"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')"}, 
-                    out output);
-            if (!res || Regex.IsMatch(output, "none", RegexOptions.IgnoreCase))
+                RunCommand("python",
+                    new List<string> { "-c", $"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')" },
+                    out string output);
+            if (!res)
             {
+                Serilog.Log.Warning($"Failed to get the default protocol handler for:{protocol}: {output}");
                 return string.Empty;
             }
-            return output;
+            return Regex.IsMatch(output, "none", RegexOptions.IgnoreCase) ? string.Empty : output;
         }
-        
+
         public bool IsScalusRegistered(string protocol)
         {
             var handler = GetRegisteredCommand(protocol);
-            return Regex.IsMatch(handler, _scalusHandler, RegexOptions.IgnoreCase);
+            var res = Regex.IsMatch(handler, _scalusHandler, RegexOptions.IgnoreCase);
+            Serilog.Log.Information($"{protocol} registered:{res}");
+            return res;
         }
 
-        public bool Unregister(string protocol)
+        public bool Unregister(string protocol, bool userMode = false, bool useSudo= false)
         {
-            //TODO
+            var res1=true;
+            var res2 = true;
+            
+            if (!userMode)
+            {
+                res2=DeRegisterProtocol(protocol, useSudo);
+            }
             if (IsScalusRegistered(protocol))
             {
-                UpdateConfiguredDefault(protocol, false);
+                res1=UpdateConfiguredDefault(protocol, false);
             }
-            return DeRegisterProtocol(protocol);
+            return res1 && res2;
         }
 
         public static List<string> ParseList(string str)
@@ -122,121 +155,114 @@ namespace scalus
             return newvalue.ToString();
         }
 
-        private List<string> GetCurrentRegistrations()
+        private List<string> GetCurrentRegistrations(bool useSudo)
         {
             string output;
-            if (!File.Exists(_appInfoPlist))
+            if (!File.Exists(_appInfoPlist) && !useSudo)
             {
-                throw new Exception($"scalus application is not installed");
+                throw new Exception($"scalus application file :{_appInfoPlist} does not exist or is inaccessible");
             }
-
-            var readable = false;
-            try
-            {
-                using (var fs = new FileStream(_appInfoPlist, FileMode.Open))
-                {
-                    readable = fs.CanRead;
-                }
-            } catch {}
 
             var cmd = "defaults";
             var args = new List<string>( );
-            if (!readable)
+            if (useSudo)
             { 
-                //try using sudo
                 cmd = "sudo";
-                args = new List<string>
-                    {"defaults"};
+                args = new List<string>{"defaults"};
             }
             args.AddRange(new List<string>{"read", _appInfo, "CFBundleURLTypes"});
-
-            var res = RunCommand(cmd, args, out output);
-            if (!res)
+            var res = RunCommand (cmd, args, out output);
+            if (!res )
             {
+                Serilog.Log.Warning($"Failed to get the current registrations:{output}");
                 return new List<string>();
             }
             return ParseList(output);
         }
 
-        private bool UpdateRegistration(List<string> newlist)
+
+        private bool WriteNewDefaults(string path, string key, string value, bool useSudo)
+        {
+            var cmd = "/bin/sh"; 
+            var args = new List<string>( );
+            if (useSudo)
+            { 
+                //try using sudo
+                cmd = "sudo";
+                args.Add("/bin/sh" );
+
+            }
+            args.AddRange(new List<string>{$"-c", $"defaults write {path} {key} {value}" });
+            string output;
+            var res = RunCommand (cmd, args, out output);
+
+            if (!res)
+            {
+                Serilog.Log.Warning($"Failed to update {key} value in {path}:{output}");
+            }
+            return res;
+        }
+
+        private bool UpdateRegistration(List<string> newlist, bool useSudo)
         {
             var newvalue = ConstructNewValue(newlist);
             if (!File.Exists(_appInfoPlist))
             {
-                throw new Exception($"scalus application is not installed");
+                throw new Exception($"scalus application file:{_appInfoPlist} is not installed");
             }
 
-            var writeable = false;
-            try
+            var res = WriteNewDefaults(_appInfo, "CFBundleURLTypes", newvalue, useSudo);
+            if (!res)
             {
-                using (var fs = new FileStream(_appInfoPlist, FileMode.Open))
-                {
-                    writeable = fs.CanWrite;
-                }
-
+                return false;
             }
-            catch
-            {
-            }
-
-            var cmd = "defaults"; 
-            var args = new List<string>( );
-            if (!writeable)
-            { 
-                //try using sudo
-                cmd = "sudo";
-                args = new List<string>
-                    { "defaults"};
-            }
-            args.AddRange(new List<string>{"write", _appInfo, "CFBundleURLTypes", "-array", newvalue});
-
             string output;
-            var res = RunCommand(cmd, args, out output);
-            if (res)
+            res = RunCommand(_lsRegisterCmd, _lsRegisterArgs, out output);
+            if (!res)
             {
-                RunCommand(_lsRegisterCmd, _lsRegisterArgs, out _);
+                Serilog.Log.Warning($"Failed to update the registration database:{output}");
+                return false;
             }
             return res;
         }
 
 
 
-        private bool DeRegisterProtocol(string protocol)
+        private bool DeRegisterProtocol(string protocol, bool useSudo = false)
         {
-            var list = GetCurrentRegistrations();
+            var list = GetCurrentRegistrations(useSudo);
             if (!list.Contains(protocol, StringComparer.OrdinalIgnoreCase))
             {
                 return true;
             }
 
             list.Remove(protocol);
-            return UpdateRegistration(list);
+            return UpdateRegistration(list, useSudo);
         }
 
-        private bool RegisterProtocol(string protocol)
+        private bool RegisterProtocol(string protocol, bool useSudo)
         {
-            var list = GetCurrentRegistrations();
+            var list = GetCurrentRegistrations(useSudo);
             if (!list.Contains(protocol, StringComparer.OrdinalIgnoreCase))
             {
                 list.Add(protocol);
             }
-            return UpdateRegistration(list);
+            return UpdateRegistration(list, useSudo);
         }
 
-        public bool Register(string protocol)
+        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
         {
-            if (!RegisterProtocol(protocol))
+            var res1 = true;
+            if (!userMode)
             {
-                return false;
+                res1 = RegisterProtocol(protocol, useSudo);
             }
-
-            var res = RunCommand( "python", 
-                new List<string> {
-                    "-c",
-                $"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme(\"{protocol}\", \"{_scalusHandler}\")"}, 
-                out _);
-
-            return res;
+            var res2 = UpdateConfiguredDefault(protocol);
+            return res1 && res2;
+        }   
+        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        {
+            return Register(protocol, userMode, useSudo);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace scalus
                 var dictionary = Parser.Parse(Uri);
                 Parser.PreExecute(OsServices);           
                 var args = Parser.ReplaceTokens(ApplicationConfig.Args);          
-                Serilog.Log.Debug($"Starting external application: '{ApplicationConfig.Exec}' with args: '{string.Join(' ', args)}'");
+                Serilog.Log.Debug($"Starting external application: '{ApplicationConfig.Exec}' with args: '{string.Join(',', args)}'");
                 if (!File.Exists(ApplicationConfig.Exec))
                 {
                     Serilog.Log.Error($"Selected application does not exist:{ApplicationConfig.Exec}");
@@ -39,6 +39,7 @@ namespace scalus
                 }
                 var process = OsServices.Execute(ApplicationConfig.Exec, args);
                 Serilog.Log.Debug("Post execute starting.");
+                
                 Parser.PostExecute(process);
                 Serilog.Log.Debug("Post execute complete.");
             }
