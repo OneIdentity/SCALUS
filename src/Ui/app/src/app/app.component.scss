@@ -6,10 +6,6 @@
   flex-direction: column;
 }
 
-mat-toolbar {
-  background-color: #1CB0DD;
-}
-
 .header{
   flex-shrink: 0;
   flex-grow: 0;
@@ -20,7 +16,7 @@ mat-toolbar {
   flex-grow: 1;
   position: relative;
   overflow-y: auto;
-  margin: 20px 0px 0px 30px;
+  margin-left: 30px;
 }
 
 .footer{
@@ -28,7 +24,11 @@ mat-toolbar {
   flex-grow: 0;
 }
 
-.protocol-config {
+h2{
+  margin-top: 20px;
+}
+
+.protocol-configuration {
   width: 350px;
   margin-right:30px;
 }
@@ -38,18 +38,14 @@ mat-toolbar {
   margin-right:30px;
 }
 
-div.row {
+.row {
   display: flex;
   flex-direction: row;
   justify-content: top;  
 }
 
-.applications {
-  width: 100%;
-}
-
-.application{
-  margin-bottom:20px;
+mat-toolbar {
+  background-color: #1CB0DD;
 }
 
 :host ::ng-deep .mat-card-header-text {

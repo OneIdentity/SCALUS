@@ -6,11 +6,11 @@
     </mat-toolbar>
   </div>
 
-  <div class="content" role="main" >
+  <div class="content">
     
     <h2>SCALUS Protocols</h2>
     <div class="row">
-      <mat-card class="protocol-config" *ngFor="let p of protocols">
+      <mat-card class="protocol-configuration" *ngFor="let p of protocols">
         <mat-card-header>
           <mat-card-title>{{p.id}}</mat-card-title>
           <mat-card-subtitle>Set or change the application you want to launch {{p.id}} sessions on this machine.</mat-card-subtitle>
@@ -29,7 +29,7 @@
           <div class="row">
             <div style="flex-grow: 1;">{{getSelectedDescription(p.mapping.appId)}}</div>
             <mat-icon aria-hidden="false" style="flex-grow: 0; justify-content: bottom; cursor: pointer;" 
-              matTooltip="Delete Protocol" (click)="deleteProtocol(p.id)">delete</mat-icon>
+              matTooltip="Delete {{p.id}} Protocol" (click)="deleteProtocol(p.id)">delete</mat-icon>
           </div>
         </mat-card-content>
       </mat-card>
@@ -89,19 +89,6 @@
       </mat-card>
     </div>
 
-    <!--<h2>Applications</h2>
-    <div class="row">
-      <mat-accordion class="applications">
-        <mat-expansion-panel class="application" *ngFor="let a of config.applications">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              {{a.name}}
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          {{a.description}}
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>-->
   </div>
 
   <div class="footer">
