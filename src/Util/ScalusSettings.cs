@@ -20,7 +20,13 @@ namespace scalus.Util
                 return path;
             }
             
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), path);
+            var fqpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), path);
+            var dir  = Path.GetDirectoryName(fqpath);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            return fqpath;
         }
         
         static ConfigurationManager()
