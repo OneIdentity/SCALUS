@@ -1,0 +1,82 @@
+<div class="container" style="background-color: #424242;">
+    
+    <h1>Tokens</h1>
+    <div class="content" style="max-height: 300px;">    
+        <table style="font-family: 'Courier New', Courier, monospace;">
+            <tr>
+              <td>OriginalUrl</td>
+              <td>The full string passed to the application. This is available even if it is not a valid URL.</td>
+            </tr>
+            <tr>
+              <td>RelativeUrl</td>
+              <td>The original string passed to the application, without the protocol.</td>
+            </tr>
+            <tr>
+                <td>Protocol</td>
+                <td>The protocol in use, eg. scheme part of the URL.</td>
+            </tr>
+            <tr>
+                <td>User</td>
+                <td>The user (userinfo of the URL). For Safeguard URLs, this will contain the auth token information.</td>
+            </tr>
+            <tr>
+                <td>Host</td>
+                <td>The host part to connect to.</td>
+            </tr>
+            <tr>
+                <td>Port</td>
+                <td>The port to connect to.</td>
+            </tr>
+            <tr>
+                <td>Path</td>
+                <td>The path part of a standard URL.</td>
+            </tr>
+            <tr>
+                <td>Query</td>
+                <td>The query of a standard URL.</td>
+            </tr>
+            <tr>
+                <td>Fragment</td>
+                <td>The fragment part of a standard URL.</td>
+            </tr>
+            <tr>
+                <td>Vault</td>
+                <td>The vault address of a Safeguard URL.</td>
+            </tr>
+            <tr>
+                <td>Token</td>
+                <td>The token string of a Safeguard URL.</td>
+            </tr>
+            <tr>
+                <td>TargetUser</td>
+                <td>The target user part of a Safeguard URL.</td>
+            </tr>
+            <tr>
+                <td>TargetPort</td>
+                <td>The target port part of a Safeguard URL.</td>
+            </tr>
+            <tr>
+                <td>GeneratedFile</td>
+                <td>
+                    The generated file that will be passed to the application, if UseDefaultTemplate is true 
+                    or UseTemplateFile is configured. The file extension will be set to that of the template 
+                    (if provided), or determined by the parser.
+                </td>
+            </tr>
+            <tr>
+                <td>TempPath</td>
+                <td>The user's temp directory on this platform.</td>
+            </tr>
+            <tr>
+                <td>Home</td>
+                <td>The user's home directory on this platform.</td>
+            </tr>
+          </table>
+    </div>
+
+    <div class="footer">
+        <div class="row-reverse">
+            <button mat-flat-button color="primary" (click)="close()">Close</button>
+        </div>
+    </div>
+</div>

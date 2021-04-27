@@ -1,5 +1,7 @@
 <div class="container">
+
     <div class='content'>
+        
         <mat-accordion class="applications">
             <mat-expansion-panel class="application" *ngFor="let a of applications">
             <mat-expansion-panel-header>
@@ -32,10 +34,16 @@
                         <mat-label>Exec</mat-label>
                         <input type="text" matInput [(ngModel)]="a.exec">
                     </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Args - comma separated list</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.args">
-                    </mat-form-field>
+                    <div class="row">
+                        <mat-icon class="tokens-icon" style="flex-grow: 0;" (click)="showTokens()" 
+                            matTooltip="Click to see the list of tokens.">
+                            help
+                        </mat-icon>
+                        <mat-form-field appearance="outline" style="flex-grow: 1;">
+                            <mat-label>Args - comma separated list</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.args">
+                        </mat-form-field>
+                    </div>
                     <mat-form-field appearance="outline">
                         <mat-label>Parser</mat-label>
                         <input type="text" matInput [(ngModel)]="a.parser.id">
@@ -55,19 +63,27 @@
                         <mat-label>Parser Post Processing Exec</mat-label>
                         <input type="text" matInput [(ngModel)]="a.parser.postProcessingExec">
                     </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Parser Post Processing Args - comma separated list</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.parser.postProcessingArgs">
-                    </mat-form-field>
+                    <div class="row">
+                        <mat-icon class="tokens-icon" style="flex-grow: 0;" (click)="showTokens()" 
+                            matTooltip="Click to see the list of tokens.">
+                            help
+                        </mat-icon>
+                        <mat-form-field appearance="outline" style="flex-grow: 1;">
+                            <mat-label>Parser Post Processing Args - comma separated list</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.parser.postProcessingArgs">
+                        </mat-form-field>
+                    </div>
                     <div class="row-reverse">
                         <button mat-flat-button color="primary" (click)="delete(a.id)">Delete</button>
                     </div>
                 </div>
             </mat-expansion-panel>
         </mat-accordion>
+
     </div>
 
     <div class="footer">
+        
         <div class="row-reverse">
             <button mat-flat-button color="primary" style="margin-left: 10px;"
               (click)="cancel()">Cancel</button>
@@ -76,6 +92,7 @@
             <button mat-flat-button color="primary" 
               (click)="add()">Add</button>
         </div>
+        
     </div>
     
 </div>

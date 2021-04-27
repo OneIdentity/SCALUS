@@ -183,7 +183,8 @@ export class AppComponent implements OnInit {
       var file = fileInput.prop('files')[0];
       var fileReader: FileReader = new FileReader();
       fileReader.onloadend = (e) => {
-        var config = JSON.parse(fileReader.result as string);
+        var fileResults = fileReader.result as string;
+        var config = JSON.parse(fileResults);
         this.apiService.setConfig(config).subscribe(
           x => {
             this.loadConfig(config);
