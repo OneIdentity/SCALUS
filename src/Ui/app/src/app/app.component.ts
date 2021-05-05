@@ -1,8 +1,9 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { EuiSidesheetService, EuiSidesheetConfig } from '@elemental-ui/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay } from './api/api.service';
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
+import { ErrorDialogComponent } from './error/error-dialog.component';
 import { saveAs } from 'file-saver';
 import * as $ from 'jquery';
 
@@ -170,26 +171,6 @@ export class AppComponent implements OnInit {
     this.matDialog.open(ErrorDialogComponent, {
       data: errorMessage
     });
-  }
-
-}
-
-@Component({
-  selector: 'error-dialog',
-  templateUrl: 'error-dialog.component.html',
-})
-export class ErrorDialogComponent {
-
-  error: string;
-
-  constructor(
-    public dialogRef: MatDialogRef<ErrorDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data?: any) {
-      this.error = <string>data;
-  }
-
-  close(): void {
-    this.dialogRef.close();
   }
 
 }

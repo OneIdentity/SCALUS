@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, ViewEncapsulation } from '@angular/core';
 import { ApiService, ScalusConfig, ApplicationConfig, ApplicationConfigDisplay, ParserConfig, ParserConfigDisplay } from '../api/api.service';
 import { EuiSidesheetService, EUI_SIDESHEET_DATA } from '@elemental-ui/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ErrorDialogComponent } from '../error/error-dialog.component';
 
 @Component({
   selector: 'applications',
@@ -70,7 +71,7 @@ export class ScalusApplicationsComponent implements OnInit {
 
   showError(error: any, msg: string) {
     var errorMessage = msg + " (" + error + ")";
-    this.matDialog.open(ScalusApplicationsErrorDialogComponent, {
+    this.matDialog.open(ErrorDialogComponent, {
       data: errorMessage
     });
   }
@@ -133,26 +134,6 @@ export class ScalusApplicationsTokensDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ScalusApplicationsTokensDialogComponent>) {
 
-  }
-
-  close(): void {
-    this.dialogRef.close();
-  }
-
-}
-
-@Component({
-  selector: 'scalus-applications-error-dialog',
-  templateUrl: 'scalus-applications-error-dialog.component.html',
-})
-export class ScalusApplicationsErrorDialogComponent {
-
-  error: string;
-
-  constructor(
-    public dialogRef: MatDialogRef<ScalusApplicationsErrorDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data?: any) {
-      this.error = <string>data;
   }
 
   close(): void {
