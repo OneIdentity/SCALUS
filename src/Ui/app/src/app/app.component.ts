@@ -1,8 +1,9 @@
-import { mapToMapExpression } from '@angular/compiler/src/render3/util';
 import { Component, OnInit } from '@angular/core';
 import { EuiSidesheetService, EuiSidesheetConfig } from '@elemental-ui/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay } from './api/api.service';
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
+import { ErrorDialogComponent } from './error/error-dialog.component';
 import { saveAs } from 'file-saver';
 import * as $ from 'jquery';
 
@@ -21,19 +22,11 @@ export class AppComponent implements OnInit {
   config: ScalusConfig;
 
   protocols: ProtocolMappingDisplay[];
-  
-  //selectedRdpAppId: string = "";
-  //rdpApps: ApplicationConfig[];
-
-  //selectedSshAppId: string = "";
-  //sshApps: ApplicationConfig[];
-
-  //selectedTelnetAppId: string = "";
-  //telnetApps: ApplicationConfig[];
 
   constructor(
     private apiService: ApiService,
-    private sidesheetService: EuiSidesheetService) {
+    private sidesheetService: EuiSidesheetService,
+    private matDialog: MatDialog,) {
   }
 
   ngOnInit(): void {
@@ -41,7 +34,7 @@ export class AppComponent implements OnInit {
       this.loadConfig(x);
       this.state = 'loaded';
     }, error => {
-      this.handleError(error, "Failed to load configuration");
+      this.showError(error, "Failed to load configuration");
     });
   }
 
@@ -49,10 +42,6 @@ export class AppComponent implements OnInit {
   {
     this.config = config;
     this.protocols = this.getProtocols(this.config);
-    //this.rdpApps = this.getApps(this.config, 'rdp');
-    //this.sshApps = this.getApps(this.config, 'ssh');
-    //this.selectedRdpAppId = this.getMappedProtocol(this.config, "rdp")?.id;
-    //this.selectedSshAppId = this.getMappedProtocol(this.config, "ssh")?.id;
   }
 
   getProtocols(config: ScalusConfig) {
@@ -74,24 +63,6 @@ export class AppComponent implements OnInit {
     return protocols;
   }
 
-  // getMappedProtocol(config:SuluConfig, protocol:string) : ApplicationConfig {
-  //   var appId = ""
-  //   config.protocols.forEach(element => {
-  //   if(element.protocol == protocol) {
-  //       appId = element.appId;
-  //     }
-  //   });
-  //   var protocolConfig: ApplicationConfig;
-  //   if(appId) {
-  //     config.applications.forEach(element => {
-  //       if(element.id == appId) {
-  //         protocolConfig = element;
-  //       }
-  //     })
-  //   }
-  //   return protocolConfig;
-  // }
-
   setApp(protocol:string, appId:string){
     this.config.protocols.forEach(x =>{
       if(x.protocol == protocol) {
@@ -100,7 +71,7 @@ export class AppComponent implements OnInit {
     });
     this.apiService.setConfig(this.config).subscribe(x => {}, 
       error => {
-        this.handleError(error, "Failed to save configuration");
+        this.showError(error, "Failed to save configuration");
     });
   }
 
@@ -108,25 +79,11 @@ export class AppComponent implements OnInit {
     return this.getApplicationConfig(appId)?.description;
   }
 
-  // getApps(config:SuluConfig, protocol:string) : ApplicationConfig[] {
-  //   var result = new Array();
-  //   config.applications.forEach(x => {
-  //     if (x.protocol == protocol) {
-  //       result.push(x);
-  //     }
-  //   });
-  //   return result;
-  // }
-
   getApplicationConfig(id:string) : ApplicationConfig {
     if(this.config == null) {
       return null;
     }
     return this.config.applications.filter(x => x.id == id)[0];
-  }
-
-  handleError(error:any, msg:string){
-    alert("ERROR: " + msg + " (" + error + ")");
   }
 
   canAddProtocol() {
@@ -143,7 +100,7 @@ export class AppComponent implements OnInit {
         this.loadConfig(this.config);
       }, 
       error => {
-        this.handleError(error, "Failed to save configuration");
+        this.showError(error, "Failed to save configuration");
     });
   }
 
@@ -160,7 +117,7 @@ export class AppComponent implements OnInit {
         this.loadConfig(this.config);
       }, 
       error => {
-        this.handleError(error, "Failed to save configuration");
+        this.showError(error, "Failed to save configuration");
     });
   }
 
@@ -183,15 +140,20 @@ export class AppComponent implements OnInit {
       var file = fileInput.prop('files')[0];
       var fileReader: FileReader = new FileReader();
       fileReader.onloadend = (e) => {
-        var fileResults = fileReader.result as string;
-        var config = JSON.parse(fileResults);
-        this.apiService.setConfig(config).subscribe(
-          x => {
-            this.loadConfig(config);
-          }, 
-          error => {
-            this.handleError(error, "Failed to save configuration");
-        });
+        try {
+          var fileResults = fileReader.result as string;
+          var config = JSON.parse(fileResults);
+          this.apiService.setConfig(config).subscribe(
+            x => {
+              this.loadConfig(config);
+            }, 
+            error => {
+              this.showError(error, "Failed to save configuration");
+          });
+        } 
+        catch(error) {
+          this.showError(error, "Invalid configuration file");
+        }
       }
       fileReader.readAsText(file);
     });
@@ -202,6 +164,13 @@ export class AppComponent implements OnInit {
     var configString = JSON.stringify(this.config);
     var blob = new Blob([configString], {type : 'application/json'});
     saveAs(blob, 'scalus.json');
+  }
+
+  showError(error: any, msg: string) {
+    var errorMessage = msg + " (" + error + ")";
+    this.matDialog.open(ErrorDialogComponent, {
+      data: errorMessage
+    });
   }
 
 }

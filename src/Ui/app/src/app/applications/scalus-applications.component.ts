@@ -1,7 +1,8 @@
 import { Component, OnInit, Inject, ViewEncapsulation } from '@angular/core';
 import { ApiService, ScalusConfig, ApplicationConfig, ApplicationConfigDisplay, ParserConfig, ParserConfigDisplay } from '../api/api.service';
 import { EuiSidesheetService, EUI_SIDESHEET_DATA } from '@elemental-ui/core';
-import {MatDialog, MatDialogRef} from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ErrorDialogComponent } from '../error/error-dialog.component';
 
 @Component({
   selector: 'applications',
@@ -60,7 +61,7 @@ export class ScalusApplicationsComponent implements OnInit {
         this.sidesheetService.close();
     }, 
       error => {
-        this.handleError(error, "Failed to save configuration");
+        this.showError(error, "Failed to save configuration");
     });
   }
 
@@ -68,8 +69,11 @@ export class ScalusApplicationsComponent implements OnInit {
     this.sidesheetService.close();
   }
 
-  handleError(error:any, msg:string){
-    alert("ERROR: " + msg + " (" + error + ")");
+  showError(error: any, msg: string) {
+    var errorMessage = msg + " (" + error + ")";
+    this.matDialog.open(ErrorDialogComponent, {
+      data: errorMessage
+    });
   }
 
   getApplicationDisplay(ac:ApplicationConfig) {
@@ -117,10 +121,7 @@ export class ScalusApplicationsComponent implements OnInit {
   }
 
   showTokens() {
-    const dialogRef = this.matDialog.open(ScalusApplicationsTokensDialogComponent, {
-      
-    });
-
+    this.matDialog.open(ScalusApplicationsTokensDialogComponent, {});
   }
 }
 
