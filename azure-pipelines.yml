@@ -32,3 +32,9 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+- task: Cake@2
+  inputs:
+    script: 'build.cake'
+    target: 'Default'
+    verbosity: 'Verbose'
