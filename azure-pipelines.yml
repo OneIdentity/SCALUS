@@ -36,5 +36,5 @@ steps:
 - task: Cake@2
   inputs:
     script: 'build.cake'
-    target: 'Default'
+    target: 'Publish'
     verbosity: 'Verbose'
