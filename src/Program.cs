@@ -19,7 +19,7 @@ namespace scalus
         static int Main(string[] args)
         {
             ConfigureLogging();
-
+            CheckConfig();
             try
             {
                 // Register components with autofac
@@ -66,8 +66,36 @@ namespace scalus
             }
         }
 
-        
 
+        static void CheckConfig()
+        {
+            Log.Logger.Information($"CheckConfig");
+            if (File.Exists(ConfigurationManager.ScalusJson))
+            {
+                Log.Logger.Information($"ok");
+                return;
+            }
+
+            if (!File.Exists(ConfigurationManager.ScalusJsonDefault)) 
+            { 
+                Log.Logger.Warning($"Config file not found:{ConfigurationManager.ScalusJson} and installed file not found:{ConfigurationManager.ScalusJsonDefault}");
+                return;
+            }
+            
+            try
+            {
+                var dir = Path.GetDirectoryName(ConfigurationManager.ScalusJson);
+                if (!Directory.Exists(dir)) 
+                { 
+                    Directory.CreateDirectory(dir);
+                }
+                Log.Logger.Information($"Initializing config file:{ConfigurationManager.ScalusJsonDefault} from the installed file:{ConfigurationManager.ScalusJsonDefault}");
+                File.WriteAllText(ConfigurationManager.ScalusJson,  File.ReadAllText(ConfigurationManager.ScalusJsonDefault));
+            }
+            catch (Exception e) {
+                Log.Logger.Information($"Failed to initialize config file:{ConfigurationManager.ScalusJson} from installed file:{ConfigurationManager.ScalusJsonDefault}: {e.Message}");
+            }
+        }
         static void ConfigureLogging()
         {
             var logFilePath = ConfigurationManager.LogFile;

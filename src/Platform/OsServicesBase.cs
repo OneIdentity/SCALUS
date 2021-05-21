@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace scalus.Platform
 {
@@ -29,7 +30,7 @@ namespace scalus.Platform
             {
                 return Process.Start("open", url);
             }
-            Serilog.Log.Information($"unknown platform {RuntimeInformation.OSDescription}- cant prompt");
+            Log.Information($"unknown platform {RuntimeInformation.OSDescription}- cant prompt");
             return null;
         }
 
@@ -49,8 +50,9 @@ namespace scalus.Platform
             {
                 startupInfo.ArgumentList.Add(arg);
             }
+            Log.Logger.Information($"Running process:{command} with args:{string.Join(' ', args)}");
             var process = Process.Start(startupInfo);
-            Serilog.Log.Information($"Started process, id:{process.Id}, exited:{process.HasExited}");
+            Log.Logger.Information($"Started process, id:{process.Id}, exited:{process.HasExited}");
             return process;
         }
         //execute a command, wait for it to end, return the exit code and retrieve the stdout & stderr
@@ -62,7 +64,7 @@ namespace scalus.Platform
             {
                 throw new Exception("missing command");
             }
-            Serilog.Log.Information($"Running:{command}, args:{string.Join(',', args)}");
+            Log.Logger.Information($"Running:{command}, args:{string.Join(',', args)}");
             var startupInfo = new ProcessStartInfo(command)
             {
                 CreateNoWindow = true,
@@ -86,7 +88,7 @@ namespace scalus.Platform
             process.WaitForExit();
             stdOut = process.StandardOutput.ReadToEnd() ;
             stdErr = process.StandardError.ReadToEnd();
-            Serilog.Log.Information($"Result:{process.ExitCode}, output:{stdOut}, err:{stdErr}");
+            Log.Logger.Information($"Result:{process.ExitCode}, output:{stdOut}, err:{stdErr}");
             return process.ExitCode;
         }
 
