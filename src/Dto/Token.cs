@@ -38,26 +38,32 @@ namespace scalus.Dto
             wait=2
         }
 
-        
-        public static Dictionary<Token, string> TokenDescription {get; }  = new Dictionary<Token, string>
+
+        public static Dictionary<Token, string> TokenDescription { get; } = new Dictionary<Token, string>
         {
-            {  Token.OriginalUrl, "The full string passed to the application. This is available even if it is not a valid URL" },
-            {  Token.RelativeUrl, "The original string passed to the application, without the protocol" },
-            {  Token.Protocol, "The protocol in use, eg. scheme part of the URL" },
-            {  Token.User, "The user (userinfo of the URL). For Safeguard URLs, this will contain the auth token information" },
-            {  Token.Host, "The host part to connect to" },
-            {  Token.Port, "The port to connect to" },
-            {  Token.Path, "The path part of a standard URL" },
-            {  Token.Query, "The query of a standard URL" },
-            {  Token.Fragment, "The fragment part of a standard URL" },
-            {  Token.Vault, "The vault address of a Safeguard URL" },
-            {  Token.Token, "The token string of a Safeguard URL" },
-            {  Token.TargetUser, "The target user part of a Safeguard URL" },
-            {  Token.TargetHost, "The target host part of a Safeguard URL" },
-            {  Token.TargetPort, "The target port part of a Safeguard URL" },
-            {  Token.GeneratedFile, "The generated file that will be passed to the application, if UseDefaultTemplate is true or UseTemplateFile is configured. The file extension will be set to that of the template (if provided), or determined by the parser" },
-            {  Token.TempPath, "The user's temp directory on this platform" },
-            {  Token.Home, "The user's home directory on this platform" },
-        }; 
+            {
+                Token.OriginalUrl,
+                "The full URL string. This token is available even if it is not a valid URL, e.g. 'rdp://full+address=s:address&username=s:user'."
+            },
+            {Token.RelativeUrl, "The URL string without the protocol, e.g. 'full+address=s:address&username=s:user'."},
+            {Token.Protocol, "The protocol in use, eg. scheme part of the URL, e.g. 'rdp'"},
+            {
+                Token.User,
+                "The user (userinfo of the URL). For Safeguard URLs, this will contain the auth token information, e.g. 'vaultaddress~hostname%token~tokenstring%user1@targethost."
+            },
+            {Token.Host, "The hostname or IP address that the application will connect to."},
+            {Token.Port, "The port number that the application will connect to."},
+            {Token.Path, "The path part of a standard URL."},
+            {Token.Query, "The query of a standard URL."},
+            {Token.Fragment, "The fragment part of a standard URL."},
+            {Token.Vault, "The hostname or IP address of the Safeguard vault, extracted from a Safeguard URL."},
+            {Token.Token, "The token part of a Safeguard URL."},
+            {Token.TargetUser, "The target username part of a Safeguard URL."},
+            {Token.TargetHost, "The target host name or IP address part of a Safeguard URL."},
+            {Token.TargetPort, "The target port part of a Safeguard URL."},
+            {Token.GeneratedFile,"The generated file that will be passed to the application, if UseDefaultTemplate is true or UseTemplateFile is configured. The file extension will be set to that of the template (if provided), or determined by the parser."},
+            {Token.TempPath, "The user's temp directory on this platform."},
+            {Token.Home, "The user's home directory on this platform."},
+        };
     }
 }

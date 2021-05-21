@@ -52,6 +52,7 @@ namespace scalus.Util
                     ? Path.Combine(Constants.GetBinaryDirectory(), "scalus.json")
                     : FullPath(_appSetting[ConfigFileSetting]);
 
+        public static string ScalusJsonDefault => Path.Combine(Constants.GetBinaryDirectory(), "scalus.json");
 
         private static LogEventLevel? ParseLevel()
         {

@@ -10,6 +10,8 @@
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
 
     <DelaySign>false</DelaySign>
+
+    <OutputType>WinExe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

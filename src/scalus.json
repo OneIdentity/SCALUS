@@ -1,12 +1,13 @@
 {
   "protocols": [
     {
-      "protocol": "rdp",
-      "appid": "windows-rdp"
+      "protocol": "rdp"
     },
     {
-      "protocol": "ssh",
-      "appid": "windows-openssh"
+      "protocol": "ssh"
+    },
+    {
+      "protocol":  "telnet" 
     }
   ],
   "applications": [

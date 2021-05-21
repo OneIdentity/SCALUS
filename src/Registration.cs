@@ -16,6 +16,15 @@ namespace scalus
             OsServices = osServices;
         }
 
+        public bool IsRegistered(string protocol)
+        {
+            var registered = true;
+            foreach (var registrar in Registrars)
+            {
+                registered = registered && registrar.IsScalusRegistered(protocol);
+            }
+            return registered;
+        }
         public bool Register(IEnumerable<string> protocols, bool force, bool userMode = false, bool useSudo=false)
         {
             var retval = false;

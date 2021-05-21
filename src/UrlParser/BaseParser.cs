@@ -9,6 +9,7 @@ using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using Serilog;
 using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
@@ -124,44 +125,55 @@ namespace scalus.UrlParser
 
         private void WriteTempFile(IEnumerable<string> lines, string ext)
         {
-            var tempFile = Path.GetTempFileName();
-            string renamed = Path.ChangeExtension(tempFile, ext);
-            File.Move(tempFile, renamed);
-            tempFile = renamed;
-            Disposables.Add(Disposable.Create(() => File.Delete(tempFile)));
-            var newlines = new List<string>();
-            foreach(var line in lines)
+            try
             {
-                var newline = line;
-                foreach(var onevar in Dictionary)
+                var tempFile = Path.GetTempFileName();
+                string renamed = Path.ChangeExtension(tempFile, ext);
+                File.Move(tempFile, renamed);
+                tempFile = renamed;
+                Disposables.Add(Disposable.Create(() => File.Delete(tempFile)));
+                var newlines = new List<string>();
+                foreach (var line in lines)
                 {
-                     newline = Regex.Replace(newline, $"%{onevar.Key}%", $"{onevar.Value}", RegexOptions.IgnoreCase);
-                }
-                newlines.Add(newline);
-            } 
-            File.WriteAllText(tempFile, string.Join(Environment.NewLine, newlines));
-            Dictionary[Token.GeneratedFile] = tempFile;
-            _fileProcessorArgs = new List<string>();
-            _fileProcessorExe = string.Empty;
-            if (!string.IsNullOrEmpty(Config.PostProcessingExec))
-            {              
-                var found = false;
-                _fileProcessorExe = ReplaceTokens(Config.PostProcessingExec);
-                foreach (var arg in Config.PostProcessingArgs)
-                {
-                    if (arg.Contains($"%{Token.GeneratedFile}%"))
-                    { 
-                        found = true;
+                    var newline = line;
+                    foreach (var onevar in Dictionary)
+                    {
+                        newline = Regex.Replace(newline, $"%{onevar.Key}%", $"{onevar.Value}", RegexOptions.IgnoreCase);
                     }
-                    _fileProcessorArgs.Add(ReplaceTokens(arg));
-                }
-                if (!found)
-                {
-                    _fileProcessorArgs.Add($"%{Dictionary[Token.GeneratedFile]}%");
-                }
-            }
 
-            Serilog.Log.Information($"Preprocessing cmd:{_fileProcessorExe} args:{string.Join(',', _fileProcessorArgs)}");
+                    newlines.Add(newline);
+                }
+                File.WriteAllText(tempFile, string.Join(Environment.NewLine, newlines));
+                Dictionary[Token.GeneratedFile] = tempFile;
+                _fileProcessorArgs = new List<string>();
+                _fileProcessorExe = string.Empty;
+                if (!string.IsNullOrEmpty(Config.PostProcessingExec))
+                {
+                    var found = false;
+                    _fileProcessorExe = ReplaceTokens(Config.PostProcessingExec);
+                    foreach (var arg in Config.PostProcessingArgs)
+                    {
+                        if (arg.Contains($"%{Token.GeneratedFile}%"))
+                        {
+                            found = true;
+                        }
+
+                        _fileProcessorArgs.Add(ReplaceTokens(arg));
+                    }
+
+                    if (!found)
+                    {
+                        _fileProcessorArgs.Add($"%{Dictionary[Token.GeneratedFile]}%");
+                    }
+                }
+
+                Serilog.Log.Information(
+                    $"Preprocessing cmd:{_fileProcessorExe} args:{string.Join(',', _fileProcessorArgs)}");
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error($"Failed to process temp file: {e.Message}");
+            }
         }
     
 

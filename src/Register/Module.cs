@@ -6,8 +6,8 @@ namespace scalus.Register
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<scalus.Register.Options>().AsSelf().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<scalus.Register.Application>().Named<IApplication>("register").SingleInstance();
+            builder.RegisterType<Options>().AsSelf().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<Application>().Named<IApplication>("register").SingleInstance();
         }
     }
 }
