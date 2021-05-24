@@ -38,3 +38,9 @@ steps:
     script: 'build.cake'
     target: 'Default'
     verbosity: 'Verbose'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/output/release/win10-x64'
+    artifact: 'Scalus.msi'
+    publishLocation: 'pipeline'
