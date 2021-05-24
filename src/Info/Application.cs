@@ -49,11 +49,12 @@ namespace scalus.Info
                     }
                 };
                 Console.WriteLine(@"
-
-SCALUS lets you register URL protocols and configure the applications (e.g. Microsoft Remote Desktop, FreeRDP) that will be launched to handle those URLS.
+SCALUS CONFIGURATION:
+--------------------
+The 'scalus.json' configuration file describes the supported protocols and the applications that will be launched to process them (e.g. Microsoft Remote Desktop, FreeRDP) that will be launched to handle those URLS.
 
 ");
-                Console.WriteLine($"Example scalus configuration file: ");
+                Console.WriteLine($"Example scalus configuration: ");
                 Console.WriteLine();
                 Console.WriteLine(JsonConvert.SerializeObject(example));
                 Console.WriteLine(@"
@@ -62,7 +63,8 @@ For more detailed information about a DTO property, run info -p <property>
 
 ");
                 Console.WriteLine(@"
-
+SCALUS Tokens:
+-------------
 The following tokens can be used in the scalus configuration. Each token will be evaluated and replaced when launching the configured application.
 ");
                 foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
@@ -89,7 +91,7 @@ The following tokens can be used in the scalus configuration. Each token will be
             }
             Console.WriteLine(@"
 
-SCALUS configuration:
+SCALUS configuration :
 --------------------
 
 ");
@@ -97,10 +99,11 @@ SCALUS configuration:
             Console.WriteLine($" - Logfile              : {ConfigurationManager.LogFile}" );
             var config = Configuration.GetConfiguration();
             Console.WriteLine(@"
-- Protocols configured in scalus.json:
-  -----------------------------------
+- Protocols configured for scalus:
+  -------------------------------
 ");
             Console.WriteLine("   {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Command");
+            Console.WriteLine("-------------------------------------------------");
             foreach (var one in config.Protocols)
             {
                 Console.Write("   {0,-10} ", one.Protocol);
