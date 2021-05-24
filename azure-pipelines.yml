@@ -38,3 +38,9 @@ steps:
     script: 'build.cake'
     target: 'Default'
     verbosity: 'Verbose'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'output/release/win10-x64'
+    ArtifactName: 'Scalus.msi'
+    publishLocation: 'Container'
