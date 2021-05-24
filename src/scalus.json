@@ -21,8 +21,8 @@
         "id": "rdp",
         "options": [ "waitForInputIdle" ],
         "UseDefaultTemplate": true,
-        "PostProcessingExec": "C:/program files/git/usr/bin/perl.exe",
-        "PostProcessingArgs": [ "%HOME%/pluggable.pl" ]
+        "PostProcessingExec": "C:/strawberry/perl/bin/perl.exe",
+        "PostProcessingArgs": [ "%AppData%/pluggable.pl" ]
 
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
@@ -36,7 +36,7 @@
       "protocol": "rdp",
       "parser": {
         "id": "rdp",
-        "UseTemplateFile": "%HOME%\\scalus\\mstemplate.rdp",
+        "UseTemplateFile": "%AppData%\\scalus\\mstemplate.rdp",
         "options": [ "waitForInputIdle" ]
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
@@ -65,7 +65,7 @@
       "parser": {
         "id": "rdp",
         "options": [ "waitforexit" ],
-        "UseTemplateFile": "%HOME%/Mycustomtemplate.myextension"
+        "UseTemplateFile": "%AppData%/Mycustomtemplate.myextension"
       },
       "exec": "/usr/bin/mycustomApp",
       "args": [ "%GeneratedFile%" ]

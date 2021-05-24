@@ -9,6 +9,7 @@ using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using scalus.Util;
 using Serilog;
 using static scalus.Dto.ParserConfigDefinitions;
 
@@ -18,7 +19,7 @@ namespace scalus.UrlParser
     {  
         private string _fileProcessorExe = null;
         private List<string> _fileProcessorArgs = null;       
-        protected string FileExtension { get; set; } = ".sulu";
+        protected string FileExtension { get; set; } = ".scalus";
         protected IDictionary<Token,string> Dictionary {get; set; }  = new Dictionary<Token,string>();
 
         public Regex SafeguardUserPattern = new Regex(
@@ -223,6 +224,7 @@ namespace scalus.UrlParser
         protected void ParseConfig()
         {
             Dictionary[Token.Home]= Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            Dictionary[Token.AppData] = ConfigurationManager.ProdAppPath();
             Dictionary[Token.TempPath]= Path.GetTempPath();
             IEnumerable<string> fileLines = null;
             if (Config.UseDefaultTemplate)

@@ -54,7 +54,8 @@ namespace scalus.Test
                 { Token.RelativeUrl, $"{fulluser}@{host}" },
                 { Token.GeneratedFile, filename },
                 { Token.TempPath, Path.GetTempPath() },
-                { Token.Home, "homedir" }
+                { Token.Home, "homedir" },
+                {Token.AppData, "appdata/scalus"}
             };
         }
 
@@ -81,7 +82,8 @@ namespace scalus.Test
 
                 $"%{Token.GeneratedFile}%",
                 $"%{Token.TempPath}%",
-                $"%{Token.Home}%"
+                $"%{Token.Home}%",
+                $"%{Token.AppData}%"
             };
                
             
@@ -121,6 +123,8 @@ namespace scalus.Test
             Assert.Equal(Path.GetTempPath(), one.Current);
             Assert.True(one.MoveNext());
             Assert.Equal("homedir", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("appdata/scalus", one.Current);
             Assert.False(one.MoveNext());
 
             args = new List<string>
@@ -188,6 +192,5 @@ namespace scalus.Test
             var newstr = MacOSProtocolRegistrar.ConstructNewValue(list);
 
         }
-
     }
 }
