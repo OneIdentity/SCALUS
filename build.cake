@@ -1,6 +1,7 @@
 #addin "Cake.Powershell"
 
 #tool "nuget:?package=xunit.runner.console"
+#tool "nuget:?package=WiX"
 #addin nuget:?package=SharpZipLib   
 #addin nuget:?package=Cake.Compression
 #addin nuget:?package=Cake.FileHelpers
