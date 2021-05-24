@@ -42,5 +42,5 @@ steps:
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)/s/Output/Release/win-x64'
-    artifact: 'Scalus.msi'
+    artifact: 'Scalus'
     publishLocation: 'pipeline'
