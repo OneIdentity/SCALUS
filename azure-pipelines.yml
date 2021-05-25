@@ -10,11 +10,13 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  version: '1.0.0.$(Revision)'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
+- script: echo 'SCALUS Version - $(version)'
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -38,21 +40,21 @@ steps:
     script: 'build.cake'
     target: 'Default'
     verbosity: 'Verbose'
-    arguments: '--runtime=win10-x64'
+    arguments: '--runtime=win10-x64 --Version=$(version)'
 
 - task: Cake@2
   inputs:
     script: 'build.cake'
     target: 'Default'
     verbosity: 'Verbose'
-    arguments: '--runtime=linux-x64'
+    arguments: '--runtime=linux-x64 --Version=$(version)'
 
 - task: Cake@2
   inputs:
     script: 'build.cake'
     target: 'Default'
     verbosity: 'Verbose'
-    arguments: '--runtime=osx-x64'
+    arguments: '--runtime=osx-x64 --Version=$(version)'
     
 - task: PublishPipelineArtifact@1
   inputs:
