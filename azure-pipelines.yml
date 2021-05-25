@@ -38,9 +38,23 @@ steps:
     script: 'build.cake'
     target: 'Default'
     verbosity: 'Verbose'
+    arguments: '--runtime=win10-x64'
+
+- task: Cake@2
+  inputs:
+    script: 'build.cake'
+    target: 'Default'
+    verbosity: 'Verbose'
+    arguments: '--runtime=linux-x64'
+    
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
+    artifact: 'Scalus-Win10'
+    publishLocation: 'pipeline'
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Pipeline.Workspace)/s/Output/Release/win-x64'
-    artifact: 'Scalus'
+    targetPath: '$(Pipeline.Workspace)/s/Output/Release/linux-x64'
+    artifact: 'Scalus-Linux'
     publishLocation: 'pipeline'
