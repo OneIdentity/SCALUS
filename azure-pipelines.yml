@@ -38,7 +38,15 @@ steps:
     script: 'build.cake'
     target: 'Default'
     verbosity: 'Verbose'
+    arguments: 'runtime=win10-x64'
 
+- task: Cake@2
+  inputs:
+    script: 'build.cake'
+    target: 'Default'
+    verbosity: 'Verbose'
+    arguments: 'runtime=linux-x64'
+    
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)/s/Output/Release/win-x64'
