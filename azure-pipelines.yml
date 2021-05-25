@@ -50,11 +50,11 @@ steps:
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
-    artifact: 'Scalus'
+    artifact: 'Scalus-Win10'
     publishLocation: 'pipeline'
 
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)/s/Output/Release/linux-x64'
-    artifact: 'Scalus'
+    artifact: 'Scalus-Linux'
     publishLocation: 'pipeline'
