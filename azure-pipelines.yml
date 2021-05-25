@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  Revision.Version: $[counter(revision-counter, 0)]
+  Revision.Version: $[counter(test, 0)]
   version: '$(Major.Version).$(Minor.Version).$(Patch.Version).$(Revision.Version)'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
