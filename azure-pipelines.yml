@@ -3,6 +3,8 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
+name: $(Major.Version).$(Minor.Version).$(Patch.Version).$(Rev:r)
+
 trigger:
 - master
 
@@ -10,7 +12,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  version: '1.0.0.$(rev:r)'
+  version: '$(Build.BuildNumber)'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
