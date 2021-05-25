@@ -46,6 +46,13 @@ steps:
     target: 'Default'
     verbosity: 'Verbose'
     arguments: '--runtime=linux-x64'
+
+- task: Cake@2
+  inputs:
+    script: 'build.cake'
+    target: 'Default'
+    verbosity: 'Verbose'
+    arguments: '--runtime=osx-x64'
     
 - task: PublishPipelineArtifact@1
   inputs:
