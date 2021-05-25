@@ -10,13 +10,12 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  version: '1.0.0.$(Rev:.r)'
+  version: '1.0.0.$(rev:r)'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-- script: echo 'Rev - $(Rev:.r)'
 - script: echo 'SCALUS Version - $(version)'
 - task: NuGetToolInstaller@1
 
