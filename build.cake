@@ -258,7 +258,7 @@ else
 
 Task("Default")
     .IsDependentOn("LinuxInstall")
-    .IsDependentOn("OsxInstall")
+    //.IsDependentOn("OsxInstall")
     .IsDependentOn("MsiInstaller");
 
 
