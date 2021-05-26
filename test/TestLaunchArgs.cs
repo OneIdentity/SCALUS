@@ -192,5 +192,31 @@ namespace scalus.Test
             var newstr = MacOSProtocolRegistrar.ConstructNewValue(list);
 
         }
+
+        [Fact]
+        public void Testit()
+        {
+            var config = new ScalusConfig
+            {
+                Applications = new List<ApplicationConfig>()
+                {
+                    new ApplicationConfig()
+                    {
+                        Platforms =  new List<Dto.Platform>()
+                            {Dto.Platform.Mac, Dto.Platform.Linux, Dto.Platform.Windows}
+                    }
+                }
+            };
+            try
+            {
+                var str = JsonConvert.SerializeObject(config);
+
+                var back = JsonConvert.DeserializeObject<ScalusConfig>(str);
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
     }
 }

@@ -49,7 +49,18 @@ namespace scalus.Util
                     _ProdAppPath= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), ProdName);
                     return _ProdAppPath;
                 }
-                
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    var path =
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile,
+                            Environment.SpecialFolderOption.Create));
+                    _ProdAppPath = Path.Combine(Path.Combine(Path.Combine(path, "Library"), "Application Support"), ProdName);
+                    if (!Directory.Exists(_ProdAppPath))
+                    {
+                        Directory.CreateDirectory(_ProdAppPath);
+                    }
+                    return _ProdAppPath;
+                }
                 _ProdAppPath= Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create),
                     $".{ProdName}");

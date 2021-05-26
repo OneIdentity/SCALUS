@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace scalus.Dto
@@ -33,6 +34,12 @@ namespace scalus.Dto
         public void Validate()
         {
             Id.NotNullValue(nameof(Id));
+            var supported = ProtocolHandlerFactory.GetSupportedParsers(); 
+            if (!supported.Contains(Id))
+            {
+                throw new Exception($"Selected parser is not in supported list:{string.Join(',',supported.ToArray())}");
+            }
+
             foreach (var opt in Options)
             {
                 if (Enum.TryParse(typeof(ParserConfigDefinitions.ProcessingOptions), opt, true, out object o))

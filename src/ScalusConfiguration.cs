@@ -37,10 +37,9 @@ namespace scalus
 
             var serializerSettings = new JsonSerializerSettings();
             serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            var json = JsonConvert.SerializeObject(configJson, serializerSettings);
             try{
-                Config = JsonConvert.DeserializeObject<ScalusConfig>(configJson);
-                Config.Validate();
+                Config = JsonConvert.DeserializeObject<ScalusConfig>(configJson, serializerSettings);
+
             }
             catch (Exception e)
             {

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace scalus.Dto
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum Platform
     {
         Windows =0,
-        Unix=1,
+        Linux=1,
         Mac=2
     }
 
@@ -15,6 +18,7 @@ namespace scalus.Dto
         public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+
         public List<Platform> Platforms { get; set; }
         public string Protocol { get; set; }
         public ParserConfig Parser { get; set; }

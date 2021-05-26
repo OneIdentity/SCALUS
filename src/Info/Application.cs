@@ -33,7 +33,7 @@ namespace scalus.Info
                             Name = "name",
                             Description = "desc",
                             Protocol = "myprotocol",
-                            Platforms = new List<Dto.Platform>{ Dto.Platform.Windows, Dto.Platform.Unix, Dto.Platform.Mac},
+                            Platforms = new List<Dto.Platform>{ Dto.Platform.Windows, Dto.Platform.Linux, Dto.Platform.Mac},
                             Parser = new ParserConfig()
                             {
                                 Id = "url",
@@ -104,6 +104,7 @@ SCALUS configuration :
 ");
             Console.WriteLine("   {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Command");
             Console.WriteLine("-------------------------------------------------");
+            
             foreach (var one in config.Protocols)
             {
                 Console.Write("   {0,-10} ", one.Protocol);
