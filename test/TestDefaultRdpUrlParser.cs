@@ -43,7 +43,7 @@ namespace scalus.Test
             Assert.Equal(targetuser, dictionary[Token.TargetUser]);
             Assert.Equal(targethost, dictionary[Token.TargetHost]);
             Assert.Equal(targetport, dictionary[Token.TargetPort]);
-            Assert.False(dictionary.ContainsKey(Token.GeneratedFile));
+            Assert.Equal(string.Empty, dictionary[Token.GeneratedFile]);
 
             //Rdp string
             //rdp://full address=s:host&username=s:user

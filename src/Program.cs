@@ -76,9 +76,10 @@ namespace scalus
                 return;
             }
 
-            if (!File.Exists(ConfigurationManager.ScalusJsonDefault)) 
+            var defpath = ConfigurationManager.ScalusJsonDefault;
+            if (!File.Exists(defpath)) 
             { 
-                Log.Logger.Warning($"Config file not found:{ConfigurationManager.ScalusJson} and installed file not found:{ConfigurationManager.ScalusJsonDefault}");
+                Log.Logger.Warning($"Config file not found:{ConfigurationManager.ScalusJson} and installed default file not found:{defpath}");
                 return;
             }
             
@@ -89,11 +90,25 @@ namespace scalus
                 { 
                     Directory.CreateDirectory(dir);
                 }
-                Log.Logger.Information($"Initializing config file:{ConfigurationManager.ScalusJsonDefault} from the installed file:{ConfigurationManager.ScalusJsonDefault}");
-                File.WriteAllText(ConfigurationManager.ScalusJson,  File.ReadAllText(ConfigurationManager.ScalusJsonDefault));
+                Log.Logger.Information($"Initializing config file:{ConfigurationManager.ScalusJson} from the installed file:{defpath}");
+                File.WriteAllText(ConfigurationManager.ScalusJson,  File.ReadAllText(defpath));
+
+                var egs = ConfigurationManager.ExamplePath;
+                if (Directory.Exists(egs))
+                {
+                    var files = Directory.EnumerateFiles(egs);
+                    foreach (var one in files)
+                    {
+                        var to = Path.Combine(ConfigurationManager.ProdAppPath, Path.GetFileName(one));
+                        if (File.Exists(one) && !File.Exists(to))
+                        {
+                            File.WriteAllText(to,File.ReadAllText(one));
+                        }
+                    }
+                }
             }
             catch (Exception e) {
-                Log.Logger.Information($"Failed to initialize config file:{ConfigurationManager.ScalusJson} from installed file:{ConfigurationManager.ScalusJsonDefault}: {e.Message}");
+                Log.Logger.Information($"Failed to initialize config file:{ConfigurationManager.ScalusJson} from installed file:{defpath}: {e.Message}");
             }
         }
         static void ConfigureLogging()
