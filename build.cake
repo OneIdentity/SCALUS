@@ -22,9 +22,9 @@ var isWindows       = Argument<bool>("isWindows", runtime.StartsWithIgnoreCase("
 var isLinux         = Argument<bool>("isLinux", runtime.StartsWithIgnoreCase("lin"));
 var isOsx           = Argument<bool>("isOsx", runtime.StartsWithIgnoreCase("osx"));
 var is64            = Argument<bool>("is64", runtime.EndsWithIgnoreCase("X64"));
+
+
 var solutionPath = "./scalus.sln";
-
-
 var publishdir="Publish/" + configuration + "/" + runtime;
 var builddir="Build/" + configuration + "/" + runtime;
 var outputdir="Output/" + configuration + "/" + runtime;
@@ -39,9 +39,8 @@ Task("Restore")
     });
 
 
-
-    //.IsDependentOn("Publish")
 Task("MsiInstaller")
+    .IsDependentOn("Publish")
     .WithCriteria(isWindows)
     .Does(() =>
     {
@@ -59,22 +58,27 @@ Task("MsiInstaller")
 	var msiPath=outputdir + "/scalus-setup-" + Version + "-" + runtime + ".msi";
 	CopyDirectory("scripts/Win", tmpdir);
 
+	var examples = tmpdir + "/examples";
+	CopyDirectory("scripts/examples", examples);
+
 	var readme = tmpdir + "/readme.txt";
 	CopyFile("./scripts/readme.txt", readme);
 	ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
+
+	var license = tmpdir + "/license.rtf";
+	CopyFile("./scripts/license.rtf", license);
 
 
         var wxsFiles = GetFiles(tmpdir + "/*.wxs");
 	var arch = Architecture.X86;
 	var Minimum_Version = "100";
 	var Program_Files = "ProgramFilesFolder";
-	if (!is64)
+	if (is64)
 	{
 	    arch=Architecture.X64;
 	    Minimum_Version = "200";
 	    Program_Files = "ProgramFiles64Folder";
 	}
-	Information("arch:" +  arch + ", prog:" + Program_Files);
 	WiXCandle(wxsFiles, new CandleSettings
 	{
 		Architecture = arch,
@@ -93,18 +97,26 @@ Task("MsiInstaller")
     	});
 
 	var wobjFiles = GetFiles(tmpdir + "/*.wixobj");
-	var culture = "en-us";
-	var prodCulturePath = tmpdir + "/Product_" + culture + ".wxl";
+	//var culture = "en-us";
+	//var prodCulturePath = tmpdir + "/Product_" + culture + ".wxl";
 	WiXLight(wobjFiles, new LightSettings
 	{
-		Extensions = new[] { "WixUIExtension" },
+		Extensions = new[] { "WixUIExtension", "WixUtilExtension" },
 		//RawArguments = "-cultures:" + culture + " -loc " + prodCulturePath,
 		OutputFile = msiPath
 	});
-	DeleteDirectory(tmpdir, new DeleteDirectorySettings {
-	    Recursive = true,
-	    Force = true
-	});
+	if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
+	{
+    		BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " msiPath: " + msiPath);
+	}
+	else
+	{
+		Information( "Building " + runtime + " msiPath: " + msiPath);
+	}
+	//DeleteDirectory(tmpdir, new DeleteDirectorySettings {
+	    //Recursive = true,
+	    //Force = true
+	//});
     });
 
 
@@ -118,7 +130,6 @@ Task("Build")
 	Configuration = configuration,
         OutputDirectory = builddir
 	});
-
     });
 
 
@@ -169,16 +180,47 @@ Task("Publish")
     });
 
 Task("OsxInstall")
+    	.IsDependentOn("Publish")
 	.WithCriteria(isOsx)
 	.Does(() =>
 	{
-		if (!DirectoryExists(outputdir))
+		var tmpdir = outputdir + "/tmp";
+		var scalusappdir = tmpdir + "/scalus.app";
+		var targetdir = scalusappdir + "/Contents/MacOS";
+		if (!DirectoryExists(scalusappdir))
 		{
-			CreateDirectory(outputdir); 
+			CreateDirectory(scalusappdir); 
 		}
+		CopyDirectory("scripts/Osx/scalus.app", scalusappdir);
+
+		//var scalusdir = tmpdir + "/scalus";
+		//if (!DirectoryExists(scalusdir))
+		//{
+			//CreateDirectory(scalusdir); 
+		//}
+		var readme = scalusappdir + "/Contents/Resources/readme.txt";
+		CopyFile("./scripts/readme.txt", readme);
+		ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
+
+		CopyDirectory(publishdir, targetdir);
+
+		var zipfile= outputdir +  "/scalus-" + Version + "_" + runtime + ".tar.gz";
+		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
+		{
+    			BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);
+		}
+		else
+		{
+			Information( "Building " + runtime + " zipfile: " + zipfile);
+		}
+		GZipCompress(tmpdir, zipfile);
+		var setup = outputdir + "/setup.sh";
+		CopyFile("./scripts/Osx/setup.sh", setup);
+		
 	});
 
 Task("LinuxInstall")
+    	.IsDependentOn("Publish")
 	.WithCriteria(isLinux)
 	.Does(() =>
 	{
@@ -193,9 +235,17 @@ Task("LinuxInstall")
 		CopyDirectory("scripts/Linux", publishdir);
 
 		var zipfile= outputdir +  "/scalus-" + Version + "_" + runtime + ".tar.gz";
-		Information("zipfile:" +  zipfile);
+		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
+		{
+    			BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);
+		}
+		else
+		{
+			Information( "Building " + runtime + " zipfile: " + zipfile);
+		}
 		GZipCompress(publishdir, zipfile);
 	}); 
+
 
 if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
 {
@@ -205,10 +255,11 @@ else
 {
 	Information("Building " + target + " locally for: " + runtime  + "...");
 }
+
 Task("Default")
-    .IsDependentOn("Publish")
     .IsDependentOn("LinuxInstall")
     .IsDependentOn("OsxInstall")
     .IsDependentOn("MsiInstaller");
+
 
 RunTarget(target);

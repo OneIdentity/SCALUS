@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace scalus.Dto
 {
@@ -14,5 +15,10 @@ namespace scalus.Dto
         };
 
         public static Dictionary<string, string> DtoPropertyDescription => _dtoPropertyDescription;
+
+        public void Validate()
+        {
+            Protocol.NotNullValue(nameof(Protocol));
+        }
     }
 }

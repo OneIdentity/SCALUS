@@ -28,7 +28,7 @@ namespace scalus.UrlParser
         
         public override IDictionary<Token, string> Parse(string url)
         {
-            Dictionary = new Dictionary<Token, string>();
+            Dictionary = DefaultDictionary();
             Dictionary[Token.OriginalUrl] = url;
             Dictionary[Token.Protocol] = Protocol(url)??"ssh";
             Dictionary[Token.RelativeUrl] = StripProtocol(url);

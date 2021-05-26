@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace scalus.Dto
-{   
+{
+
     public class ParserConfig
     {
         public string Id { get; set; }
@@ -25,6 +28,38 @@ namespace scalus.Dto
             {
                 return _dtoPropertyDescription;
             }
+        }
+
+        public void Validate()
+        {
+            Id.NotNullValue(nameof(Id));
+            foreach (var opt in Options)
+            {
+                if (Enum.TryParse(typeof(ParserConfigDefinitions.ProcessingOptions), opt, true, out object o))
+                {
+                    continue;
+                }
+
+                if (Regex.IsMatch(opt, $"{ParserConfigDefinitions.ProcessingOptions.wait}:\\d+"))
+                {
+                    continue;
+                }
+                throw new Exception($"Invalid Processing Option:{opt}");
+            }
+
+            if (UseDefaultTemplate && !string.IsNullOrEmpty(UseTemplateFile))
+            {
+                throw new Exception($"The properties: UseDefaultTemplate and UseTemplateFile are mutually exclusive");
+            }
+
+            if (!string.IsNullOrEmpty(PostProcessingExec))
+            {
+                if (!UseDefaultTemplate && string.IsNullOrEmpty(UseTemplateFile))
+                {
+                    throw new Exception($"PostProcessingExec can only be used with UseDefaultTemplate or UseTemplateFile");
+                }
+            }
+
         }
     }
 }

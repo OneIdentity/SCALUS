@@ -40,6 +40,7 @@ namespace scalus
             var json = JsonConvert.SerializeObject(configJson, serializerSettings);
             try{
                 Config = JsonConvert.DeserializeObject<ScalusConfig>(configJson);
+                Config.Validate();
             }
             catch (Exception e)
             {

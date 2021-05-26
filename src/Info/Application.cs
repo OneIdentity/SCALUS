@@ -33,7 +33,7 @@ namespace scalus.Info
                             Name = "name",
                             Description = "desc",
                             Protocol = "myprotocol",
-                            Platforms = new List<string>{ "windows", "unix", "mac"},
+                            Platforms = new List<Dto.Platform>{ Dto.Platform.Windows, Dto.Platform.Unix, Dto.Platform.Mac},
                             Parser = new ParserConfig()
                             {
                                 Id = "url",

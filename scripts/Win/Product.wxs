@@ -12,6 +12,7 @@
 		</Upgrade>
 		<Condition Message="A newer version of this software is already installed.">NOT NEWERVERSIONDETECTED</Condition>
 
+		<WixVariable Id="WixUILicenseRtf" Value="$(var.tmpdir)\license.rtf" />
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="$(var.Program_Files)" >
@@ -19,17 +20,25 @@
 					<Component Id="ApplicationFiles" Guid="ae36b4af-d3ac-4f74-bdaf-98587e6fffe8" >
 						<File Id="AppFile1" Source="$(var.sourcedir)\appsettings.json" />
 						<File Id="AppFile2" Source="$(var.sourcedir)\scalus.exe" />
-						<File Id="AppFile3" Source="$(var.sourcedir)\scalus.json" /> 
-						<File Id="AppFile4" Source="$(var.sourcedir)\web.config" />
-						<File Id="AppFile5" Source="$(var.tmpdir)\readme.txt" />
+						<File Id="AppFile3" Source="$(var.sourcedir)\web.config" />
+						<File Id="AppFile4" Source="$(var.tmpdir)\readme.txt" />
 					</Component>
+					<Directory Id="ExampleDir" Name="Examples">
+					<Component Id="ExampleFiles" Guid="1c2b8871-25c0-41a1-92f5-46104da2a0da" >
+							<File Id="eg1" Source="$(var.tmpdir)\examples\examplePlugin.pl" />
+							<File Id="eg2" Source="$(var.tmpdir)\examples\exampleRdpTemplate.rdp" />
+							<File Id="eg3" Source="$(var.sourcedir)\scalus.json" />
+					</Component>
+					</Directory>
 				</Directory>
 			</Directory>
 			<Directory Id="ProgramMenuFolder">
 				<Directory Id="ProgramMenuSubfolder" Name="Scalus">
 					<Component Id="ApplicationShortcuts" Guid="755ffdfc-4255-4374-99a5-e604984abb02">
 						<Shortcut Id="ApplicationShortcut1" Name="ScalusUI" Description="Scalus UI" 
-						Target="[INSTALLDIR]scalus.exe" WorkingDirectory="INSTALLDIR"/>
+							Target="[INSTALLDIR]scalus.exe" WorkingDirectory="INSTALLDIR"/>
+						<Shortcut Id="ApplicationShortcut2" Name="Readme" Description="Scalus Reame file" 
+							Target="[INSTALLDIR]readme.txt" WorkingDirectory="INSTALLDIR"/>
 						<RegistryValue Root="HKCU" Key="Software\OneIdentity\scalus" 
 							Name="installed" Type="integer" Value="1" KeyPath="yes"/>
 						<RemoveFolder Id="ProgramMenuSubfolder" On="uninstall"/>
@@ -37,6 +46,23 @@
 				</Directory>
 			</Directory>
 		</Directory>
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Scalus" />
+
+		<Property Id="WixShellExecTarget" Value="[#AppFile2]" />
+		<CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+		<UI>
+			<UIRef Id="WixUI_Minimal" />
+			<Publish Dialog="ExitDialog"
+		    		Control="Finish" 
+		        	Event="DoAction" 
+				Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+			</Publish>
+		</UI>
+		
+		<Property Id="WixShellExecReadFile" Value="[#AppFile5]" />
+		<CustomAction Id="LaunchFile" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+	
 
 		<InstallExecuteSequence>
 			<RemoveExistingProducts After="InstallValidate"/>
@@ -44,6 +70,7 @@
 
 		<Feature Id="DefaultFeature" Level="1">
 			<ComponentRef Id="ApplicationFiles"/>
+			<ComponentRef Id="ExampleFiles"/>
 			<ComponentRef Id="ApplicationShortcuts"/>
 		</Feature>
 	</Product>

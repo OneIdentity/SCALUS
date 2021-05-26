@@ -22,7 +22,7 @@
         "options": [ "waitForInputIdle" ],
         "UseDefaultTemplate": true,
         "PostProcessingExec": "C:/strawberry/perl/bin/perl.exe",
-        "PostProcessingArgs": [ "%AppData%/pluggable.pl" ]
+        "PostProcessingArgs": [ "%AppData%/examplePlugin.pl" ]
 
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
@@ -36,7 +36,7 @@
       "protocol": "rdp",
       "parser": {
         "id": "rdp",
-        "UseTemplateFile": "%AppData%\\scalus\\mstemplate.rdp",
+        "UseTemplateFile": "%AppData%\\exampleRdpTemplate.rdp",
         "options": [ "waitForInputIdle" ]
       },
       "exec": "C:\\windows\\system32\\mstsc.exe",
@@ -57,21 +57,6 @@
       "args": [ "/u:%User%", "/v:%host%:%Port%", "/p:Safeguard" ]
     },
     {
-      "id": "custom_rdp",
-      "description": "My custom Rdp handler",
-      "name": "CustomRDP",
-      "platforms": [ "unix" ],
-      "protocol": "rdp",
-      "parser": {
-        "id": "rdp",
-        "options": [ "waitforexit" ],
-        "UseTemplateFile": "%AppData%/Mycustomtemplate.myextension"
-      },
-      "exec": "/usr/bin/mycustomApp",
-      "args": [ "%GeneratedFile%" ]
-
-    },
-    {
       "id": "windows-openssh",
       "description": "Windows OpenSSH",
       "name": "Windows OpenSSH",
@@ -89,7 +74,7 @@
       "id": "gnome-terminal-ssh",
       "name": "Gnome Terminal SSH",
       "description": "Open Gnome Terminal on Linux with the SSH connection information",
-      "platforms": [ "linux" ],
+      "platforms": [ "unix" ],
       "protocol": "ssh",
       "parser": {
         "id": "ssh",
@@ -157,20 +142,6 @@
       "args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-telnet", "%user%@%host%" ]
     },
     {
-      "id": "mycustom-url",
-      "description": "Use a custom application on ubuntu",
-      "name": "MyCustomSshHandler",
-      "platforms": [ "unix" ],
-      "protocol": "custom",
-      "parser": {
-        "id": "url",
-        "UseTemplateFile": "mycustomconfig.ssh",
-        "options": [ "waitforexit" ]
-      },
-      "exec": "/usr/bin/MyCustomApp",
-      "args": [ "%GeneratedFile%" ]
-    },
-    {
       "id": "remmina-rdp",
       "description": "Use remmina client on linux",
       "name": "remmina Rdp client",
@@ -178,7 +149,7 @@
       "protocol": "rdp",
       "parser": {
         "id": "rdp",
-        "UseTemplateFile": "%HOME%/.scalus/remmina.rdp",
+        "UseTemplateFile": "%AppData%/remmina.rdp",
         "options": [ "waitforexit" ]
       },
       "exec": "/usr/bin/remmina",
@@ -192,7 +163,7 @@
       "protocol": "ssh",
       "parser": {
         "id": "ssh",
-        "UseTemplateFile": "%HOME%/.scalus/remmina.ssh",
+        "UseTemplateFile": "%AppData%/remmina.ssh",
         "options": [ "waitforexit" ]
       },
       "exec": "/usr/bin/remmina",

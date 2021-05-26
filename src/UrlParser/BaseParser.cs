@@ -9,6 +9,7 @@ using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using scalus.Util;
 using Serilog;
 using static scalus.Dto.ParserConfigDefinitions;
@@ -20,8 +21,18 @@ namespace scalus.UrlParser
         private string _fileProcessorExe = null;
         private List<string> _fileProcessorArgs = null;       
         protected string FileExtension { get; set; } = ".scalus";
-        protected IDictionary<Token,string> Dictionary {get; set; }  = new Dictionary<Token,string>();
+        protected IDictionary<Token, string> Dictionary { get; set; } = DefaultDictionary();
+        
+        protected static IDictionary<Token, string> DefaultDictionary()
+        {
+            var dictionary = new Dictionary<Token, string>();
+            foreach (var one in Enum.GetValues(typeof(Token)))
+            {
+                dictionary[(Token)one] = string.Empty;
+            }
 
+            return dictionary;
+        }
         public Regex SafeguardUserPattern = new Regex(
            @"(vaultaddress[=|~]([^@%]+)[@|%]token[~|=]([^@%]+)[@|%]([^@%]+)[@|%](.*))", RegexOptions.IgnoreCase);
 
@@ -224,7 +235,7 @@ namespace scalus.UrlParser
         protected void ParseConfig()
         {
             Dictionary[Token.Home]= Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            Dictionary[Token.AppData] = ConfigurationManager.ProdAppPath();
+            Dictionary[Token.AppData] = ConfigurationManager.ProdAppPath;
             Dictionary[Token.TempPath]= Path.GetTempPath();
             IEnumerable<string> fileLines = null;
             if (Config.UseDefaultTemplate)

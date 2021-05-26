@@ -1,13 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace scalus.Dto
 {
+    public enum Platform
+    {
+        Windows =0,
+        Unix=1,
+        Mac=2
+    }
+
     public class ApplicationConfig
     {
         public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<string> Platforms { get; set; }
+        public List<Platform> Platforms { get; set; }
         public string Protocol { get; set; }
         public ParserConfig Parser { get; set; }
         public string Exec { get; set; }
@@ -25,5 +33,13 @@ namespace scalus.Dto
             {"Args","The list of arguments to pass to the command. This can contain any of the supported tokens."}
         };
         public static Dictionary<string, string> DtoPropertyDescription => _dtoPropertyDescription.Append(ParserConfig.DtoPropertyDescription);
+
+        public void Validate()
+        {
+            Id.NotNullValue(nameof(Id));
+            Protocol.NotNullValue(nameof(Protocol));
+            Exec.NotNullValue(nameof(Exec));
+            Parser.Validate();
+        }
     }
 }
