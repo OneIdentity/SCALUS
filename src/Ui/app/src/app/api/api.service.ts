@@ -18,11 +18,17 @@ export interface ProtocolMappingDisplay {
   configs: ApplicationConfig[];
 }
 
+export enum Platform {
+  Windows = 0,
+  Linux = 1,
+  Mac = 2
+}
+
 export interface ApplicationConfig {
   id: string;
   name: string;
   description: string;
-  platforms: string[];
+  platforms: Platform[];
   protocol: string;
   parser: ParserConfig;
   exec: string; 
@@ -41,7 +47,7 @@ export interface ApplicationConfigDisplay {
 }
 
 export interface ParserConfig {
-  id: string;
+  parserId: string;
   options: string[];
   useDefaultTemplate: boolean;
   useTemplateFile: string;
@@ -50,7 +56,7 @@ export interface ParserConfig {
 }
 
 export interface ParserConfigDisplay {
-  id: string;
+  parserId: string;
   options: string;
   useDefaultTemplate: boolean;
   useTemplateFile: string;
