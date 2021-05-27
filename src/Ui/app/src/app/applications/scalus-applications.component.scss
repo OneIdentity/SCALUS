@@ -42,7 +42,17 @@ mat-expansion-panel.application{
   margin-bottom:10px;
 }
 
-.tokens-icon {
-  cursor: pointer; 
+.row-formfield {
+  flex-grow: 1;
+}
+
+.row-icon {
+  flex-grow: 0; 
+  margin: 16px 10px 16px 0px;
+}
+
+.row-click-icon {
+  cursor: pointer;
+  flex-grow: 0; 
   margin: 16px 10px 16px 0px;
 }

@@ -22,54 +22,98 @@
                         <mat-label>Description</mat-label>
                         <input type="text" matInput [(ngModel)]="a.description">
                     </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Platforms - comma separated list, options (windows,unix,linux,mac)</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.platforms">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Protocol</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.protocol">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Exec</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.exec">
-                    </mat-form-field>
                     <div class="row">
-                        <mat-icon class="tokens-icon" style="flex-grow: 0;" (click)="showTokens()" 
-                            matTooltip="Click to see the list of tokens.">
-                            help
+                        <mat-icon class="row-icon" 
+                            matTooltip="Comma separated list.">
+                            more
                         </mat-icon>
-                        <mat-form-field appearance="outline" style="flex-grow: 1;">
-                            <mat-label>Args - comma separated list</mat-label>
-                            <input type="text" matInput [(ngModel)]="a.args">
+                        <mat-form-field class="row-formfield" appearance="outline">
+                            <mat-label>Platforms - valid values (Windows,Linux,Mac)</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.platforms">
                         </mat-form-field>
                     </div>
                     <mat-form-field appearance="outline">
-                        <mat-label>Parser</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.parser.id">
+                        <mat-label>Protocol - valid values (any SCALUS Protocol)</mat-label>
+                        <input type="text" matInput [(ngModel)]="a.protocol">
                     </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Parser Options - comma separated list</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.parser.options">
-                    </mat-form-field>
+                    <div class="row">
+                        <mat-icon class="row-click-icon" (click)="showTokens()" 
+                            matTooltip="May contain Tokens, click to see the list.">
+                            outbound
+                        </mat-icon>
+                        <mat-form-field class="row-formfield" appearance="outline">
+                            <mat-label>Exec</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.exec">
+                        </mat-form-field>
+                    </div>
+                    <div class="row">
+                        <mat-icon class="row-icon" 
+                            matTooltip="Comma separated list.">
+                            more
+                        </mat-icon>
+                        <mat-icon class="row-click-icon" (click)="showTokens()" 
+                            matTooltip="May contain Tokens, click to see the list.">
+                            outbound
+                        </mat-icon>
+                        <mat-form-field class="row-formfield"  appearance="outline">
+                            <mat-label>Args</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.args">
+                        </mat-form-field>
+                    </div>
+                    <div class="row">
+                        <mat-icon class="row-icon" 
+                            matTooltip="Comma separated list.">
+                            more
+                        </mat-icon>
+                        <mat-form-field class="row-formfield" appearance="outline">
+                            <mat-label>Parser - valid values (rdp, telnet, ssh, url)</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.parser.parserId">
+                        </mat-form-field>
+                    </div>
+                    <div class="row">
+                        <mat-icon class="row-icon" 
+                            matTooltip="Comma separated list.">
+                            more
+                        </mat-icon>
+                        <mat-form-field class="row-formfield" appearance="outline">
+                            <mat-label>Parser Options - valid values (waitForInputIdle,  waitforexit,  wait:&lt;int&gt;)</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.parser.options">
+                        </mat-form-field>
+                    </div>
                     <mat-checkbox [(ngModel)]="a.parser.useDefaultTemplate" style="margin-bottom: 18px;">
                         Use Default Parser Template
                     </mat-checkbox>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Parser Template File</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.parser.useTemplateFile">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Parser Post Processing Exec</mat-label>
-                        <input type="text" matInput [(ngModel)]="a.parser.postProcessingExec">
-                    </mat-form-field>
                     <div class="row">
-                        <mat-icon class="tokens-icon" style="flex-grow: 0;" (click)="showTokens()" 
-                            matTooltip="Click to see the list of tokens.">
-                            help
+                        <mat-icon class="row-click-icon" (click)="showTokens()" 
+                            matTooltip="May contain Tokens, click to see the list.">
+                            outbound
                         </mat-icon>
-                        <mat-form-field appearance="outline" style="flex-grow: 1;">
-                            <mat-label>Parser Post Processing Args - comma separated list</mat-label>
+                        <mat-form-field class="row-formfield" appearance="outline">
+                            <mat-label>Parser Template File</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.parser.useTemplateFile">
+                        </mat-form-field>
+                    </div>
+                    <div class="row">
+                        <mat-icon class="row-click-icon" (click)="showTokens()" 
+                            matTooltip="May contain Tokens, click to see the list.">
+                            outbound
+                        </mat-icon>
+                        <mat-form-field class="row-formfield" appearance="outline">
+                            <mat-label>Parser Post Processing Exec</mat-label>
+                            <input type="text" matInput [(ngModel)]="a.parser.postProcessingExec">
+                        </mat-form-field>
+                    </div>
+                    <div class="row">
+                        <mat-icon class="row-icon" 
+                            matTooltip="Comma separated list.">
+                            more
+                        </mat-icon>
+                        <mat-icon class="row-click-icon" (click)="showTokens()" 
+                            matTooltip="May contain Tokens, click to see the list.">
+                            outbound
+                        </mat-icon>
+                        <mat-form-field class="row-formfield" appearance="outline">
+                            <mat-label>Parser Post Processing Args</mat-label>
                             <input type="text" matInput [(ngModel)]="a.parser.postProcessingArgs">
                         </mat-form-field>
                     </div>

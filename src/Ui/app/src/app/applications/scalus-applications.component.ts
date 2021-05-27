@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, ViewEncapsulation } from '@angular/core';
-import { ApiService, ScalusConfig, ApplicationConfig, ApplicationConfigDisplay, ParserConfig, ParserConfigDisplay } from '../api/api.service';
+import { ApiService, ScalusConfig, ApplicationConfig, ApplicationConfigDisplay, ParserConfig, ParserConfigDisplay, Platform } from '../api/api.service';
 import { EuiSidesheetService, EUI_SIDESHEET_DATA } from '@elemental-ui/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../error/error-dialog.component';
@@ -46,7 +46,7 @@ export class ScalusApplicationsComponent implements OnInit {
     application.id = 'new';
     application.parser = <ParserConfigDisplay>{};
 
-    this.applications.push(application);
+    this.applications.unshift(application);
   }
 
   save() {
@@ -81,11 +81,26 @@ export class ScalusApplicationsComponent implements OnInit {
     app.id = ac.id;
     app.name = ac.name;
     app.description = ac.description;
-    app.platforms = ac.platforms?.join(",");
+    var platforms = new Array();
+    ac.platforms?.forEach(p =>{
+      if (p === 0)
+      {
+        platforms.push(Platform[Platform.Windows]);
+      }
+      else if (p === 1)
+      {
+        platforms.push(Platform[Platform.Linux]);
+      }
+      else if (p=== 2)
+      {
+        platforms.push(Platform[Platform.Mac]);
+      }
+    })
+    app.platforms = platforms.join(",");
     app.protocol = ac.protocol;
 
     app.parser = <ParserConfigDisplay>{};
-    app.parser.id = ac.parser.id;
+    app.parser.parserId = ac.parser.parserId;
     app.parser.options = ac.parser.options?.join(",");
     app.parser.useDefaultTemplate = ac.parser.useDefaultTemplate;
     app.parser.useTemplateFile = ac.parser.useTemplateFile;
@@ -103,11 +118,15 @@ export class ScalusApplicationsComponent implements OnInit {
     app.id = ac.id;
     app.name = ac.name;
     app.description = ac.description;
-    app.platforms = ac.platforms?.split(",");
+    var platforms = new Array();
+    ac.platforms?.split(",").forEach(p => {
+      platforms.push(Platform[p]);
+    })
+    app.platforms = platforms;
     app.protocol = ac.protocol;
 
     app.parser = <ParserConfig>{};
-    app.parser.id = ac.parser.id;
+    app.parser.parserId = ac.parser.parserId;
     app.parser.options = ac.parser.options?.split(",");
     app.parser.useDefaultTemplate = ac.parser.useDefaultTemplate;
     app.parser.useTemplateFile = ac.parser.useTemplateFile;
