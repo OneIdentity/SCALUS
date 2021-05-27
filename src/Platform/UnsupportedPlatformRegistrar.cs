@@ -2,6 +2,7 @@
 {
     class UnsupportedPlatformRegistrar : IProtocolRegistrar
     {
+        public string Name { get; } = "Unknown";
         IUserInteraction UserInteraction { get; }
         public UnsupportedPlatformRegistrar(IUserInteraction userInteraction)
         {

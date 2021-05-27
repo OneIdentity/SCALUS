@@ -10,6 +10,7 @@ namespace scalus
 {
     public class MacOSProtocolRegistrar : IProtocolRegistrar
     {
+        public string Name { get; } = "MacOS";
         private readonly IOsServices _osServices;
         private static readonly string _scalusHandler = "com.oneidentity.scalus.macos";
 

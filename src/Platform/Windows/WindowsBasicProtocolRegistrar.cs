@@ -5,7 +5,8 @@ namespace scalus
 {
     class WindowsBasicProtocolRegistrar : IProtocolRegistrar
     {
-        
+        public string Name { get; } = "WindowsProtocolRegistry";
+
         public bool IsScalusRegistered(string protocol)
         {
             var command = GetRegisteredCommand(protocol);

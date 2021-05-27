@@ -4,6 +4,7 @@ namespace scalus
 {
     interface IProtocolRegistrar
     {
+        string Name { get; }
         string GetRegisteredCommand(string protocol);
         bool IsScalusRegistered(string command);
         bool Unregister(string protocol, bool userMode=false, bool useSudo = false);

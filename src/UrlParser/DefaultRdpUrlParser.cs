@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Serilog;
 using static scalus.Dto.ParserConfigDefinitions;
 
 namespace scalus.UrlParser
@@ -75,6 +76,16 @@ namespace scalus.UrlParser
             }
 
             ParseConfig();
+            //tokens required are username and host
+
+            if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
+            {
+                Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
+            }
+            if (!Dictionary.ContainsKey(Token.Host) || string.IsNullOrEmpty(Dictionary[Token.Host]))
+            {
+                Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
+            }
             return Dictionary;           
         }
         protected override IEnumerable<string> GetDefaultTemplate()
