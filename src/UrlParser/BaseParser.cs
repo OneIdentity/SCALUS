@@ -78,24 +78,37 @@ namespace scalus.UrlParser
             {
                 process.WaitForExit();
             }
-            if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforinputidle.ToString(), StringComparison.OrdinalIgnoreCase)))
+            else if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforinputidle.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
                 process.WaitForInputIdle();
             }
-            var wait = Config.Options.FirstOrDefault(x => x.StartsWith($"{ProcessingOptions.wait}:", StringComparison.OrdinalIgnoreCase));
-            if(!string.IsNullOrEmpty(wait))
+            else
             {
-                var parts = wait.Split(":");
-                int time = 0;
-                if (parts.Length > 1)
+                var time = 0;
+                var wait = Config.Options.FirstOrDefault(x =>
+                    x.StartsWith($"{ProcessingOptions.wait}", StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrEmpty(wait))
                 {
-                    int.TryParse(parts[1], out time);
+                    if (wait.Equals($"{ProcessingOptions.wait}", StringComparison.OrdinalIgnoreCase))
+                    {
+                        time = 20;
+
+                    }
+                    else
+                    {
+                        var parts = wait.Split(":");
+                        if (parts.Length > 1)
+                        {
+                            int.TryParse(parts[1], out time);
+                        }
+                    }
                 }
-                if(time > 0)
+                if (time > 0)
                 {
                     Task.Delay(time * 1000).Wait();
                 }
             }
+
             if (process.HasExited)
             {
                 Serilog.Log.Information($"Application exited with exit code: {process.ExitCode}");
