@@ -5,7 +5,7 @@ namespace scalus
 {
     class ProtocolRegistrar : IProtocolRegistrar
     {
-
+        public string Name { get; } = "WindowsURLRegistry";
         private static readonly string AppName = "SCALUS Protocol Handler";
         private static readonly string Clsid = "scalus.URLHandler.1";
         private static readonly string AppId = "SCALUS";
@@ -21,7 +21,7 @@ namespace scalus
 
         public string GetRegisteredCommand(string protocol)
         {
-            return "";
+            return RegistryUtils.GetStringValue(GetAppPath() + CapabilitiesUrlAssociationsFragment, protocol);
         }
 
         public bool Register(string protocol, bool userMode = false, bool useSudo= false)

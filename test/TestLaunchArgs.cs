@@ -196,7 +196,7 @@ namespace scalus.Test
 
         private void CheckJson(string json, int expErrors)
         {
-            var apiConfig = new ScalusApiConfiguration();
+            var apiConfig = new ScalusApiConfiguration(json);
             apiConfig.Validate(json);
             Assert.Equal( expErrors, apiConfig.ValidationErrors.Count);
         }

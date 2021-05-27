@@ -29,23 +29,26 @@ namespace scalus
         {
             var retval = false;
 
-            
-
             foreach (var protocol in protocols)
             {
                 retval = true;
 
                 foreach (var registrar in Registrars)
                 {
+                    if (registrar.IsScalusRegistered(protocol))
+                    { 
+                        UserInteraction.Message($"{protocol}: {registrar.Name}: nothing to do...");
+                        continue;
+                    }
                     var command = registrar.GetRegisteredCommand(protocol);
                     var res = false;
-                    if (string.IsNullOrEmpty(command))
+                    if (!string.IsNullOrEmpty(command))
                     {
-                        if (registrar.IsScalusRegistered(protocol) && !force)
+                        if (!force)
                         {
-                            UserInteraction.Error($"{protocol}: Protocol is already registered by another application ({command}). Use -f to overwrite.");
+                            UserInteraction.Error(
+                                $"{protocol}: another application is already registered with {registrar.Name} to launch:{command}. Use -f to overwrite.");
                             continue;
-
                         }
                         res = registrar.ReplaceRegistration(protocol, userMode, useSudo);
                     }
@@ -55,16 +58,16 @@ namespace scalus
                     }
                     if (!res)
                     {
-                        UserInteraction.Error($"{protocol}: Failed to register SCALUS as the default protocol handler. Try running this program again with administrator privileges.");
+                        UserInteraction.Error($"{protocol}: Failed to register SCALUS with {registrar.Name} as the default protocol handler. Try running this program again with administrator privileges.");
                         retval = false;
-                        continue;
                     }
                 }
                 if (retval == false)
                 {
                     UserInteraction.Error($"Failed to register {protocol}");
-                    return false;
+                    continue;
                 }
+                UserInteraction.Message($"{protocol}: Registered SCALUS as default URL protocol handler.");
             }
             return retval;
         }
@@ -79,13 +82,13 @@ namespace scalus
                     {
                         if (!registrar.Unregister(protocol, userMode, useSudo))
                         {
-                            UserInteraction.Error($"{protocol}: Unable to remove SCALUS protocol registration. Try running this program again with administrator privileges.");
+                            UserInteraction.Error($"{protocol}: Unable to remove scalus from {registrar.Name}. Try running this program again with administrator privileges.");
                             return false;
                         }
                     }
                     else
                     {
-                        UserInteraction.Error($"{protocol}: SCALUS does not appear to be registered for this protocol, skipping.");
+                        UserInteraction.Message($"{protocol}: {registrar.Name}: nothing to do...");
                     }
                 }
                 UserInteraction.Message($"{protocol}: Unregistered SCALUS as default URL protocol handler.");

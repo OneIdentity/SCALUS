@@ -18,11 +18,12 @@ namespace scalus
         protected string _configFile = ConfigurationManager.ScalusJson;
         protected ScalusConfigurationBase()
         {
+            Load();
         }
+
 
         public ScalusConfig GetConfiguration()
         {
-            Load();
             return Config;
         }
 
@@ -75,7 +76,9 @@ namespace scalus
     {
         public ScalusApiConfiguration() : base() { }
 
-        
+        public ScalusApiConfiguration(string json)
+        {
+        }
 
         public ScalusConfig SaveConfiguration(ScalusConfig configuration)
         {

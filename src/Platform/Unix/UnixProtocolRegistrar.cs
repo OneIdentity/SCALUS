@@ -11,6 +11,7 @@ namespace scalus
 {
     public class UnixProtocolRegistrar : IProtocolRegistrar
     {
+        public string Name { get; } = "Linux";
         private const string XdgConfigPath = ".config";
         private const string XdgSettings = "/usr/bin/xdg-settings";
         private const string XdgMime = "/usr/bin/xdg-mime";
