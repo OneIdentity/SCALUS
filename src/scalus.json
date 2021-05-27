@@ -18,7 +18,7 @@
       "Platforms": [ "Windows" ],
       "Protocol": "rdp",
       "Parser": {
-        "Id": "rdp",
+        "ParserId": "rdp",
         "Options": [ "waitForInputIdle" ],
         "UseDefaultTemplate": true,
         "PostProcessingExec": "C:/strawberry/perl/bin/perl.exe",
@@ -35,7 +35,7 @@
       "Platforms": [ "Windows" ],
       "Protocol": "rdp",
       "Parser": {
-        "Id": "rdp",
+        "ParserId": "rdp",
         "UseTemplateFile": "%AppData%\\exampleRdpTemplate.rdp",
         "Options": [ "waitForInputIdle" ]
       },
@@ -50,7 +50,7 @@
       "Platforms": [ "Linux" ],
       "Protocol": "rdp",
       "Parser": {
-        "Id": "rdp",
+        "ParserId": "rdp",
         "Options": []
       },
       "Exec": "/usr/bin/xfreerdp",
@@ -63,7 +63,7 @@
       "Platforms": [ "Windows" ],
       "Protocol": "ssh",
       "Parser": {
-        "Id": "ssh",
+        "ParserId": "ssh",
         "Options": []
       },
       "Exec": "C:\\windows\\system32\\cmd.exe",
@@ -77,7 +77,7 @@
       "Platforms": [ "Linux" ],
       "Protocol": "ssh",
       "Parser": {
-        "Id": "ssh",
+        "ParserId": "ssh",
         "Options": []
       },
       "Exec": "gnome-terminal",
@@ -91,7 +91,7 @@
       "Platforms": [ "Mac" ],
       "Protocol": "ssh",
       "Parser": {
-        "Id": "ssh",
+        "ParserId": "ssh",
         "Options": [ "waitforexit" ]
       },
       "Exec": "/usr/bin/open",
@@ -104,7 +104,7 @@
       "Platforms": [ "Mac" ],
       "Protocol": "rdp",
       "Parser": {
-        "Id": "rdp",
+        "ParserId": "rdp",
         "Options": [ "wait:60" ]
       },
       "Exec": "/usr/bin/open",
@@ -122,7 +122,7 @@
       "Platforms": [ "Windows" ],
       "Protocol": "ssh",
       "Parser": {
-        "Id": "ssh",
+        "ParserId": "ssh",
         "Options": []
       },
       "Exec": "C:\\windows\\system32\\cmd.exe",
@@ -135,7 +135,7 @@
       "Platforms": [ "Windows" ],
       "Protocol": "telnet",
       "Parser": {
-        "Id": "telnet",
+        "ParserId": "telnet",
         "Options": []
       },
       "Exec": "C:\\windows\\system32\\cmd.exe",
@@ -148,7 +148,7 @@
       "Platforms": [ "Linux" ],
       "Protocol": "rdp",
       "Parser": {
-        "Id": "rdp",
+        "ParserId": "rdp",
         "UseTemplateFile": "%AppData%/remmina.rdp",
         "Options": [ "waitforexit" ]
       },
@@ -162,7 +162,7 @@
       "Platforms": [ "Linux" ],
       "Protocol": "ssh",
       "Parser": {
-        "Id": "ssh",
+        "ParserId": "ssh",
         "UseTemplateFile": "%AppData%/remmina.ssh",
         "Options": [ "waitforexit" ]
       },

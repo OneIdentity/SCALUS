@@ -1,5 +1,6 @@
 ﻿using scalus.Dto;
 using System;
+using System.Collections.Generic;
 
 namespace scalus
 {
@@ -20,6 +21,7 @@ namespace scalus
         ScalusConfig GetConfiguration();
 
         ScalusConfig SaveConfiguration(ScalusConfig configuration);
+        List<string> ValidationErrors { get; }
     }
 
 

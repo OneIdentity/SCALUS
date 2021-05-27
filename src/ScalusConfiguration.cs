@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Serialization;
 using scalus.Dto;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -13,40 +14,62 @@ namespace scalus
     class ScalusConfigurationBase
     {
         protected ScalusConfig Config { get; set; } = new ScalusConfig();
-
+        public List<string> ValidationErrors { get; protected set;  }= new List<string>();
+        protected string _configFile = ConfigurationManager.ScalusJson;
         protected ScalusConfigurationBase()
         {
-            Load();
         }
 
         public ScalusConfig GetConfiguration()
         {
+            Load();
             return Config;
         }
 
         protected void Load()
         {
-            var configFile = ConfigurationManager.ScalusJson ;
-            if (!File.Exists(configFile))
+            if (!File.Exists(_configFile))
             {
-                Serilog.Log.Warning($"config file not found at: {configFile}");
+                Serilog.Log.Warning($"config file not found at: {_configFile}");
+                ValidationErrors.Add($"Missing config file:{_configFile}");
                 return;
             }
 
-            var configJson = File.ReadAllText(configFile);
+            var configJson = File.ReadAllText(_configFile);
+            Validate(configJson);
+        }
 
-            var serializerSettings = new JsonSerializerSettings();
-            serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            try{
-                Config = JsonConvert.DeserializeObject<ScalusConfig>(configJson, serializerSettings);
-
+        public bool Validate(string json)
+        {
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+            ValidationErrors = new List<string>();
+            try
+            {
+                Config = JsonConvert.DeserializeObject<ScalusConfig>(json, serializerSettings);
             }
             catch (Exception e)
             {
-                Serilog.Log.Error(e, $"Failed to parse file:{configJson}: {e.Message}");
+                Serilog.Log.Error(e, $"Failed to deserialise json configuration from file:{_configFile}: {e.Message}");
+                ValidationErrors.Add($"Error deserialising json configuration:{e.Message}");
             }
+            try
+            {
+                Config?.Validate(ValidationErrors);
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error(e, $"Failed to validate json from file:{_configFile}: {e.Message}");
+                ValidationErrors.Add($"Error validating json configuration:{e.Message}");
+                return false;
+            }
+
+            return (ValidationErrors.Count == 0);
         }
     }
+
 
     class ScalusApiConfiguration : ScalusConfigurationBase, IScalusApiConfiguration
     {
@@ -69,14 +92,13 @@ namespace scalus
 
         private void Save(ScalusConfig configuration)
         {
-            var configFile = ConfigurationManager.ScalusJson ;
-            
-            var serializerSettings = new JsonSerializerSettings();
-            serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            serializerSettings.Formatting = Formatting.Indented;
-            
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(), Formatting = Formatting.Indented
+            };
+
             var json = JsonConvert.SerializeObject(configuration, serializerSettings);
-            File.WriteAllText(configFile, json);
+            File.WriteAllText(_configFile, json);
         }
     }
 
