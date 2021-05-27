@@ -14,7 +14,7 @@ namespace scalus
     class ScalusConfigurationBase
     {
         protected ScalusConfig Config { get; set; } = new ScalusConfig();
-        public List<string> ValidationErrors = new List<string>();
+        public List<string> ValidationErrors { get; protected set;  }= new List<string>();
         protected string _configFile = ConfigurationManager.ScalusJson;
         protected ScalusConfigurationBase()
         {
