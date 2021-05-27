@@ -13,16 +13,6 @@ namespace scalus.Dto
             pairs.ForEach(pair => res[pair.Key] =pair.Value);
             return res;
         }
-
-        
-        public static void NotNullValue(this string val, string name)
-        {
-            if (string.IsNullOrEmpty(val))
-            {
-                throw new Exception($"Application property:{name} must contain a value");
-            }
-        }
-
     }
 
     public class ScalusConfig
@@ -32,35 +22,61 @@ namespace scalus.Dto
 
         private static Dictionary<string, string> _dtoPropertyDescription = new Dictionary<string, string>
         {
-            {"Protocols","The list of protocols configured for scalus"},
-            {"Applications","The list of applications available to use"}
+            {nameof(Protocols),"The list of protocols configured for scalus"},
+            {nameof(Applications),"The list of applications available to use"}
         };
         public static Dictionary<string, string> DtoPropertyDescription => _dtoPropertyDescription.Append(ProtocolMapping.DtoPropertyDescription).Append(ApplicationConfig.DtoPropertyDescription);
 
-        public void Validate()
+        public void Validate(List<string> errors)
         {
-            foreach (var one in Protocols)
+            if (Protocols != null)
             {
-                one.Validate();
-                if (string.IsNullOrEmpty(one.AppId))
-                    continue;
-                var found = Applications.Any(app => app.Id == one.AppId);
-
-                if (!found)
+                foreach (var one in Protocols)
                 {
-                    throw new Exception($"Protocol:{one} is mapped to unknown application id:{one.AppId}");
+                    one.Validate(errors);
+                    if (string.IsNullOrEmpty(one.AppId))
+                        continue;
+                    if (string.IsNullOrEmpty(one.Protocol))
+                        continue;
+                    var foundapp = Applications?.FirstOrDefault(a => 
+                        !string.IsNullOrEmpty(a.Id) && a.Id.Equals(one.AppId, StringComparison.InvariantCultureIgnoreCase));
+
+                    if (foundapp == null)
+                    {
+                        errors.Add($"Protocol:{one.Protocol} is mapped to undefined application id:{one.AppId}");
+                    }
+
+                    else if (string.IsNullOrEmpty(foundapp.Protocol))
+                    {
+                        errors.Add($"Protocol:{one.Protocol} is mapped to application:{foundapp.Name}({one.AppId}) which has no protocol defined");
+                    }
+                    else if (!foundapp.Protocol.Equals(one.Protocol, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        errors.Add($"Protocol:{one.Protocol} is mapped to application:{foundapp.Name}({one.AppId}) which has a different protocol defined: {foundapp.Protocol}");
+
+                    }
+                }
+
+
+                var list = Protocols.Select(one => one.Protocol).ToList();
+                if (Protocols.Count != list.Distinct().Count())
+                {
+                    errors.Add($"Protocols list must not contain multiple definitions for a protocol string");
                 }
             }
 
-            var list = Protocols.Select(one => one.Protocol).ToList();
-            if (Protocols.Count != list.Distinct().Count())
+            if (Applications != null)
             {
-                throw new Exception($"Protocols list must not contain multiple definitions for a protocol string");
-            }
+                foreach (var one in Applications)
+                {
+                    one.Validate(errors);
+                }
+                var list = Applications.Select(one => one.Id).ToList();
+                if (Applications.Count != list.Distinct().Count())
+                {
+                    errors.Add($"Application Ids must be unique");
+                }
 
-            foreach (var one in Applications)
-            {
-                one.Validate();
             }
 
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
@@ -193,30 +194,148 @@ namespace scalus.Test
 
         }
 
-        [Fact]
-        public void Testit()
+        private void CheckJson(string json, int expErrors)
         {
-            var config = new ScalusConfig
-            {
-                Applications = new List<ApplicationConfig>()
-                {
-                    new ApplicationConfig()
-                    {
-                        Platforms =  new List<Dto.Platform>()
-                            {Dto.Platform.Mac, Dto.Platform.Linux, Dto.Platform.Windows}
-                    }
+            var apiConfig = new ScalusApiConfiguration();
+            apiConfig.Validate(json);
+            Assert.Equal( expErrors, apiConfig.ValidationErrors.Count);
+        }
+
+        [Fact]
+        public void TestJson()
+        {
+            var json = @"
+               {
+                    'Protocols':[
+                        { 
+                            'Protocol': 'one',
+                            'AppId' : 'id'
+                        }
+                    ],
+                    'Applications':[
+                        {
+                            'Id':'id',
+                            'Name':'appname',
+                            'Description':'desc',
+                            'Platforms':['Windows','Linux','Mac'],
+                            'Protocol':'one',
+                            'Parser':{
+                                'ParserId':'url',
+                                'Options':['waitforexit'],
+                                'UseDefaultTemplate':false,
+                                'UseTemplateFile':'/path/tofile',
+                                'PostProcessingExec':'path/toplugin',
+                                'PostProcessingArgs':['arg1','arg2']
+                            },
+                            'Exec':'/path/tocommand',
+                            'Args':['arg1','arg2']
+                        }
+                    ]
                 }
-            };
-            try
-            {
-                var str = JsonConvert.SerializeObject(config);
+";
+            CheckJson(json, 0);
 
-                var back = JsonConvert.DeserializeObject<ScalusConfig>(str);
-            }
-            catch (Exception e)
-            {
+            json = @"
+                   {
+                        'Applications':[
+                            {
+                                'Id':'id',
+                                'Platforms':['rubbish']
+                            }
+                        ]
+                    }
+";
+            CheckJson(json, 1);
 
-            }
+            json = @"
+                   {
+                        'Applications':[
+                            {
+                                'Id':'id',
+                                'Platforms':[]
+                            }
+                        ]
+                    }
+";
+            CheckJson(json, 1);
+
+            json = @"
+                   {
+                        'Applications':[
+                            {
+                                'Id':'id',
+                                'Platforms':['windows']
+                            }
+                        ]
+                    }
+";
+            CheckJson(json, 1);
+
+            json = @"
+                   {
+                        'Applications':[
+                            {
+                                'Id':'id',
+                                'Platforms':['windows'],
+                                'Protocol': 'one',
+                                 'Parser':{
+                                    'ParserId':'url',
+                                },
+
+                            }
+                        ]
+                    }
+";
+            CheckJson(json, 1);
+
+            json = "{}";
+            CheckJson(json, 0);
+
+            json = "{'Protocols':[]}";
+            CheckJson(json, 0);
+
+            json = "{'Protocols':[{'Protocol':'one'}, {'Protocol':'one'}]}";
+            CheckJson(json, 1);
+
+            json = "{'Protocols':[{'Protocol':'one', 'AppId':'missing'}]}";
+            CheckJson(json, 1);
+
+            json = @"
+                   {
+                        'Applications':[
+                            {
+                                'Id':'id',
+                                'Platforms':['windows'],
+                                'Protocol': 'one',
+                                'Exec':'one',
+                                 'Parser':{
+                                    'ParserId':'url',
+                                },
+                            },
+                            {
+                                'Id':'id',
+                                'Platforms':['windows'],
+                                'Protocol': 'one',
+                                'Exec':'one',
+                                 'Parser':{
+                                    'ParserId':'url',
+                                },
+                            }
+                        ]
+                    }
+";
+            CheckJson(json, 1);
+        }
+
+
+        [Fact]
+        public void TestInstalledJson()
+        {
+            string startupPath = Environment.CurrentDirectory;
+            var path = Path.Combine(startupPath, "scalus.json");
+            Assert.True(File.Exists(path));
+            var json = File.ReadAllText(path);
+            CheckJson(json, 0);
         }
     }
 }

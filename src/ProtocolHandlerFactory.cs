@@ -40,14 +40,14 @@ namespace scalus
             foreach (var t in tlist)
             {
                 if ((t.GetCustomAttribute(typeof(ParserName))) is ParserName c && 
-                    (c.GetName().Equals(config.Parser.Id)))
+                    (c.GetName().Equals(config.Parser.ParserId)))
                 {
                     Serilog.Log.Information($"Found parser:{t.Name}");
                     return new ProtocolHandler(uri, (IUrlParser)Activator.CreateInstance(t, config.Parser), config, OsServices);
                 }
             }
             //default to url handler
-            Serilog.Log.Information($"No specific parser found for:{config.Parser.Id}, defaulting to urlParser");
+            Serilog.Log.Information($"No specific parser found for:{config.Parser.ParserId}, defaulting to urlParser");
             return new ProtocolHandler(uri, new UrlParser.UrlParser(config.Parser), config, OsServices);
         }
     }

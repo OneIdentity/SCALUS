@@ -19,95 +19,34 @@ namespace scalus.Info
             Configuration = config;
         }
 
-        public int Run()
+        private void ShowConfig()
         {
-            if (Options.Dto)
-            {
-                var example = new ScalusConfig()
-                {
-                    Applications = new List<ApplicationConfig>( )
-                    {
-                        new ApplicationConfig()
-                        {
-                            Id = "id",
-                            Name = "name",
-                            Description = "desc",
-                            Protocol = "myprotocol",
-                            Platforms = new List<Dto.Platform>{ Dto.Platform.Windows, Dto.Platform.Linux, Dto.Platform.Mac},
-                            Parser = new ParserConfig()
-                            {
-                                Id = "url",
-                                UseDefaultTemplate = false,
-                                UseTemplateFile = "/path/tofile",
-                                Options = new List<string> { "waitforexit" },
-                                PostProcessingExec = "path/toplugin",
-                                PostProcessingArgs = new List<string> { "arg1", "arg2"},
-                            },
-                            Exec = "/path/tocommand",
-                            Args = new List<string> { "arg1", "arg2 " }
-                        }
-                    }
-                };
-                Console.WriteLine(@"
-SCALUS CONFIGURATION:
---------------------
-The 'scalus.json' configuration file describes the supported protocols and the applications that will be launched to process them (e.g. Microsoft Remote Desktop, FreeRDP) that will be launched to handle those URLS.
-
-");
-                Console.WriteLine($"Example scalus configuration: ");
-                Console.WriteLine();
-                Console.WriteLine(JsonConvert.SerializeObject(example));
-                Console.WriteLine(@"
-
-For more detailed information about a DTO property, run info -p <property>
-
-");
-                Console.WriteLine(@"
-SCALUS Tokens:
--------------
-The following tokens can be used in the scalus configuration. Each token will be evaluated and replaced when launching the configured application.
-");
-                foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
-                {
-                    Console.WriteLine("{0,-10} : {1}", one, ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
-                }
-                return 0;
-            }
-
-            if (!string.IsNullOrEmpty(Options.Property))
-            {
-                Console.WriteLine(" - DTO Property:");
-                if (!string.IsNullOrEmpty(Options.Property))
-                {
-                    if (ScalusConfig.DtoPropertyDescription.ContainsKey(Options.Property))
-                    {
-                        Console.WriteLine($" {Options.Property} : {ScalusConfig.DtoPropertyDescription[Options.Property]}");
-                        return 0;
-                    }
-
-                    Console.WriteLine($" Property not found:{Options.Property}");
-                    return 1;
-                }
-            }
             Console.WriteLine(@"
-
-SCALUS configuration :
---------------------
+ * SCALUS CONFIGURATION:
+   --------------------
+   The 'scalus.json' configuration file describes the supported protocols and the applications 
+   (e.g. MS Remote Desktop, FreeRdp, Putty) that will be launched to process URLs for those protocols. 
 
 ");
-            Console.WriteLine($" - Configuration file   : {ConfigurationManager.ScalusJson}");
-            Console.WriteLine($" - Logfile              : {ConfigurationManager.LogFile}" );
+
+            Console.WriteLine($"   - Configuration file   : {ConfigurationManager.ScalusJson}");
+            Console.WriteLine($"   - Logfile              : {ConfigurationManager.LogFile}" );
+            Console.WriteLine();
+            Console.WriteLine($"   For detailed information about the scalus configuration file, run info -d");
+            Console.WriteLine($"   For detailed information about the tokens that can be used in scalus.json, run info -t");
+
             var config = Configuration.GetConfiguration();
             Console.WriteLine(@"
-- Protocols configured for scalus:
-  -------------------------------
+
+   - Protocols currently configured for scalus:
+     -----------------------------------------
 ");
-            Console.WriteLine("   {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Command");
-            Console.WriteLine("-------------------------------------------------");
+            Console.WriteLine("     {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Command");
+            Console.WriteLine("     ------------------------------------------------------------------------------------------------");
             
             foreach (var one in config.Protocols)
             {
-                Console.Write("   {0,-10} ", one.Protocol);
+                Console.Write("     {0,-10} ", one.Protocol);
                 ApplicationConfig appConfig = null;
                 foreach (var a in from a in config.Applications
                     where a.Id == one.AppId
@@ -118,12 +57,128 @@ SCALUS configuration :
                 }
                 if (appConfig != null)
                 {
-                    Console.Write("{0,-10} {1,-20} ({2} {3})",  Registration.IsRegistered(one.Protocol)?"yes":"no",appConfig.Description, appConfig.Exec, string.Join(' ', appConfig.Args));
+                    Console.Write("     {0,-10} {1,-20} ({2} {3})",  Registration.IsRegistered(one.Protocol)?"yes":"no",appConfig.Description, appConfig.Exec, string.Join(' ', appConfig.Args));
                 }
                 Console.WriteLine();
             }
 
             Console.WriteLine();
+        }
+
+        private void ShowDto()
+        {
+            var example = new ScalusConfig()
+            {
+                Protocols = new List<ProtocolMapping>
+                {
+                    { new ProtocolMapping() { Protocol = "myprotocol", AppId = "applicationId"}}
+                },
+                Applications = new List<ApplicationConfig>()
+                {
+                    new ApplicationConfig()
+                    {
+                        Id = "applicationId",
+                        Name = "applicationName",
+                        Description = "optional desc",
+                        Protocol = "myprotocol",
+                        Platforms = new List<Dto.Platform>
+                            {Dto.Platform.Windows, Dto.Platform.Linux, Dto.Platform.Mac},
+                        Parser = new ParserConfig()
+                        {
+                            ParserId = "url",
+                            UseDefaultTemplate = false,
+                            UseTemplateFile = "/path/tofile",
+                            Options = new List<string> {"waitforexit"},
+                            PostProcessingExec = "path/toplugin",
+                            PostProcessingArgs = new List<string> {"arg1", "arg2"},
+                        },
+                        Exec = "/path/tocommand",
+                        Args = new List<string> {"arg1", "arg2 "}
+                    }
+                }
+            };
+
+            Console.WriteLine(@"
+
+ * Example SCALUS configuration:
+   ----------------------------
+
+");
+            Console.WriteLine(JsonConvert.SerializeObject(example, Formatting.Indented));
+            Console.WriteLine(@"
+
+ * DTO Properties :
+   --------------
+");
+            foreach (var one in ScalusConfig.DtoPropertyDescription)
+            {
+                Console.WriteLine($"    - {one.Key} : {one.Value}");
+            }
+        }
+
+        private void ShowTokens()
+        {
+            Console.WriteLine(@"
+ - SCALUS Tokens:
+   -------------
+   The following tokens can be used in the scalus configuration file. 
+   Each token will be evaluated and replaced when launching the configured application.
+");
+            foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
+            {
+                Console.WriteLine("   - {0,-10} : {1}", one,
+                    ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token) one]);
+            }
+
+        }
+
+        public int Run()
+        {
+            var example = new ScalusConfig()
+                {
+                    Protocols = new List<ProtocolMapping>
+                    {
+                        { new ProtocolMapping() { Protocol = "myprotocol", AppId = "applicationId"}}
+                    },
+                    Applications = new List<ApplicationConfig>()
+                    {
+                        new ApplicationConfig()
+                        {
+                            Id = "applicationId",
+                            Name = "applicationName",
+                            Description = "optional desc",
+                            Protocol = "myprotocol",
+                            Platforms = new List<Dto.Platform>
+                                {Dto.Platform.Windows, Dto.Platform.Linux, Dto.Platform.Mac},
+                            Parser = new ParserConfig()
+                            {
+                                ParserId = "url",
+                                UseDefaultTemplate = false,
+                                UseTemplateFile = "/path/tofile",
+                                Options = new List<string> {"waitforexit"},
+                                PostProcessingExec = "path/toplugin",
+                                PostProcessingArgs = new List<string> {"arg1", "arg2"},
+                            },
+                            Exec = "/path/tocommand",
+                            Args = new List<string> {"arg1", "arg2 "}
+                        }
+                    }
+                };
+
+            if (Options.Dto)
+            {
+                ShowDto();
+                return 0;
+            }
+            if (Options.Tokens)
+            {
+                ShowTokens();
+                return 0;
+            }
+
+            ShowConfig();
+                
+           
 
             return 0;
         }
