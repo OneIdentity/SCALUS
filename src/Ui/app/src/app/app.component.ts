@@ -5,6 +5,7 @@ import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolM
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
 import { ErrorDialogComponent } from './error/error-dialog.component';
 import { saveAs } from 'file-saver';
+import { forkJoin } from 'rxjs';
 import * as $ from 'jquery';
 
 @Component({
@@ -20,6 +21,7 @@ export class AppComponent implements OnInit {
   protocolName: string = '';
 
   config: ScalusConfig;
+  registrations:Array<string>;
 
   protocols: ProtocolMappingDisplay[];
 
@@ -30,18 +32,31 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.apiService.getConfig().subscribe(x => {
-      this.loadConfig(x);
+    forkJoin([
+    this.apiService.getConfig(),
+    this.apiService.getRegistrations()])
+    .subscribe(x => {
+      this.loadConfig(x[0], x[1]);
       this.state = 'loaded';
     }, error => {
       this.showError(error, "Failed to load configuration");
     });
   }
 
-  loadConfig(config:ScalusConfig)
+  loadConfig(config:ScalusConfig, registrations:Array<string>)
   {
     this.config = config;
+    this.registrations = registrations;
+
     this.protocols = this.getProtocols(this.config);
+    
+    this.registrations.forEach(reg => {
+      this.protocols.forEach(p => {
+        if (p.id == reg){
+          p.registered = true;
+        }
+      });
+    });
   }
 
   getProtocols(config: ScalusConfig) {
@@ -97,7 +112,7 @@ export class AppComponent implements OnInit {
     this.apiService.setConfig(this.config).subscribe(
       x => {
         this.protocolName = "";
-        this.loadConfig(this.config);
+        this.loadConfig(this.config, this.registrations);
       }, 
       error => {
         this.showError(error, "Failed to save configuration");
@@ -114,10 +129,56 @@ export class AppComponent implements OnInit {
     this.apiService.setConfig(this.config).subscribe(
       x => {
         this.protocolName = "";
-        this.loadConfig(this.config);
+        this.loadConfig(this.config, this.registrations);
       }, 
       error => {
         this.showError(error, "Failed to save configuration");
+    });
+  }
+
+  register(id: string) {
+    var mapping:ProtocolMapping;
+    this.config.protocols.forEach(p => {
+      if (p.protocol === id)
+      {
+        mapping = p;
+      }
+    });
+    this.apiService.register(mapping).subscribe(
+      x => {
+        this.apiService.getRegistrations().subscribe(x =>{
+          this.registrations = x;
+          this.loadConfig(this.config, this.registrations);
+        },
+        error => {
+          this.showError(error, "Failed to register protocol");
+        });
+      }, 
+      error => {
+        this.showError(error, "Failed to register protocol");
+    });
+  }
+
+  unregister(id: string) {
+    var mapping:ProtocolMapping;
+    this.config.protocols.forEach(p => {
+      if (p.protocol === id)
+      {
+        mapping = p;
+      }
+    });
+    this.apiService.unregister(mapping).subscribe(
+      x => {
+        this.apiService.getRegistrations().subscribe(x =>{
+          this.registrations = x;
+          this.loadConfig(this.config, this.registrations);
+        },
+        error => {
+          this.showError(error, "Failed to unregister protocol");
+        });
+      }, 
+      error => {
+        this.showError(error, "Failed to unregister protocol");
     });
   }
 
@@ -130,7 +191,7 @@ export class AppComponent implements OnInit {
     var ref = this.sidesheetService.open(ScalusApplicationsComponent, config);
     ref.afterClosed().subscribe(
       () => {
-        this.loadConfig(this.config);
+        this.loadConfig(this.config, this.registrations);
       });
   }
 
@@ -145,7 +206,7 @@ export class AppComponent implements OnInit {
           var config = JSON.parse(fileResults);
           this.apiService.setConfig(config).subscribe(
             x => {
-              this.loadConfig(config);
+              this.loadConfig(config, this.registrations);
             }, 
             error => {
               this.showError(error, "Failed to save configuration");

@@ -16,8 +16,8 @@
           <mat-card-subtitle>Set or change the application you want to launch {{p.id}} sessions on this machine.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div>
-            <mat-form-field appearance="fill">
+          <div class="row">
+            <mat-form-field appearance="fill" style="flex-grow: 1;">
               <mat-label>Select an Application</mat-label>
               <mat-select [(value)]='p.mapping.appId' (selectionChange)="setApp('p.id', p.mapping.appId)" >
                 <mat-option *ngFor="let c of p.configs" [value]="c.id">
@@ -25,6 +25,10 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
+            <mat-icon aria-hidden="false" *ngIf="!p.registered" class="protocol-icon"
+              matTooltip="Click to register protocol" (click)="register(p.id)">task_alt</mat-icon>
+            <mat-icon aria-hidden="false" *ngIf="p.registered" class="protocol-icon" 
+              matTooltip="Click to unregister protocol" (click)="unregister(p.id)">add_task</mat-icon>
           </div>
           <div class="row">
             <div style="flex-grow: 1;">{{getSelectedDescription(p.mapping.appId)}}</div>

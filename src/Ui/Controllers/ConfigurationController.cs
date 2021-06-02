@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using scalus.Dto;
 
@@ -11,10 +13,13 @@ namespace scalus.Ui.Controllers
     [Produces("application/json")]
     public class ConfigurationController : ControllerBase
     {
-        IScalusApiConfiguration Configuration { get; set; }
-        public ConfigurationController(IScalusApiConfiguration configuration)
+        IScalusApiConfiguration Configuration { get; }
+        IRegistration Registration { get; }
+
+        public ConfigurationController(IScalusApiConfiguration configuration, IRegistration registration)
         {
             Configuration = configuration;
+            Registration = registration;
         }
 
         [HttpGet]
@@ -28,6 +33,52 @@ namespace scalus.Ui.Controllers
         public void Post([FromBody] ScalusConfig value)
         {
             Configuration.SaveConfiguration(value);
+        }
+
+        [HttpGet, Route("Registrations")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
+        public IActionResult Registrations()
+        {
+            var registeredProtocols = new List<string>();
+            var config = Configuration.GetConfiguration();
+            foreach (var one in config.Protocols)
+            {
+                if (Registration.IsRegistered(one.Protocol))
+                {
+                    registeredProtocols.Add(one.Protocol);
+                }
+            }
+            return Ok(registeredProtocols);
+        }
+
+        [HttpPut, Route("Register")]
+        public void Register([FromBody] ProtocolMapping protocolMapping)
+        {
+            var config = Configuration.GetConfiguration();
+            foreach (var one in config.Protocols)
+            {
+                if (one.Protocol.Equals(protocolMapping.Protocol) &&
+                    !Registration.IsRegistered(one.Protocol))
+                {
+                    var protocols = new List<string> { one.Protocol };
+                    Registration.Register(protocols);
+                }
+            }
+        }
+
+        [HttpPut, Route("UnRegister")]
+        public void UnRegister([FromBody] ProtocolMapping protocolMapping)
+        {
+            var config = Configuration.GetConfiguration();
+            foreach (var one in config.Protocols)
+            {
+                if (one.Protocol.Equals(protocolMapping.Protocol) &&
+                    Registration.IsRegistered(one.Protocol))
+                {
+                    var protocols = new List<string> { one.Protocol };
+                    Registration.UnRegister(protocols);
+                }
+            }
         }
     }
 }

@@ -108,6 +108,7 @@ namespace scalus.Ui
         internal static void RegisterExternalInstances(ContainerBuilder builder)
         {
             builder.RegisterInstance(ExternalContainer.ResolveNamed<IApplication>("ui")).As<IWebServer>().ExternallyOwned();
+            builder.RegisterInstance(ExternalContainer.Resolve<IRegistration>()).ExternallyOwned();
         }
     }
 }
