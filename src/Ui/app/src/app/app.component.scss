@@ -44,6 +44,12 @@ h2{
   justify-content: top;  
 }
 
+.protocol-icon {
+  flex-grow: 0;
+  cursor: pointer;
+  margin: 16px 10px;
+}
+
 mat-toolbar {
   background-color: #1CB0DD;
 }
