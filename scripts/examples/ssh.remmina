@@ -1,4 +1,7 @@
-protocol=RDP
+server=%Host%
+username=%User%
+name=scalusSshConnection
+protocol=SSH
 cert_ignore=0
 clientbuild=
 clientname=
@@ -23,7 +26,6 @@ gwtransp=http
 ignore-tls-errors=1
 loadbalanceinfo=
 microphone=0
-name=mywin1
 old-license=0
 parallelname=
 parallelpath=

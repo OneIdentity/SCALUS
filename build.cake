@@ -113,10 +113,10 @@ Task("MsiInstaller")
 	{
 		Information( "Building " + runtime + " msiPath: " + msiPath);
 	}
-	//DeleteDirectory(tmpdir, new DeleteDirectorySettings {
-	    //Recursive = true,
-	    //Force = true
-	//});
+	DeleteDirectory(tmpdir, new DeleteDirectorySettings {
+	    Recursive = true,
+	    Force = true
+	});
     });
 
 
@@ -228,11 +228,17 @@ Task("LinuxInstall")
 		{
 			CreateDirectory(outputdir); 
 		}
+	        var examples = publishdir + "/examples";
+	        CopyDirectory("scripts/examples", examples);
 
 		var readme = publishdir + "/readme.txt";
 		CopyFile("./scripts/readme.txt", readme);
 		ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
 		CopyDirectory("scripts/Linux", publishdir);
+
+		var from = publishdir + "/scalus.json";
+		var to = examples + "/scalus.json";
+		CopyFile(from, to);
 
 		var zipfile= outputdir +  "/scalus-" + Version + "_" + runtime + ".tar.gz";
 		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
