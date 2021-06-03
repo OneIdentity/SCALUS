@@ -149,7 +149,7 @@
       "Protocol": "rdp",
       "Parser": {
         "ParserId": "rdp",
-        "UseTemplateFile": "%AppData%/remmina.rdp",
+        "UseTemplateFile": "%AppData%/rdp.remmina",
         "Options": [ "waitforexit" ]
       },
       "Exec": "/usr/bin/remmina",
@@ -163,7 +163,7 @@
       "Protocol": "ssh",
       "Parser": {
         "ParserId": "ssh",
-        "UseTemplateFile": "%AppData%/remmina.ssh",
+        "UseTemplateFile": "%AppData%/ssh.remmina",
         "Options": [ "waitforexit" ]
       },
       "Exec": "/usr/bin/remmina",
