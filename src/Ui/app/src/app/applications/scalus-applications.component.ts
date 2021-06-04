@@ -1,13 +1,15 @@
-import { Component, OnInit, Inject, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Inject, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService, ScalusConfig, ApplicationConfig, ApplicationConfigDisplay, ParserConfig, ParserConfigDisplay, Platform } from '../api/api.service';
 import { EuiSidesheetService, EUI_SIDESHEET_DATA } from '@elemental-ui/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { ScalusApplicationsTokensDialogComponent } from "./tokens/scalus-applications-tokens-dialog.component";
 import { ErrorDialogComponent } from '../error/error-dialog.component';
 
 @Component({
   selector: 'applications',
   templateUrl: './scalus-applications.component.html',
   styleUrls: ['./scalus-applications.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class ScalusApplicationsComponent implements OnInit {
@@ -16,11 +18,17 @@ export class ScalusApplicationsComponent implements OnInit {
 
   applications: ApplicationConfigDisplay[];
 
+  descriptions: object;
+  tokens: object;
+
   constructor(private apiService: ApiService,
     private sidesheetService: EuiSidesheetService,
     private matDialog: MatDialog,
     @Inject(EUI_SIDESHEET_DATA) public sidesheetdata?: any) {
-      this.config = <ScalusConfig>sidesheetdata;
+      
+      this.config = <ScalusConfig>sidesheetdata.config;
+      this.descriptions = sidesheetdata.descriptions;
+      this.tokens = sidesheetdata.tokens;
       
       var apps = new Array();
       this.config.applications.slice().forEach(ac => {
@@ -30,7 +38,7 @@ export class ScalusApplicationsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    
   }
 
   delete(id:string) {
@@ -140,23 +148,18 @@ export class ScalusApplicationsComponent implements OnInit {
   }
 
   showTokens() {
-    this.matDialog.open(ScalusApplicationsTokensDialogComponent, {});
-  }
-}
-
-@Component({
-  selector: 'applications-tokens-dialog',
-  templateUrl: 'scalus-applications-tokens-dialog.component.html',
-})
-export class ScalusApplicationsTokensDialogComponent {
-
-  constructor(
-    public dialogRef: MatDialogRef<ScalusApplicationsTokensDialogComponent>) {
-
+    this.matDialog.open(ScalusApplicationsTokensDialogComponent, {
+      data: this.tokens
+    });
   }
 
-  close(): void {
-    this.dialogRef.close();
+  getTooltip(key:string) : string {
+    if (key in this.descriptions)
+    {
+      return this.descriptions[key];
+    }
+    else {
+      return "";
+    }
   }
-
 }

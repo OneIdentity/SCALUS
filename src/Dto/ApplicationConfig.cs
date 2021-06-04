@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -38,7 +39,7 @@ namespace scalus.Dto
             {nameof(Id),"The unique identifier for an application that can be configured to launch for the selected protocol"},
             {nameof(Name),"User-friendly name for the application"},
             {nameof(Description),"Optional description of this application"},
-            {nameof(Platforms),$"The list of platforms supported for this application. Valid values are: {string.Join(',',Enum.GetValues(typeof(Platform)))}"},
+            {nameof(Platforms),$"The list of platforms supported for this application. Valid values are: {string.Join(',',Enum.GetValues(typeof(Platform)).Cast<Platform>())}"},
             {nameof(Protocol),"The protocol supported for this application"},
             {nameof(Parser),$"The parser that will be used to interpret the URL. The available values are: {string.Join(',',ProtocolHandlerFactory.GetSupportedParsers())}"},
             {nameof(Exec),"The full path to the command to run. This can contain any of the supported tokens."},

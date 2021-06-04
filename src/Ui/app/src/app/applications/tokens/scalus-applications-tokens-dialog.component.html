@@ -1,0 +1,18 @@
+<div class="container" style="background-color: #424242;">
+    
+    <h1>Tokens</h1>
+    <div class="content" style="max-height: 300px;">    
+        <table style="font-family: 'Courier New', Courier, monospace;">
+            <tr *ngFor="let token of tokens">
+                <td>{{ token.name }}</td>
+                <td>{{ token.description }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <div class="row-reverse">
+            <button mat-flat-button color="primary" (click)="close()">Close</button>
+        </div>
+    </div>
+</div>
