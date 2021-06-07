@@ -65,6 +65,11 @@ export interface ParserConfigDisplay {
   postProcessingArgs: string;
 }
 
+export interface TokenDisplay {
+  name: string;
+  description: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -73,9 +78,11 @@ export class ApiService {
   constructor(private http: HttpClient) { }
 
   private configUrl = 'api/Configuration'
-  private registrationsUrl = 'api/Configuration/Registrations';
-  private registerUrl = 'api/Configuration/Register';
-  private unregisterUrl = 'api/Configuration/UnRegister';
+  private registrationsUrl = this.configUrl.concat('/Registrations');
+  private registerUrl = this.configUrl.concat('/Register');
+  private unregisterUrl = this.configUrl.concat('/UnRegister');
+  private tokensUrl = this.configUrl.concat('/Tokens');
+  private applicationDescriptionsUrl = this.configUrl.concat('/ApplicationDescriptions');
 
   getConfig() {
     return this.http.get<ScalusConfig>(this.configUrl);
@@ -85,7 +92,7 @@ export class ApiService {
     return this.http.put<ScalusConfig>(this.configUrl, config);
   }
 
-  getRegistrations(){
+  getRegistrations() {
     return this.http.get<Array<string>>(this.registrationsUrl);
   }
 
@@ -95,5 +102,13 @@ export class ApiService {
 
   unregister(protocol:ProtocolMapping) {
     return this.http.put<ProtocolMapping>(this.unregisterUrl, protocol);
+  }
+
+  getTokens() {
+    return this.http.get<object>(this.tokensUrl);
+  }
+
+  getapplicationDescriptions() {
+    return this.http.get<object>(this.applicationDescriptionsUrl);
   }
 }

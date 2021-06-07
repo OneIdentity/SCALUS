@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ScalusApplicationsComponent } from './scalus-applications.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,13 +17,15 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from "@angular/forms";
 import { EuiCoreModule } from '@elemental-ui/core';
+import { ScalusApplicationsTokensDialogComponent } from './tokens/scalus-applications-tokens-dialog.component';
 
 @NgModule({
   declarations: [
-    ScalusApplicationsComponent
+    ScalusApplicationsComponent,
+    ScalusApplicationsTokensDialogComponent
   ],
   imports: [
-    BrowserModule,
+    CommonModule,
     BrowserAnimationsModule,
     EuiCoreModule,
     HttpClientModule,

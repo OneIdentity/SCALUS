@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -79,6 +80,26 @@ namespace scalus.Ui.Controllers
                     Registration.UnRegister(protocols);
                 }
             }
+        }
+
+        [HttpGet, Route("Tokens")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        public IActionResult Tokens()
+        {
+            var tokens = new Dictionary<string, string>();
+            foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
+            {
+                tokens.Add(one.ToString()!, ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
+            }
+            return Ok(tokens);
+        }
+
+        [HttpGet, Route("ApplicationDescriptions")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        public IActionResult ApplicationDescriptions()
+        {
+            var descriptions = ApplicationConfig.DtoPropertyDescription;
+            return Ok(descriptions);
         }
     }
 }

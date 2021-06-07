@@ -10,15 +10,15 @@
                 </mat-panel-title>
             </mat-expansion-panel-header>
                 <div class="form">
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" matTooltip="{{getTooltip('Id')}}">
                         <mat-label>ID</mat-label>
                         <input type="text" matInput [(ngModel)]="a.id">
                     </mat-form-field>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" matTooltip="{{getTooltip('Name')}}">
                         <mat-label>Name</mat-label>
                         <input type="text" matInput [(ngModel)]="a.name">
                     </mat-form-field>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" matTooltip="{{getTooltip('Description')}}">
                         <mat-label>Description</mat-label>
                         <input type="text" matInput [(ngModel)]="a.description">
                     </mat-form-field>
@@ -27,13 +27,13 @@
                             matTooltip="Comma separated list.">
                             more
                         </mat-icon>
-                        <mat-form-field class="row-formfield" appearance="outline">
-                            <mat-label>Platforms - valid values (Windows,Linux,Mac)</mat-label>
+                        <mat-form-field class="row-formfield" appearance="outline" matTooltip="{{getTooltip('Platforms')}}">
+                            <mat-label>Platforms</mat-label>
                             <input type="text" matInput [(ngModel)]="a.platforms">
                         </mat-form-field>
                     </div>
-                    <mat-form-field appearance="outline">
-                        <mat-label>Protocol - valid values (any SCALUS Protocol)</mat-label>
+                    <mat-form-field appearance="outline" matTooltip="{{getTooltip('Protocol')}}">
+                        <mat-label>Protocol</mat-label>
                         <input type="text" matInput [(ngModel)]="a.protocol">
                     </mat-form-field>
                     <div class="row">
@@ -41,7 +41,7 @@
                             matTooltip="May contain Tokens, click to see the list.">
                             outbound
                         </mat-icon>
-                        <mat-form-field class="row-formfield" appearance="outline">
+                        <mat-form-field class="row-formfield" appearance="outline" matTooltip="{{getTooltip('Exec')}}">
                             <mat-label>Exec</mat-label>
                             <input type="text" matInput [(ngModel)]="a.exec">
                         </mat-form-field>
@@ -55,7 +55,7 @@
                             matTooltip="May contain Tokens, click to see the list.">
                             outbound
                         </mat-icon>
-                        <mat-form-field class="row-formfield"  appearance="outline">
+                        <mat-form-field class="row-formfield"  appearance="outline" matTooltip="{{getTooltip('Args')}}">
                             <mat-label>Args</mat-label>
                             <input type="text" matInput [(ngModel)]="a.args">
                         </mat-form-field>
@@ -65,8 +65,8 @@
                             matTooltip="Comma separated list.">
                             more
                         </mat-icon>
-                        <mat-form-field class="row-formfield" appearance="outline">
-                            <mat-label>Parser - valid values (rdp, telnet, ssh, url)</mat-label>
+                        <mat-form-field class="row-formfield" appearance="outline" matTooltip="{{getTooltip('ParserId')}}">
+                            <mat-label>Parser ID</mat-label>
                             <input type="text" matInput [(ngModel)]="a.parser.parserId">
                         </mat-form-field>
                     </div>
@@ -75,21 +75,21 @@
                             matTooltip="Comma separated list.">
                             more
                         </mat-icon>
-                        <mat-form-field class="row-formfield" appearance="outline">
-                            <mat-label>Parser Options - valid values (waitForInputIdle,  waitforexit,  wait:&lt;int&gt;)</mat-label>
+                        <mat-form-field class="row-formfield" appearance="outline" matTooltip="{{getTooltip('Options')}}">
+                            <mat-label>Options</mat-label>
                             <input type="text" matInput [(ngModel)]="a.parser.options">
                         </mat-form-field>
                     </div>
-                    <mat-checkbox [(ngModel)]="a.parser.useDefaultTemplate" style="margin-bottom: 18px;">
-                        Use Default Parser Template
+                    <mat-checkbox [(ngModel)]="a.parser.useDefaultTemplate" style="margin-bottom: 18px;" matTooltip="{{getTooltip('UseDefaultTemplate')}}">
+                        Use Default Template
                     </mat-checkbox>
                     <div class="row">
                         <mat-icon class="row-click-icon" (click)="showTokens()" 
                             matTooltip="May contain Tokens, click to see the list.">
                             outbound
                         </mat-icon>
-                        <mat-form-field class="row-formfield" appearance="outline">
-                            <mat-label>Parser Template File</mat-label>
+                        <mat-form-field class="row-formfield" appearance="outline" matTooltip="{{getTooltip('UseTemplateFile')}}">
+                            <mat-label>Use Template File</mat-label>
                             <input type="text" matInput [(ngModel)]="a.parser.useTemplateFile">
                         </mat-form-field>
                     </div>
@@ -98,8 +98,8 @@
                             matTooltip="May contain Tokens, click to see the list.">
                             outbound
                         </mat-icon>
-                        <mat-form-field class="row-formfield" appearance="outline">
-                            <mat-label>Parser Post Processing Exec</mat-label>
+                        <mat-form-field class="row-formfield" appearance="outline" matTooltip="{{getTooltip('PostProcessingExec')}}">
+                            <mat-label>Post Processing Exec</mat-label>
                             <input type="text" matInput [(ngModel)]="a.parser.postProcessingExec">
                         </mat-form-field>
                     </div>
@@ -112,8 +112,8 @@
                             matTooltip="May contain Tokens, click to see the list.">
                             outbound
                         </mat-icon>
-                        <mat-form-field class="row-formfield" appearance="outline">
-                            <mat-label>Parser Post Processing Args</mat-label>
+                        <mat-form-field class="row-formfield" appearance="outline" matTooltip="{{getTooltip('PostProcessingArgs')}}">
+                            <mat-label>Post Processing Args</mat-label>
                             <input type="text" matInput [(ngModel)]="a.parser.postProcessingArgs">
                         </mat-form-field>
                     </div>

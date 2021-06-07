@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EuiSidesheetService, EuiSidesheetConfig } from '@elemental-ui/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay } from './api/api.service';
+import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay, Platform } from './api/api.service';
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
 import { ErrorDialogComponent } from './error/error-dialog.component';
 import { saveAs } from 'file-saver';
@@ -22,6 +22,8 @@ export class AppComponent implements OnInit {
 
   config: ScalusConfig;
   registrations:Array<string>;
+  applicationDescriptions: object;
+  tokens: object;
 
   protocols: ProtocolMappingDisplay[];
 
@@ -34,9 +36,15 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     forkJoin([
     this.apiService.getConfig(),
-    this.apiService.getRegistrations()])
+    this.apiService.getRegistrations(),
+    this.apiService.getapplicationDescriptions(),
+    this.apiService.getTokens()])
     .subscribe(x => {
       this.loadConfig(x[0], x[1]);
+      
+      this.applicationDescriptions = x[2];
+      this.tokens = x[3];
+
       this.state = 'loaded';
     }, error => {
       this.showError(error, "Failed to load configuration");
@@ -68,7 +76,7 @@ export class AppComponent implements OnInit {
       protocolMapping.mapping = pm;
       protocolMapping.configs = new Array();
       config.applications.forEach(ac => {
-        if (ac.protocol == pm.protocol) {
+        if (ac.protocol === pm.protocol && this.canAddApplication(ac)) {
           protocolMapping.configs.push(ac);
         }
       });
@@ -76,6 +84,36 @@ export class AppComponent implements OnInit {
     });
 
     return protocols;
+  }
+
+  canAddApplication(app: ApplicationConfig) : boolean
+  {
+    var canAdd = false;
+    var platform = this.getOsPlatform();
+    app.platforms.forEach(p => {
+      if (p === platform)
+      {
+        canAdd = true;
+      }
+    });
+    return canAdd;
+  }
+
+  getOsPlatform() : Platform {
+    var platform = window.navigator.platform;
+
+    if (platform.startsWith("Win"))
+    {
+      return Platform["Windows"];
+    }
+    else if (platform.startsWith("Mac"))
+    {
+      return Platform["Mac"];
+    }
+    else if (platform.startsWith("Linux"))
+    {
+      return Platform["Linux"];
+    }
   }
 
   setApp(protocol:string, appId:string){
@@ -183,10 +221,15 @@ export class AppComponent implements OnInit {
   }
 
   manageApplications() {
+    var applicationData = {
+      config: this.config,
+      descriptions: this.applicationDescriptions,
+      tokens: this.tokens
+    };
     const config: EuiSidesheetConfig = {
       title: 'Applications',
       testId: 'applications-sidesheet',
-      data: this.config
+      data: applicationData
     };
     var ref = this.sidesheetService.open(ScalusApplicationsComponent, config);
     ref.afterClosed().subscribe(
