@@ -13,7 +13,7 @@ namespace scalus.Util
         private const string ConfigFileSetting = "Configuration:fileName";
         private const string MinLogLevelSetting = "Logging:MinLevel";
         private const string LogToConsoleSetting = "Logging:Console";
-        private const string ProdName = "scalus";
+        public const string ProdName = "scalus";
         private const string JsonFile = ProdName + ".json";
         private const string LogFileName = ProdName + ".log";
         private const string Examples = "examples";
@@ -27,7 +27,12 @@ namespace scalus.Util
                 {
                     return _examplePath;
                 }
-                _examplePath = Path.Combine(Constants.GetBinaryDirectory(), Examples);
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    _examplePath = Path.Combine(Path.Combine(Path.GetDirectoryName(Constants.GetBinaryDirectory()), "Resources"), Examples);
+                }
+                else _examplePath = Path.Combine(Constants.GetBinaryDirectory(), Examples);
                 if (Directory.Exists(_examplePath))
                 {
                     return _examplePath;
@@ -52,9 +57,9 @@ namespace scalus.Util
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     var path =
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile,
-                            Environment.SpecialFolderOption.Create));
-                    _ProdAppPath = Path.Combine(Path.Combine(Path.Combine(path, "Library"), "Application Support"), ProdName);
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create), "Library");
+
+                    _ProdAppPath = $"{path}/Application Support/{ProdName}";
                     if (!Directory.Exists(_ProdAppPath))
                     {
                         Directory.CreateDirectory(_ProdAppPath);
@@ -85,11 +90,19 @@ namespace scalus.Util
             }
             return fqpath;
         }
-        
+       
+        private const string AppSettingDefault = "{\"Logging\": {\"FileName\": \"scalus.log\",\"MinLevel\": \"Information\",\"Console\": false},\"Configuration\": {\"FileName\":  \"scalus.json\"}}";
         static ConfigurationManager()
         {
-            var path = Constants.GetBinaryDirectory();
+            string path = string.Empty;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                path = ProdAppPath;
+            }
+            else path = Constants.GetBinaryDirectory();
+
             var fname = Path.Combine(path, "appsettings.json");
+            
             if (File.Exists(fname))
             {
                 _appSetting = new ConfigurationBuilder()
@@ -97,6 +110,7 @@ namespace scalus.Util
                     .AddJsonFile("appsettings.json", true)
                     .Build();
             }
+           
         }
 
         private static string _logFile;
@@ -105,12 +119,14 @@ namespace scalus.Util
             get
             {
                 if (!string.IsNullOrEmpty(_logFile))
+                    return _logFile;
+
+                if (!string.IsNullOrEmpty(_appSetting?[LogFileSetting]))
                 {
+                    _logFile = FullPath(_appSetting[LogFileSetting]);
                     return _logFile;
                 }
-                _logFile = string.IsNullOrEmpty(_appSetting?[LogFileSetting])
-                    ? Path.Combine(Constants.GetBinaryDirectory(), LogFileName)
-                    : FullPath(_appSetting[LogFileSetting]);
+                _logFile = Path.Combine(RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? ProdAppPath : Constants.GetBinaryDirectory(), LogFileName);
                 return _logFile;
             }
         }
@@ -122,9 +138,16 @@ namespace scalus.Util
             {
                 if (!string.IsNullOrEmpty(_scalusJson))
                     return _scalusJson;
-                _scalusJson = string.IsNullOrEmpty(_appSetting?[ConfigFileSetting])
-                        ? Path.Combine(Constants.GetBinaryDirectory(), JsonFile)
-                        : FullPath(_appSetting[ConfigFileSetting]);
+
+                if (!string.IsNullOrEmpty(_appSetting?[ConfigFileSetting]))
+                {
+                    _scalusJson = FullPath(_appSetting[ConfigFileSetting]);
+                    return _scalusJson;
+                }
+
+                var path = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? ProdAppPath : Constants.GetBinaryDirectory();
+
+                _scalusJson = Path.Combine(RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? ProdAppPath : Constants.GetBinaryDirectory(), JsonFile);
                 return _scalusJson;
             }
         }

@@ -4,11 +4,13 @@ namespace scalus
 {
     interface IProtocolRegistrar
     {
+        bool UseSudo { get; set; }
+        bool RootMode { get; set; }
         string Name { get; }
         string GetRegisteredCommand(string protocol);
         bool IsScalusRegistered(string command);
-        bool Unregister(string protocol, bool userMode=false, bool useSudo = false);
-        bool Register(string protocol, bool userMode = false, bool useSudo = false);
-        bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false);
+        bool Unregister(string protocol);
+        bool Register(string protocol);
+        bool ReplaceRegistration(string protocol);
     }
 }

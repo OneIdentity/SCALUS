@@ -11,6 +11,8 @@ namespace scalus
 {
     public class UnixProtocolRegistrar : IProtocolRegistrar
     {
+        public bool UseSudo { get; set; }
+        public bool RootMode { get; set; }
         public string Name { get; } = "Linux";
         private const string XdgConfigPath = ".config";
         private const string XdgSettings = "/usr/bin/xdg-settings";
@@ -238,7 +240,7 @@ namespace scalus
 
         }
 
-        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
+        public bool Register(string protocol)
         {
             try {
                 Serilog.Log.Debug($"Registering {ScalusDesktop} for {protocol} URLs.");
@@ -268,7 +270,7 @@ namespace scalus
             }
         }
 
-        public bool Unregister(string protocol, bool userMode = false, bool useSudo= false)
+        public bool Unregister(string protocol)
         { 
             Serilog.Log.Debug($"Unregistering {ScalusDesktop} for {protocol} URLs.");
             try
@@ -300,12 +302,12 @@ namespace scalus
             }
         }
 
-        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        public bool ReplaceRegistration(string protocol)
         {
-            var res =Unregister(protocol, userMode, useSudo);
+            var res =Unregister(protocol);
             if (res)
             {
-                res = Register(protocol, userMode, useSudo);
+                res = Register(protocol);
             }
             return res;
         }

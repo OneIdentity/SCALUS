@@ -2,6 +2,8 @@
 {
     class UnsupportedPlatformRegistrar : IProtocolRegistrar
     {
+        public bool UseSudo { get; set; }
+        public bool RootMode { get; set; }
         public string Name { get; } = "Unknown";
         IUserInteraction UserInteraction { get; }
         public UnsupportedPlatformRegistrar(IUserInteraction userInteraction)
@@ -19,7 +21,7 @@
             return false;
         }
 
-        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
+        public bool Register(string protocol)
         {
             var registrationCommand = Constants.GetLaunchCommand();
             var message = $@"
@@ -30,18 +32,18 @@ You can register SCALUS manually using this command: {registrationCommand}
             return true;
         }
 
-        public bool Unregister(string protocol, bool userMode = false, bool useSudo = false)
+        public bool Unregister(string protocol)
         {
             UserInteraction.Message("SCALUS doesn't know how to unregister as a URL protocol handler on this platform.");
             return true;
         }
 
-        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        public bool ReplaceRegistration(string protocol)
         {
-            var res =Unregister(protocol, userMode, useSudo);
+            var res =Unregister(protocol);
             if (res)
             {
-                res = Register(protocol, userMode, useSudo);
+                res = Register(protocol);
             }
             return res;
         }

@@ -5,6 +5,8 @@ namespace scalus
 {
     class ProtocolRegistrar : IProtocolRegistrar
     {
+        public bool UseSudo { get; set; }
+        public bool RootMode { get; set; }
         public string Name { get; } = "WindowsURLRegistry";
         private static readonly string AppName = "SCALUS Protocol Handler";
         private static readonly string Clsid = "scalus.URLHandler.1";
@@ -24,7 +26,7 @@ namespace scalus
             return RegistryUtils.GetStringValue(GetAppPath() + CapabilitiesUrlAssociationsFragment, protocol);
         }
 
-        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
+        public bool Register(string protocol)
         {
             var registrationCommand = Constants.GetLaunchCommand("\"%1\"");
             Serilog.Log.Debug($"Registering to run {registrationCommand} for {protocol} URLs.");
@@ -56,7 +58,7 @@ namespace scalus
             return true;
         }
 
-        public bool Unregister(string protocol, bool userMode = false, bool useSudo= false)
+        public bool Unregister(string protocol)
         {
             // Remove the protocol registration
             var urlAssociationsPath = GetAppPath() + CapabilitiesUrlAssociationsFragment;
@@ -116,12 +118,12 @@ namespace scalus
         {
             return @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts";
         }
-        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        public bool ReplaceRegistration(string protocol)
         {
-            var res =Unregister(protocol, userMode, useSudo);
+            var res =Unregister(protocol);
             if (res)
             {
-                res = Register(protocol, userMode, useSudo);
+                res = Register(protocol);
             }
             return res;
         }

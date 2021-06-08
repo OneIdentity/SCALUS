@@ -66,7 +66,8 @@ namespace scalus
         }
         private static void RegisterOsxComponents(this ContainerBuilder builder)
         {
-            builder.RegisterType<MacOSProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<MacOsProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<MacOsUserDefaultRegistrar>().AsImplementedInterfaces().SingleInstance();
 
         }
     }
