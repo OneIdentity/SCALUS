@@ -55,7 +55,12 @@ steps:
     target: 'Default'
     verbosity: 'Verbose'
     arguments: '--runtime=osx-x64 --Version=$(version)'
-    
+
+- task: Bash@3
+  inputs:
+    filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
+    arguments: '--version $(version) --runtime osx-x64 --inpath $(Pipeline.Workspace)/s/scripts/Osx --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64'
+
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
@@ -66,4 +71,10 @@ steps:
   inputs:
     targetPath: '$(Pipeline.Workspace)/s/Output/Release/linux-x64'
     artifact: 'Scalus-Linux'
+    publishLocation: 'pipeline'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/s/Output/Release/osx-x64'
+    artifact: 'Scalus-Osx'
     publishLocation: 'pipeline'
