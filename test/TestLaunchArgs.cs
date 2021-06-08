@@ -183,14 +183,14 @@ namespace scalus.Test
         );
     }
 )";
-            var list = MacOSProtocolRegistrar.ParseList(str);
+            var list = MacOsProtocolRegistrar.ParseList(str);
             Assert.True(list.Count > 0, $"first:{list[0]}, second:{list[1]}");
             Assert.Equal(3, list.Count);
             Assert.Equal("ssh", list[0]);
             Assert.Equal("rdp", list[1]);
             Assert.Equal("telnet", list[2]);
 
-            var newstr = MacOSProtocolRegistrar.ConstructNewValue(list);
+            var newstr = MacOsProtocolRegistrar.ConstructNewValue(list);
 
         }
 

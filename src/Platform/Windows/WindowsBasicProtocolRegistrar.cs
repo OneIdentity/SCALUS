@@ -5,6 +5,8 @@ namespace scalus
 {
     class WindowsBasicProtocolRegistrar : IProtocolRegistrar
     {
+        public bool UseSudo { get; set; }
+        public bool RootMode { get; set; }
         public string Name { get; } = "WindowsProtocolRegistry";
 
         public bool IsScalusRegistered(string protocol)
@@ -27,7 +29,7 @@ namespace scalus
             return RegistryUtils.GetStringValue(commandPath, "");
         }
 
-        public bool Register(string protocol, bool userMode = false, bool useSudo= false)
+        public bool Register(string protocol)
         {
             var path = GetPathRoot(protocol);
             var registrationCommand = Constants.GetLaunchCommand("\"%1\"");
@@ -43,7 +45,7 @@ namespace scalus
             return false;
         }
 
-        public bool Unregister(string protocol, bool userMode = false, bool useSudo= false)
+        public bool Unregister(string protocol)
         {
             var path = GetPathRoot(protocol);
             if (RegistryUtils.PathExists(path) && !RegistryUtils.DeleteKey(path))
@@ -57,12 +59,12 @@ namespace scalus
         {
             return $"HKEY_CURRENT_USER\\SOFTWARE\\Classes\\{protocol}";
         }
-        public bool ReplaceRegistration(string protocol, bool userMode = false, bool useSudo = false)
+        public bool ReplaceRegistration(string protocol)
         {
-            var res =Unregister(protocol, userMode, useSudo);
+            var res =Unregister(protocol);
             if (res)
             {
-                res = Register(protocol, userMode, useSudo);
+                res = Register(protocol);
             }
             return res;
         }

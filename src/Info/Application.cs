@@ -41,7 +41,7 @@ namespace scalus.Info
    - Protocols currently configured for scalus:
      -----------------------------------------
 ");
-            Console.WriteLine("     {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Command");
+            Console.WriteLine("     {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Configured Command");
             Console.WriteLine("     ------------------------------------------------------------------------------------------------");
             
             foreach (var one in config.Protocols)
@@ -58,6 +58,10 @@ namespace scalus.Info
                 if (appConfig != null)
                 {
                     Console.Write("     {0,-10} {1,-20} ({2} {3})",  Registration.IsRegistered(one.Protocol)?"yes":"no",appConfig.Description, appConfig.Exec, string.Join(' ', appConfig.Args));
+                }
+                else
+                {
+                    Console.Write("     {0,-10} {1,-20}",  Registration.IsRegistered(one.Protocol)?"yes":"no", "Not configured" );
                 }
                 Console.WriteLine();
             }

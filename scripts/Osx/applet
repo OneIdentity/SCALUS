@@ -1,0 +1,11 @@
+#!/usr/bin/osascript
+on open location theURL
+	set res to do shell script "test -f `mdfind kMDItemCFBundleIdentifier=com.oneidentity.scalus.macos`/Contents/MacOS/scalus; echo $?"
+	set exitCode to res as number
+	if (exitCode = 0)  then
+		do shell script "`mdfind kMDItemCFBundleIdentifier=com.oneidentity.scalus.macos`/Contents/MacOS/scalus launch -u " & theURL
+	else
+		display dialog "scalus was not found"
+	end if
+end open location
+

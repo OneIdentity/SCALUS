@@ -192,31 +192,30 @@ Task("OsxInstall")
 			CreateDirectory(scalusappdir); 
 		}
 		CopyDirectory("scripts/Osx/scalus.app", scalusappdir);
+		var resourceDir = scalusappdir + "/Contents/Resources/Examples";
+		CreateDirectory(resourceDir); 
 
-		//var scalusdir = tmpdir + "/scalus";
-		//if (!DirectoryExists(scalusdir))
-		//{
-			//CreateDirectory(scalusdir); 
-		//}
-		var readme = scalusappdir + "/Contents/Resources/readme.txt";
-		CopyFile("./scripts/readme.txt", readme);
-		ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
+		CopyFile("./scripts/readme.txt", resourceDir + "/readme.txt");
+		ReplaceTextInFiles(resourceDir + "/readme.txt", "SCALUSVERSION", Version);
+		CopyDirectory("scripts/examples", resourceDir);
 
-		CopyDirectory(publishdir, targetdir);
+		CopyFile(publishdir + "/scalus", targetdir + "/scalus");
+		CopyFile(publishdir + "/web.config", targetdir + "/web.config");
 
+		CopyFile(publishdir + "/appsettings.json", resourceDir + "/appsettings.json");
+		CopyFile(publishdir + "/scalus.json", resourceDir + "/scalus.json");
+	
 		var zipfile= outputdir +  "/scalus-" + Version + "_" + runtime + ".tar.gz";
 		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
 		{
     			BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);
 		}
-		else
+		else 
 		{
 			Information( "Building " + runtime + " zipfile: " + zipfile);
 		}
-		GZipCompress(tmpdir, zipfile);
-		var setup = outputdir + "/setup.sh";
-		CopyFile("./scripts/Osx/setup.sh", setup);
 		
+		GZipCompress(tmpdir, zipfile);
 	});
 
 Task("LinuxInstall")
@@ -264,7 +263,7 @@ else
 
 Task("Default")
     .IsDependentOn("LinuxInstall")
-    //.IsDependentOn("OsxInstall")
+    .IsDependentOn("OsxInstall")
     .IsDependentOn("MsiInstaller");
 
 
