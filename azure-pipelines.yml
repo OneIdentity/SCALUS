@@ -8,7 +8,7 @@ variables:
   buildConfiguration: 'Release'
 
 jobs:
-- job: VSBuildAndTest
+- job: BuildAndTest
   pool:
     vmImage: 'windows-latest'
   steps:
@@ -31,7 +31,7 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
-- job: WindowsBuild
+- job: Windows
   pool:
     vmImage: 'windows-latest'
   steps:
@@ -47,7 +47,7 @@ jobs:
       artifact: 'Scalus-Win10'
       publishLocation: 'pipeline'
       
-- job: LinuxBuild
+- job: Linux
   pool:
     vmImage: 'ubuntu-latest'
   steps:
@@ -64,7 +64,7 @@ jobs:
       artifact: 'Scalus-Linux'
       publishLocation: 'pipeline'
 
-- job: MacBuild
+- job: Mac
   pool:
     vmImage: 'macOS-latest'
   steps:
