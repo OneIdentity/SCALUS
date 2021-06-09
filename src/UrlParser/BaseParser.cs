@@ -152,10 +152,34 @@ namespace scalus.UrlParser
         {
             try
             {
-                var tempFile = Path.GetTempFileName();
-                string renamed = Path.ChangeExtension(tempFile, ext);
-                File.Move(tempFile, renamed);
-                tempFile = renamed;
+                string tempFile;
+                if (!string.IsNullOrEmpty(Dictionary[Token.Vault]))
+                {
+                    var guid = Guid.NewGuid().ToString();
+                    var host = Dictionary[Token.TargetHost];
+                    host = Regex.Replace(host, "[.]", "~");
+                    var user = Dictionary[Token.TargetUser];
+                    user = user.Replace('\\', '~');
+                    tempFile = Path.Combine(Path.GetTempPath(),
+                        $"SG-{host}_{user}_{guid}.{ext}");
+                }
+                else if (!string.IsNullOrEmpty(Dictionary[Token.Host]) && !string.IsNullOrEmpty(Dictionary[Token.User]))
+                {
+                    var guid = Guid.NewGuid().ToString();
+                    var host = Dictionary[Token.Host];
+                    host = Regex.Replace(host, "[.]", "~");
+                    var user = Dictionary[Token.User];
+                    user = user.Replace('\\', '~');
+
+                    tempFile = Path.Combine(Path.GetTempPath(),
+                        $"Scalus-{host}_{user}_{guid}.{ext}");
+                }
+                else {
+                    tempFile = Path.GetTempFileName();
+                    string renamed = Path.ChangeExtension(tempFile, ext);
+                    File.Move(tempFile, renamed);
+                    tempFile = renamed;
+                }
                 Disposables.Add(Disposable.Create(() => File.Delete(tempFile)));
                 var newlines = new List<string>();
                 foreach (var line in lines)
