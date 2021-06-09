@@ -1,13 +1,5 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - master
-
-pool:
-  vmImage: 'windows-latest'
 
 variables:
   version: '1.0.0.$(Revision)'
@@ -15,55 +7,81 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
-steps:
-- script: echo 'SCALUS Version - $(version)'
-- task: NuGetToolInstaller@1
+jobs:
+- job: BuildAndTest
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+  - script: echo 'SCALUS Version - $(version)'
+  - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '$(solution)'
 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+  - task: VSBuild@1
+    inputs:
+      solution: '$(solution)'
+      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+  - task: VSTest@2
+    inputs:
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
 
-- task: Cake@2
-  inputs:
-    script: 'build.cake'
-    target: 'Default'
-    verbosity: 'Verbose'
-    arguments: '--runtime=win10-x64 --Version=$(version)'
+- job: Windows
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+  - task: Cake@2
+    inputs:
+      script: 'build.cake'
+      target: 'Default'
+      verbosity: 'Verbose'
+      arguments: '--runtime=win10-x64 --Version=$(version)'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
+      artifact: 'Scalus-Win10'
+      publishLocation: 'pipeline'
+      
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: Cake@2
+    inputs:
+      script: 'build.cake'
+      target: 'Default'
+      verbosity: 'Verbose'
+      arguments: '--runtime=linux-x64 --Version=$(version)'
+  
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Pipeline.Workspace)/s/Output/Release/linux-x64'
+      artifact: 'Scalus-Linux'
+      publishLocation: 'pipeline'
 
-- task: Cake@2
-  inputs:
-    script: 'build.cake'
-    target: 'Default'
-    verbosity: 'Verbose'
-    arguments: '--runtime=linux-x64 --Version=$(version)'
+- job: Mac
+  pool:
+    vmImage: 'macOS-latest'
+  steps:
+  - task: Cake@2
+    inputs:
+      script: 'build.cake'
+      target: 'Default'
+      verbosity: 'Verbose'
+      arguments: '--runtime=osx-x64 --Version=$(version)'
+  
+  - task: Bash@3
+    inputs:
+      filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
+      arguments: '--version $(version) --runtime osx-x64 --inpath $(Pipeline.Workspace)/s/scripts/Osx --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64'
 
-- task: Cake@2
-  inputs:
-    script: 'build.cake'
-    target: 'Default'
-    verbosity: 'Verbose'
-    arguments: '--runtime=osx-x64 --Version=$(version)'
-    
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
-    artifact: 'Scalus-Win10'
-    publishLocation: 'pipeline'
-
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Pipeline.Workspace)/s/Output/Release/linux-x64'
-    artifact: 'Scalus-Linux'
-    publishLocation: 'pipeline'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Pipeline.Workspace)/s/Output/Release/osx-x64'
+      artifact: 'Scalus-Osx'
+      publishLocation: 'pipeline'
