@@ -32,6 +32,7 @@ jobs:
       configuration: '$(buildConfiguration)'
 
 - job: Windows
+  dependsOn: BuildAndTest
   pool:
     vmImage: 'windows-latest'
   steps:
@@ -48,6 +49,7 @@ jobs:
       publishLocation: 'pipeline'
       
 - job: Linux
+  dependsOn: BuildAndTest
   pool:
     vmImage: 'ubuntu-latest'
   steps:
@@ -65,6 +67,7 @@ jobs:
       publishLocation: 'pipeline'
 
 - job: Mac
+  dependsOn: BuildAndTest
   pool:
     vmImage: 'macOS-latest'
   steps:
