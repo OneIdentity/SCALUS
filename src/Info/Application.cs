@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using scalus.Dto;
 using scalus.Util;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using scalus.Platform;
 
 namespace scalus.Info
 {
@@ -12,11 +14,13 @@ namespace scalus.Info
         private Options Options { get; }
         private IRegistration Registration { get; }
         private IScalusConfiguration Configuration { get; }
-        public Application(Options options, IRegistration registration, IScalusConfiguration config)
+        private readonly IOsServices _osServices;
+        public Application(Options options, IRegistration registration, IScalusConfiguration config, IOsServices osServices)
         {
             Options = options;
             Registration = registration;
             Configuration = config;
+            _osServices = osServices;
         }
 
         private void ShowConfig()
@@ -28,6 +32,10 @@ namespace scalus.Info
    (e.g. MS Remote Desktop, FreeRdp, Putty) that will be launched to process URLs for those protocols. 
 
 ");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Console.WriteLine($"   - Application Path     : {MacOsExtensions.GetAppPath(_osServices)}");
+            }
 
             Console.WriteLine($"   - Configuration file   : {ConfigurationManager.ScalusJson}");
             Console.WriteLine($"   - Logfile              : {ConfigurationManager.LogFile}" );
