@@ -109,6 +109,7 @@ namespace scalus.Ui
         {
             builder.RegisterInstance(ExternalContainer.ResolveNamed<IApplication>("ui")).As<IWebServer>().ExternallyOwned();
             builder.RegisterInstance(ExternalContainer.Resolve<IRegistration>()).ExternallyOwned();
+            builder.RegisterInstance(ExternalContainer.ResolveNamed<IApplication>("info")).Named<IApplication>("InfoApplication").ExternallyOwned();
         }
     }
 }
