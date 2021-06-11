@@ -52,6 +52,10 @@ namespace scalus.Util
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     _ProdAppPath= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), ProdName);
+                    if (!Directory.Exists(_ProdAppPath))
+                    {
+                        Directory.CreateDirectory(_ProdAppPath);
+                    }
                     return _ProdAppPath;
                 }
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -69,6 +73,10 @@ namespace scalus.Util
                 _ProdAppPath= Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create),
                     $".{ProdName}");
+                if (!Directory.Exists(_ProdAppPath))
+                {
+                    Directory.CreateDirectory(_ProdAppPath);
+                }
                 return _ProdAppPath;
             }
         }

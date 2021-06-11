@@ -1,13 +1,12 @@
 #!/bin/bash
 
-
 version="1.0"
 runtime="osx-x64"
 
-#path must contain scalus.app
 inpath=""
 outpath=""
 
+appname="scalus"
 
 PARAMS=""
 while(( "$#" )); do
@@ -54,7 +53,7 @@ while(( "$#" )); do
     esac
 done
   
-pkgname="scalus-1.0_osx-x64.pkg"
+pkgname="${appname}-${version}_${runtime}.pkg"
 pkgfile="${outpath}/${pkgname}"
 
 if [ -z "${inpath}" ]; then 
@@ -75,13 +74,11 @@ echo "Building ${pkgfile}"
 
 
 tmpdir="${outpath}/tmp"
-mkdir -p "${tmpdir}"
-
-
 
 function resetInfo()
 {
-    filename="${tmpdir}/scalus.app/Contents/Info.plist"
+
+    filename="${tmpdir}/${appname}.app/Contents/Info.plist"
     if [ ! -f ${filename} ]; then 
 	echo "ERROR - missing file:${filename}"
         exit 1
@@ -91,7 +88,7 @@ function resetInfo()
 <array>
 	<dict>
 		<key>CFBundleURLName</key>
-			<string>com.oneidentity.scalus.macos</string>
+			<string>com.oneidentity.${appname}.macos</string>
 		<key>CFBundleURLSchemes</key>
 			<array>
 			<string>rdp</string>
@@ -102,35 +99,68 @@ function resetInfo()
 </array> '"
 
 
+/bin/bash -c "defaults write $filename CFBundleVersion  -string \"${version}\""
+/bin/bash -c "defaults write $filename CFBundleShortVersion  -string \"${version}\""
 /bin/bash -c "defaults write $filename CFBundleName  -string 'Scalus'"
 /bin/bash -c "defaults write $filename CFBundleDisplayName  -string 'Session URL Launcher Utility'"
-/bin/bash -c "defaults write $filename CFBundleIdentifier  -string  'com.oneidentity.scalus.macos'"
-/bin/bash -c "defaults write $filename CFBundleDocumentTypes -array \
-'
-<array>
-	<dict>
-		<key>CFBundleTypeExtensions</key>
-		<array></array>
-		<key>CFBundleTypeIconFile</key>
-		<string></string>
-		<key>CFBundleTypeMIMETypes</key>
-		<array>
-			<string>application/x-rdp</string>
-		</array>
-		<key>CFBundleTypeName</key>
-		<string>com.oneidentity.scalus.macos</string>
-		<key>CFBundleTypeRole</key>
-		<string>Viewer</string>
-	</dict>
-</array> '"
+/bin/bash -c "defaults write $filename CFBundleIdentifier  -string  'com.oneidentity.${appname}.macos'"
 
+    chmod a+r $filename
 }
-osacompile -o ${tmpdir}/scalus.app ${inpath}/applet
 
-resetInfo
+function make_app()
+{
+	if [ -d ${tmpdir} ]; then 
+        	rm -rf ${tmpdir}
+	fi
+        mkdir -p ${tmpdir}
+
+        cat ${inpath}/applet | awk -v appname="com.oneidentity.${appname}.macos" '
+{
+        str=sprintf("kMDItemCFBundleIdentifier=%s", appname);
+        sub(/kMDItemCFBundleIdentifier=\S+/, str);
+	print $0
+}' > ${inpath}/applet.tmp
+if [ $? -eq 0 ]; then 
+	mv ${inpath}/applet.tmp ${inpath}/applet
+fi
+
+        osacompile -o ${tmpdir}/${appname}.app ${inpath}/applet
+        resetInfo
+}
 
 
-productbuild --component  ${tmpdir}/scalus.app /Applications  ${pkgfile}
-#--sign 3rd Party Mac Developer Installer
+function build_package()
+{
+        rm -f ${pkgfile}
+        productbuild --component  ${tmpdir}/${appname}.app "Applications" ${pkgfile}
+	expdir="${outpath}/tmp2"
+	rm -rf ${expdir}
+
+	pkgutil --expand $pkgfile ${expdir}
+	cat ${expdir}/Distribution | awk -v pkg="${pkgname}" -v appname="${appname}" '
+{
+        str=""
+        sub(/customLocation=\"[^\"]+\"/, str);
+	if ($0 ~ /<\/installer-gui-script>/)
+        {
+                print "  <domains enable_anywhere=\"false\" enable_currentUserHome=\"true\" enable-localSystem=\"false\">"
+                print "  </domains>"
+        }
+
+        print $0;
+}' > ${expdir}/Distribution2
+	if [ $? -ne 0 ]; then
+		echo "*** Failed to change file"
+		exit 1
+	fi
+	mv ${expdir}/Distribution2 ${expdir}/Distribution
+	
+	pkgutil --flatten ${expdir} ${pkgfile}
+        rm -rf ${tmpdir}/${appname}.app
+        rm -rf ${expdir}
+}
+make_app
+build_package
 
 echo "Finished generating ${pkgfile}"

@@ -1,11 +1,12 @@
-﻿using scalus.Platform;
+﻿//#define LocalOnly
+using scalus.Platform;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using scalus.Util;
+
 
 namespace scalus
 {
@@ -18,20 +19,22 @@ namespace scalus
         private readonly string _appPath;
         private readonly string _appInfo;
         private readonly string _appInfoPlist;
-        private const string AppPath = "/Applications/scalus.app";
 
         private List<string> _handledUrlList;
-        private readonly string _lsRegisterCmd =
-            "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
-
-        private  readonly List<string> _lsRegisterArgs = new List<string> {"-kill", "-r", "-domain", "local", "-domain", "system", "-domain", "user"};
-
+        #if LocalOnly
+        #else
+        private List<string> RegisteredProtocols = new List<string> {"rdp", "ssh", "telnet"};
+        #endif
         public MacOsProtocolRegistrar(IOsServices osServices)
         {
             OsServices = osServices;
-            _appPath = GetConfiguredAppPath();
+            _appPath = this.GetAppPath();
             _appInfo = $"{_appPath}/Contents/Info";
             _appInfoPlist = $"{_appInfo}.plist";
+#if LocalOnly
+#else
+            _handledUrlList = RegisteredProtocols;
+#endif
         }
 
         public string GetRegisteredCommand(string protocol)
@@ -45,44 +48,7 @@ namespace scalus
             return string.Empty;
         }
 
-        public string GetConfiguredAppPath()
-        {
-            string path;
-            string err;
-            var paths = new List<string>();
-            var res = OsServices.Execute("/usr/bin/mdfind",
-                new List<string> {$"kMDItemCFBundleIdentifier='{MacOsExtensions.ScalusHandler}'"}, out path, out err);
-            if (res == 0)
-            {
-                var appaths = path?.Split('\r', '\n', StringSplitOptions.RemoveEmptyEntries).ToList();
-                if (appaths?.Count > 0)
-                {
-                    paths.AddRange(appaths);
-                }
-            }
-
-            var aspath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library");
-            paths.Add(Path.Combine(Path.Combine(aspath, "Applications"), ConfigurationManager.ProdName));
-
-            paths.Add(Path.GetDirectoryName(Path.GetDirectoryName(Constants.GetBinaryDirectory())));
-            paths.Add(AppPath);
-            foreach (var one in paths)
-            {
-                Serilog.Log.Warning($"check path:{one}");
-            }
-
-            foreach (var one in paths)
-            {
-                if (Directory.Exists(one))
-                {
-                    Serilog.Log.Information($"Using configured app from path: {one}");
-                    return one;
-                }
-            }
-            Serilog.Log.Warning($"Handler path cannot be determined");
-            throw new Exception($"Handler path cannot be determined");
-        }
-
+       
         public bool IsScalusRegistered(string protocol)
         {
             var handler = GetRegisteredCommand(protocol);
@@ -98,7 +64,8 @@ namespace scalus
             }
 
             list.Remove(protocol);
-            return UpdateRegistration(list);        }
+            return UpdateRegistration(list, false);
+        }
 
         public bool Register(string protocol)
         {
@@ -107,8 +74,9 @@ namespace scalus
             {
                 list.Add(protocol);
             }
-            return UpdateRegistration(list);
+            return UpdateRegistration(list, true);
         }
+
 
         public bool ReplaceRegistration(string protocol)
         {
@@ -118,6 +86,7 @@ namespace scalus
         //check which URLs the application Info.plist file handles
         private List<string> GetCurrentRegistrations()
         {
+
             if (_handledUrlList != null)
                 return _handledUrlList;
 
@@ -147,8 +116,9 @@ namespace scalus
         }
 
         //update application Info.plist (can only do this if testing locally)
-        private bool UpdateRegistration(List<string> newlist)
+        private bool UpdateRegistration(List<string> newlist, bool add)
         {
+#if LocalOnly
             var newvalue = ConstructNewValue(newlist);
             if (!File.Exists(_appInfoPlist))
             {
@@ -162,14 +132,11 @@ namespace scalus
                 Serilog.Log.Information($"Failed to update {_appInfo}");
                 return false;
             }
-            string output;
-            res = this.RunCommand(_lsRegisterCmd, _lsRegisterArgs, out output);
-            if (!res)
-            {
-                Serilog.Log.Warning($"Failed to update the registration database:{output}");
-                return false;
-            }
-            return true;
+            return this.Refresh(add);
+#else
+            Serilog.Log.Warning($"This registrar does not support adding or removing protocols. The following protocols are registered:{string.Join(',', RegisteredProtocols)}");
+            return false;
+#endif
         }
 
         public static string ConstructNewValue(List<string> list)

@@ -1,7 +1,5 @@
-﻿using System;
-using scalus.Platform;
+﻿using scalus.Platform;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.RegularExpressions;
 
 namespace scalus
@@ -13,18 +11,14 @@ namespace scalus
         public string Name { get; } = "MacOsUserDefault";
         public IOsServices OsServices { get; }
 
-        private const string _prefs =
-            "Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist";
-
-        private string _prefsPath;
         //user preferences are saved in "~Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist";
 
         public MacOsUserDefaultRegistrar(IOsServices osServices)
         {
             OsServices = osServices;
-            _prefsPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_prefs}";
         }
-        
+       
+   
         private bool UpdateConfiguredDefault(string protocol, bool add = true)
         {
             var handler = add ? MacOsExtensions.ScalusHandler : string.Empty;
@@ -36,8 +30,10 @@ namespace scalus
             if (!res)
             {
                 Serilog.Log.Error($"Failed to update the configured default:{output}");
+                return false;
             }
-            return res;
+
+            return this.Refresh(add);
         }
 
         //get the current configured default 
