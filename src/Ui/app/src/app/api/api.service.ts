@@ -83,6 +83,7 @@ export class ApiService {
   private unregisterUrl = this.configUrl.concat('/UnRegister');
   private tokensUrl = this.configUrl.concat('/Tokens');
   private applicationDescriptionsUrl = this.configUrl.concat('/ApplicationDescriptions');
+  private infoUrl = this.configUrl.concat('/Info');
 
   getConfig() {
     return this.http.get<ScalusConfig>(this.configUrl);
@@ -110,5 +111,9 @@ export class ApiService {
 
   getapplicationDescriptions() {
     return this.http.get<object>(this.applicationDescriptionsUrl);
+  }
+
+  getInfo() {
+    return this.http.get<string>(this.infoUrl);
   }
 }

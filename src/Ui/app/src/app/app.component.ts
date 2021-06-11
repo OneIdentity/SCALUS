@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay, Platform } from './api/api.service';
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
 import { ErrorDialogComponent } from './error/error-dialog.component';
+import { ScalusHelpDialogComponent } from './help/scalus-help-dialog.component';
 import { saveAs } from 'file-saver';
 import { forkJoin } from 'rxjs';
 import * as $ from 'jquery';
@@ -24,6 +25,9 @@ export class AppComponent implements OnInit {
   registrations:Array<string>;
   applicationDescriptions: object;
   tokens: object;
+
+  configurationFile: string = '';
+  logFile: string = '';
 
   protocols: ProtocolMappingDisplay[];
 
@@ -274,6 +278,19 @@ export class AppComponent implements OnInit {
     var errorMessage = msg + " (" + error + ")";
     this.matDialog.open(ErrorDialogComponent, {
       data: errorMessage
+    });
+  }
+
+  showHelp() {
+    this.apiService.getInfo().subscribe(
+      x => {
+        var info = <string>x;
+        this.matDialog.open(ScalusHelpDialogComponent, {
+          data: info
+        });
+      }, 
+      error => {
+        this.showError(error, "Failed to show help");
     });
   }
 

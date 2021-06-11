@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using scalus.Dto;
@@ -16,11 +17,13 @@ namespace scalus.Ui.Controllers
     {
         IScalusApiConfiguration Configuration { get; }
         IRegistration Registration { get; }
-
-        public ConfigurationController(IScalusApiConfiguration configuration, IRegistration registration)
+        ILifetimeScope Container { get; }
+ 
+        public ConfigurationController(IScalusApiConfiguration configuration, IRegistration registration, ILifetimeScope container)
         {
             Configuration = configuration;
             Registration = registration;
+            Container = container;
         }
 
         [HttpGet]
@@ -100,6 +103,18 @@ namespace scalus.Ui.Controllers
         {
             var descriptions = ApplicationConfig.DtoPropertyDescription;
             return Ok(descriptions);
+        }
+
+        [HttpGet, Route("Info")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        public IActionResult Info()
+        {
+            var sw = new StringWriter();
+            Console.SetOut(sw);
+            var app = Container.ResolveNamed<IApplication>("InfoApplication");
+            app.Run();
+            var info = sw.ToString();
+            return Ok(info);
         }
     }
 }
