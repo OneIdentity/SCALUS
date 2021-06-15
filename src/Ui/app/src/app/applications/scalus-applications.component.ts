@@ -69,7 +69,7 @@ export class ScalusApplicationsComponent implements OnInit {
         this.sidesheetService.close();
     }, 
       error => {
-        this.showError(error, "Failed to save configuration");
+        this.showError("Failed to save configuration");
     });
   }
 
@@ -77,10 +77,9 @@ export class ScalusApplicationsComponent implements OnInit {
     this.sidesheetService.close();
   }
 
-  showError(error: any, msg: string) {
-    var errorMessage = msg + " (" + error + ")";
+  showError(msg: string) {
     this.matDialog.open(ErrorDialogComponent, {
-      data: errorMessage
+      data: msg
     });
   }
 

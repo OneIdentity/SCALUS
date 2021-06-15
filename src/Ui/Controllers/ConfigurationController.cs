@@ -30,7 +30,12 @@ namespace scalus.Ui.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type =typeof(ScalusConfig))]
         public IActionResult Get()
         {
-            return Ok(Configuration.GetConfiguration());
+            var config = Configuration.GetConfiguration();
+            if (config.Protocols == null || config.Applications == null)
+            {
+                throw new Exception("Bad configuration file");
+            }
+            return Ok(config);
         }
         
         [HttpPut]
@@ -45,6 +50,10 @@ namespace scalus.Ui.Controllers
         {
             var registeredProtocols = new List<string>();
             var config = Configuration.GetConfiguration();
+            if (config.Protocols == null || config.Applications == null)
+            {
+                throw new Exception("Bad configuration file");
+            }
             foreach (var one in config.Protocols)
             {
                 if (Registration.IsRegistered(one.Protocol))

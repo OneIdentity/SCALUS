@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
 
       this.state = 'loaded';
     }, error => {
-      this.showError(error, "Failed to load configuration");
+      this.showError("Failed to load configuration");
     });
   }
 
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
     });
     this.apiService.setConfig(this.config).subscribe(x => {}, 
       error => {
-        this.showError(error, "Failed to save configuration");
+        this.showError("Failed to save configuration");
     });
   }
 
@@ -157,7 +157,7 @@ export class AppComponent implements OnInit {
         this.loadConfig(this.config, this.registrations);
       }, 
       error => {
-        this.showError(error, "Failed to save configuration");
+        this.showError("Failed to save configuration");
     });
   }
 
@@ -174,7 +174,7 @@ export class AppComponent implements OnInit {
         this.loadConfig(this.config, this.registrations);
       }, 
       error => {
-        this.showError(error, "Failed to save configuration");
+        this.showError("Failed to save configuration");
     });
   }
 
@@ -193,11 +193,11 @@ export class AppComponent implements OnInit {
           this.loadConfig(this.config, this.registrations);
         },
         error => {
-          this.showError(error, "Failed to register protocol");
+          this.showError("Failed to register protocol");
         });
       }, 
       error => {
-        this.showError(error, "Failed to register protocol");
+        this.showError("Failed to register protocol");
     });
   }
 
@@ -216,11 +216,11 @@ export class AppComponent implements OnInit {
           this.loadConfig(this.config, this.registrations);
         },
         error => {
-          this.showError(error, "Failed to unregister protocol");
+          this.showError("Failed to unregister protocol");
         });
       }, 
       error => {
-        this.showError(error, "Failed to unregister protocol");
+        this.showError("Failed to unregister protocol");
     });
   }
 
@@ -256,11 +256,11 @@ export class AppComponent implements OnInit {
               this.loadConfig(config, this.registrations);
             }, 
             error => {
-              this.showError(error, "Failed to save configuration");
+              this.showError("Failed to save configuration");
           });
         } 
         catch(error) {
-          this.showError(error, "Invalid configuration file");
+          this.showError("Invalid configuration file");
         }
       }
       fileReader.readAsText(file);
@@ -274,10 +274,9 @@ export class AppComponent implements OnInit {
     saveAs(blob, 'scalus.json');
   }
 
-  showError(error: any, msg: string) {
-    var errorMessage = msg + " (" + error + ")";
+  showError(msg: string) {
     this.matDialog.open(ErrorDialogComponent, {
-      data: errorMessage
+      data: msg
     });
   }
 
@@ -290,7 +289,7 @@ export class AppComponent implements OnInit {
         });
       }, 
       error => {
-        this.showError(error, "Failed to show help");
+        this.showError("Failed to show help");
     });
   }
 
