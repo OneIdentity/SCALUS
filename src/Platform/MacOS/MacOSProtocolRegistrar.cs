@@ -57,6 +57,8 @@ namespace scalus
 
         public bool Unregister(string protocol)
         {
+#if LocalOnly
+
             var list = GetCurrentRegistrations();
             if (!list.Contains(protocol, StringComparer.OrdinalIgnoreCase))
             {
@@ -65,6 +67,10 @@ namespace scalus
 
             list.Remove(protocol);
             return UpdateRegistration(list, false);
+#else
+            Serilog.Log.Information($"Cannot remove the predefined protocol from this registrar");
+            return true;
+#endif
         }
 
         public bool Register(string protocol)
