@@ -31,7 +31,7 @@ namespace scalus.Ui.Controllers
         public IActionResult Get()
         {
             var config = Configuration.GetConfiguration();
-            if (config.Protocols == null || config.Applications == null)
+            if (Configuration.ValidationErrors?.Count > 0)
             {
                 throw new Exception("Bad configuration file");
             }
@@ -42,6 +42,10 @@ namespace scalus.Ui.Controllers
         public void Post([FromBody] ScalusConfig value)
         {
             Configuration.SaveConfiguration(value);
+            if (Configuration.ValidationErrors?.Count > 0)
+            {
+                throw new Exception("Invalid configuration");
+            }
         }
 
         [HttpGet, Route("Registrations")]

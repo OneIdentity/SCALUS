@@ -26,8 +26,8 @@ namespace scalus.Dto
             {nameof(Applications),"The list of applications available to use"}
         };
         public static Dictionary<string, string> DtoPropertyDescription => _dtoPropertyDescription.Append(ProtocolMapping.DtoPropertyDescription).Append(ApplicationConfig.DtoPropertyDescription);
-
-        public void Validate(List<string> errors)
+        
+        public void Validate(List<string> errors, bool log =true)
         {
             if (Protocols != null)
             {
@@ -78,7 +78,13 @@ namespace scalus.Dto
                 }
 
             }
-
+            if (!log)
+                return;
+            if (errors.Count > 0)
+            {
+                Serilog.Log.Error($"**** Failed to validate scalus configuration");
+                Serilog.Log.Error($"*** Validation errors: {string.Join(", ", errors)}");
+            }
         }
     }
 }

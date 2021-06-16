@@ -11,7 +11,7 @@ namespace scalus.UrlParser
         //This class parses a standard URL into components:
   
         public UrlParser( ParserConfig config): base(config){ 
-            FileExtension = "url";
+            FileExtension = ".url";
         }
         public UrlParser( ParserConfig config, IDictionary<Token, string> dictionary): this(config){ 
             if (dictionary != null)

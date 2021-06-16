@@ -37,9 +37,11 @@ namespace scalus.Dto
 
             if (Options?.Count > 0)
             {
-                var opts = string.Join(',', Enum.GetValues(typeof(ParserConfigDefinitions.ProcessingOptions)));
+                var opts = string.Join(", ", Enum.GetNames(typeof(ParserConfigDefinitions.ProcessingOptions)));
                 foreach (var opt in Options)
                 {
+                    if (string.IsNullOrEmpty(opt))
+                        continue;
                     if (!Enum.TryParse(typeof(ParserConfigDefinitions.ProcessingOptions), opt, true, out object o))
                     {
                         if (Regex.IsMatch(opt, $"{ParserConfigDefinitions.ProcessingOptions.wait}:\\d+"))
@@ -47,7 +49,7 @@ namespace scalus.Dto
                             continue;
                         }
 
-                        errors.Add($"Invalid Processing Option:{opt}. Valid values are:{opts}");
+                        errors.Add($"Invalid Processing Option:{opt}. Valid values are:[{opts}]");
                     }
                 }
             }
@@ -61,10 +63,10 @@ namespace scalus.Dto
             {
                 if (!UseDefaultTemplate && string.IsNullOrEmpty(UseTemplateFile))
                 {
-                    errors.Add($"{nameof(PostProcessingExec)} can only be used with {nameof(UseDefaultTemplate)} or {nameof(UseTemplateFile)}");
+                    errors.Add(
+                        $"{nameof(PostProcessingExec)} can only be used with {nameof(UseDefaultTemplate)} or {nameof(UseTemplateFile)}");
                 }
             }
-
         }
     }
 }

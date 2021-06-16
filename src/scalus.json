@@ -80,7 +80,7 @@
         "ParserId": "ssh",
         "Options": []
       },
-      "Exec": "gnome-terminal",
+      "Exec": "/usr/bin/gnome-terminal",
       "Args": [ "-x", "ssh", "-t", "%User%@%Host%" ]
     },
 
