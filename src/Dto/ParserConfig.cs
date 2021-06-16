@@ -37,12 +37,19 @@ namespace scalus.Dto
 
             if (Options?.Count > 0)
             {
-                var opts = string.Join(',', Enum.GetValues(typeof(ParserConfigDefinitions.ProcessingOptions)));
+                var opts = string.Join(',', Enum.GetValues(typeof(ParserConfigDefinitions.ProcessingOptions))
+                    .Cast<ParserConfigDefinitions.ProcessingOptions>());
+
                 foreach (var opt in Options)
                 {
                     if (!Enum.TryParse(typeof(ParserConfigDefinitions.ProcessingOptions), opt, true, out object o))
                     {
                         if (Regex.IsMatch(opt, $"{ParserConfigDefinitions.ProcessingOptions.wait}:\\d+"))
+                        {
+                            continue;
+                        }
+
+                        if (opt.Length == 0)
                         {
                             continue;
                         }

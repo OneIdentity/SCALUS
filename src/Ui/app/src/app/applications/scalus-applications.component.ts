@@ -58,19 +58,42 @@ export class ScalusApplicationsComponent implements OnInit {
   }
 
   save() {
-    var appConfigs = new Array();
+    var validationErrors = new Array();
     this.applications.slice().forEach(acd => {
-      appConfigs.push(this.getApplication(acd));
+      this.validateApplication(acd, validationErrors);
     });
 
-    this.config.applications = appConfigs;
-    this.apiService.setConfig(this.config).subscribe(
-      x => {
-        this.sidesheetService.close();
-    }, 
-      error => {
-        this.showError("Failed to save configuration");
-    });
+    if (validationErrors.length > 0) {
+      this.showError(validationErrors.join('\n'));
+    }
+    else {
+      var appConfigs = new Array();
+      this.applications.slice().forEach(acd => {
+        appConfigs.push(this.getApplication(acd));
+      });
+
+      this.config.applications = appConfigs;
+      this.apiService.validateConfig(this.config).subscribe(
+      x => 
+      {
+        if (x.length === 0)
+        {
+          this.apiService.setConfig(this.config).subscribe(
+          x => {
+            this.sidesheetService.close();
+          }, 
+          error => {
+            this.showError("Failed to save configuration.");
+          });
+        }
+        else {
+          this.showError(x.join('\n'));
+        }
+      },
+      error =>{
+        this.showError("Invalid configuration file.")    
+      });
+    }
   }
 
   cancel() {
@@ -120,6 +143,16 @@ export class ScalusApplicationsComponent implements OnInit {
     return app;
   }
 
+  validateApplication(ac:ApplicationConfigDisplay, errors:string[]) {
+    ac.platforms?.split(",").forEach(p => {
+      var platform = Platform[p];
+      if (platform === undefined)
+      {
+        errors.push(`Invalid Platform:${p}. Valid values are:Windows,Linux,Mac`);
+      }
+    })
+  }
+
   getApplication(ac:ApplicationConfigDisplay) {
     var app:ApplicationConfig = <ApplicationConfig>{};
     app.id = ac.id;
@@ -127,7 +160,11 @@ export class ScalusApplicationsComponent implements OnInit {
     app.description = ac.description;
     var platforms = new Array();
     ac.platforms?.split(",").forEach(p => {
-      platforms.push(Platform[p]);
+      var platform = Platform[p];
+      if (platform !== undefined)
+      {
+        platforms.push(Platform[p]);
+      }
     })
     app.platforms = platforms;
     app.protocol = ac.protocol;
