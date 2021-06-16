@@ -81,7 +81,7 @@ jobs:
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
-      arguments: '--version $(version) --runtime osx-x64 --inpath $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64' 
+      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64' 
 
   - task: PublishPipelineArtifact@1
     inputs:
