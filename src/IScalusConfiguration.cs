@@ -14,12 +14,12 @@ namespace scalus
         IProtocolHandler GetProtocolHandler(string uri);
 
         ScalusConfig GetConfiguration();
+        List<string> ValidationErrors { get; }
     }
 
     public interface IScalusApiConfiguration
     {
         ScalusConfig GetConfiguration();
-
         ScalusConfig SaveConfiguration(ScalusConfig configuration);
         List<string> ValidationErrors { get; }
     }

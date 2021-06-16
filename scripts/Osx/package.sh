@@ -3,10 +3,11 @@
 version="1.0"
 runtime="osx-x64"
 
-inpath=""
+infile=""
 outpath=""
 
 appname="scalus"
+publishdir=""
 
 PARAMS=""
 while(( "$#" )); do
@@ -29,13 +30,13 @@ while(( "$#" )); do
          runtime="$2"
 	 shift 2
 	;;
-       --inpath)
+       --infile)
          if [ -z "$2" ] || [ ${2:0:1} = "-" ]; then 
-         	echo "Error : missing inpath"
+         	echo "Error : missing infile"
          	shift
          	exit 1
 	 fi
-         inpath="$2"
+         infile="$2"
 	 shift 2
 	;;
        --outpath)
@@ -47,6 +48,15 @@ while(( "$#" )); do
          outpath="$2"
 	 shift 2
 	;;
+       --publishdir)
+         if [ -z "$2" ] || [ ${2:0:1} = "-" ]; then 
+         	echo "Error : missing publishdir"
+         	shift
+         	exit 1
+	 fi
+         publishdir="$2"
+	 shift 2
+	;;
       *)
         shift
         ;;
@@ -56,20 +66,29 @@ done
 pkgname="${appname}-${version}_${runtime}.pkg"
 pkgfile="${outpath}/${pkgname}"
 
-if [ -z "${inpath}" ]; then 
-	echo "Missing inpath"
+if [ -z "${infile}" ]; then 
+	echo "Missing infile"
 	exit 1
 fi
 if [ -z "${outpath}" ]; then 
 	echo "Missing outpath"
 	exit 1
 fi
-if [ -d "${inpath}/applet" ]; then 
-	echo "inpath must contain applet file"
+if [ ! -f "${infile}" ]; then 
+	echo "infile must contain full path of applet"
+	exit 1
+fi
+if [ -z "${publishdir}" ]; then 
+	echo "missing publishdir"
+	exit 1
+fi
+if [ ! -f "${publishdir}/scalus" ]; then 
+	echo "publishdir must be full path containing published scalus"
 	exit 1
 fi
 
-echo "Building from ${inpath}/applet"
+
+echo "Building from ${infile}"
 echo "Building ${pkgfile}"
 
 
@@ -104,6 +123,9 @@ function resetInfo()
 /bin/bash -c "defaults write $filename CFBundleName  -string 'Scalus'"
 /bin/bash -c "defaults write $filename CFBundleDisplayName  -string 'Session URL Launcher Utility'"
 /bin/bash -c "defaults write $filename CFBundleIdentifier  -string  'com.oneidentity.${appname}.macos'"
+/bin/bash -c "defaults write $filename ITSAppUsesNonExemptEncryption -bool false"
+/bin/bash -c "defaults write $filename LSApplicationCategoryType -string 'public.app-category.developer-tools'"
+/bin/bash -c "defaults write $filename LSMinimumSystemVersion -string '10.6.0'"
 
     chmod a+r $filename
 }
@@ -115,18 +137,27 @@ function make_app()
 	fi
         mkdir -p ${tmpdir}
 
-        cat ${inpath}/applet | awk -v appname="com.oneidentity.${appname}.macos" '
+        cat ${infile} | awk -v appname="com.oneidentity.${appname}.macos" '
 {
         str=sprintf("kMDItemCFBundleIdentifier=%s", appname);
         sub(/kMDItemCFBundleIdentifier=\S+/, str);
 	print $0
-}' > ${inpath}/applet.tmp
+}' > ${infile}.tmp
 if [ $? -eq 0 ]; then 
-	mv ${inpath}/applet.tmp ${inpath}/applet
+	mv ${infile}.tmp ${infile}
 fi
 
-        osacompile -o ${tmpdir}/${appname}.app ${inpath}/applet
+        osacompile -o ${tmpdir}/${appname}.app ${infile}
         resetInfo
+
+	cp $publishdir/scalus  ${tmpdir}/${appname}.app/Contents/MacOS
+	chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
+
+	mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
+	chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
+
+	cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
+	chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
 }
 
 

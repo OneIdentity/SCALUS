@@ -172,7 +172,7 @@ namespace scalus.UrlParser
                     user = user.Replace('\\', '~');
 
                     tempFile = Path.Combine(Path.GetTempPath(),
-                        $"Scalus-{host}_{user}_{guid}.{ext}");
+                        $"Scalus-{host}_{user}_{guid}{ext}");
                 }
                 else {
                     tempFile = Path.GetTempFileName();

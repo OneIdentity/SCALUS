@@ -25,7 +25,7 @@ namespace scalus
             var res= this.RunCommand( "python", 
                 new List<string> {
                     "-c",
-                    $"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme(\"{protocol}\", \"{handler}\")"}, 
+                    $"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')"}, 
                 out var output);
             if (!res)
             {

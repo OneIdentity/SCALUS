@@ -184,6 +184,29 @@ Task("OsxInstall")
 	.WithCriteria(isOsx)
 	.Does(() =>
 	{
+
+		var  exdir = publishdir + "/examples";
+
+		if (DirectoryExists(exdir))
+		{
+			DeleteDirectory(exdir, new DeleteDirectorySettings {
+	    			Recursive = true,
+	    			Force = true
+			});
+		
+		}
+		CreateDirectory(exdir); 
+		CopyDirectory("scripts/examples", exdir);
+
+		CopyFile("./scripts/readme.txt", exdir + "/readme.txt");
+		ReplaceTextInFiles(exdir + "/readme.txt", "SCALUSVERSION", Version);
+
+
+		CopyFile(publishdir + "/scalus.json", exdir + "/scalus.json");
+		CopyFile(publishdir + "/appsettings.json", exdir + "/appsettings.json");
+		CopyFile(publishdir + "/web.config", exdir + "/web.config");
+
+
 		var tmpdir = outputdir + "/tmp";
 		var scalusappdir = tmpdir + "/scalus.app";
 		var targetdir = scalusappdir + "/Contents/MacOS";
@@ -192,29 +215,15 @@ Task("OsxInstall")
 			CreateDirectory(scalusappdir); 
 		}
 		CopyDirectory("scripts/Osx/scalus.app", scalusappdir);
-		var resourceDir = scalusappdir + "/Contents/Resources/Examples";
-		CreateDirectory(resourceDir); 
-
-		CopyFile("./scripts/readme.txt", resourceDir + "/readme.txt");
-		ReplaceTextInFiles(resourceDir + "/readme.txt", "SCALUSVERSION", Version);
-		CopyDirectory("scripts/examples", resourceDir);
-
 		CopyFile(publishdir + "/scalus", targetdir + "/scalus");
-		CopyFile(publishdir + "/web.config", targetdir + "/web.config");
 
-		CopyFile(publishdir + "/appsettings.json", resourceDir + "/appsettings.json");
-		CopyFile(publishdir + "/scalus.json", resourceDir + "/scalus.json");
-	
+
+
+
+		var resourceDir = scalusappdir + "/Contents/Resources/examples";
+		CopyDirectory(exdir, resourceDir);
 		var zipfile= outputdir +  "/scalus-" + Version + "_" + runtime + ".tar.gz";
-		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
-		{
-    			BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);
-		}
-		else 
-		{
-			Information( "Building " + runtime + " zipfile: " + zipfile);
-		}
-		
+		Information( "Building " + runtime + " zipfile: " + zipfile);
 		GZipCompress(tmpdir, zipfile);
 	});
 
@@ -252,14 +261,6 @@ Task("LinuxInstall")
 	}); 
 
 
-if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
-{
-    BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + target + " on azure for: " + runtime + "...");
-}
-else
-{
-	Information("Building " + target + " locally for: " + runtime  + "...");
-}
 
 Task("Default")
     .IsDependentOn("LinuxInstall")
@@ -267,4 +268,5 @@ Task("Default")
     .IsDependentOn("MsiInstaller");
 
 
+Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "...");
 RunTarget(target);

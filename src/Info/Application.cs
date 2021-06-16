@@ -4,6 +4,7 @@ using scalus.Dto;
 using scalus.Util;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using scalus.Platform;
 
@@ -44,6 +45,7 @@ namespace scalus.Info
             Console.WriteLine($"   For detailed information about the tokens that can be used in scalus.json, run info -t");
 
             var config = Configuration.GetConfiguration();
+            
             Console.WriteLine(@"
 
    - Protocols currently configured for scalus:
@@ -65,16 +67,28 @@ namespace scalus.Info
                 }
                 if (appConfig != null)
                 {
-                    Console.Write("     {0,-10} {1,-20} ({2} {3})",  Registration.IsRegistered(one.Protocol)?"yes":"no",appConfig.Description, appConfig.Exec, string.Join(' ', appConfig.Args));
+                    Console.Write("{0,-10} {1,-20} ({2} {3})",  Registration.IsRegistered(one.Protocol)?"yes":"no",appConfig.Description, appConfig.Exec, string.Join(' ', appConfig.Args));
                 }
                 else
                 {
-                    Console.Write("     {0,-10} {1,-20}",  Registration.IsRegistered(one.Protocol)?"yes":"no", "Not configured" );
+                    Console.Write("{0,-10} {1,-20}",  Registration.IsRegistered(one.Protocol)?"yes":"no", "Not configured" );
                 }
                 Console.WriteLine();
             }
 
             Console.WriteLine();
+
+            if (Configuration.ValidationErrors?.Count > 0)
+            {
+                Console.WriteLine(" **** Configuration file is invalid ****");
+                Console.WriteLine();
+                Console.WriteLine(" *** Errors:");
+                Console.WriteLine();
+                foreach (var one in Configuration.ValidationErrors)
+                {
+                    Console.WriteLine($"        - {one}");
+                }
+            }
         }
 
         private void ShowDto()

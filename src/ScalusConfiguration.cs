@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.Configuration;
 using scalus.Util;
 
 namespace scalus
@@ -29,15 +28,22 @@ namespace scalus
 
         protected void Load()
         {
+            ValidationErrors = new List<string>();
+
             if (!File.Exists(_configFile))
             {
-                Serilog.Log.Warning($"config file not found at: {_configFile}");
                 ValidationErrors.Add($"Missing config file:{_configFile}");
-                return;
             }
-
-            var configJson = File.ReadAllText(_configFile);
-            Validate(configJson);
+            else
+            {
+                var configJson = File.ReadAllText(_configFile);
+                Validate(configJson);
+            }
+            if (ValidationErrors.Count > 0)
+            {
+                Serilog.Log.Error($"**** Validation of {_configFile} failed");
+                Serilog.Log.Error($"*** Validation errors: {string.Join(", ", ValidationErrors)}");
+            }
         }
 
         public bool Validate(string json)
@@ -53,22 +59,20 @@ namespace scalus
             }
             catch (Exception e)
             {
-                Serilog.Log.Error(e, $"Failed to deserialise json configuration from file:{_configFile}: {e.Message}");
                 ValidationErrors.Add($"Error deserialising json configuration:{e.Message}");
             }
             try
             {
-                Config?.Validate(ValidationErrors);
+                Config?.Validate(ValidationErrors, false);
             }
             catch (Exception e)
             {
-                Serilog.Log.Error(e, $"Failed to validate json from file:{_configFile}: {e.Message}");
                 ValidationErrors.Add($"Error validating json configuration:{e.Message}");
                 return false;
             }
-
             return (ValidationErrors.Count == 0);
         }
+
     }
 
 
@@ -82,27 +86,54 @@ namespace scalus
 
         public ScalusConfig SaveConfiguration(ScalusConfig configuration)
         {
+            ValidationErrors = new List<string>();
+
             // TODO: Save the file and keep the comments and formatting
             // I think this can be done by switching the config file to
             // json5 and adding a parser for that where we would read the
             // config as json5 replace the values from the incoming config
             // object and then write it out again
 
-            Save(configuration);
-            Load();
+            if (Validate(configuration))
+            {
+                Load();
+            }
+            if (ValidationErrors.Count > 0)
+            {
+                Serilog.Log.Error($"**** Validation of {_configFile} failed");
+                Serilog.Log.Error($"*** Validation errors: {string.Join(", ", ValidationErrors)}");
+            }
+
             return Config;
         }
 
-        private void Save(ScalusConfig configuration)
+
+        private bool Validate(ScalusConfig configuration, bool save = true)
         {
             var serializerSettings = new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(), Formatting = Formatting.Indented
             };
 
-            var json = JsonConvert.SerializeObject(configuration, serializerSettings);
-            File.WriteAllText(_configFile, json);
+            try
+            {
+                var json = JsonConvert.SerializeObject(configuration, serializerSettings);
+                if (Validate(json))
+                {
+                    if (save)
+                    {
+                        File.WriteAllText(_configFile, json);
+                    }
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                ValidationErrors.Add(e.Message);
+            }
+            return false;
         }
+
     }
 
 
