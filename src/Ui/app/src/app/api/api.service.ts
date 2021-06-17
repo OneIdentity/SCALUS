@@ -84,6 +84,7 @@ export class ApiService {
   private tokensUrl = this.configUrl.concat('/Tokens');
   private applicationDescriptionsUrl = this.configUrl.concat('/ApplicationDescriptions');
   private infoUrl = this.configUrl.concat('/Info');
+  private validateUrl = this.configUrl.concat('/Validate');
 
   getConfig() {
     return this.http.get<ScalusConfig>(this.configUrl);
@@ -115,5 +116,9 @@ export class ApiService {
 
   getInfo() {
     return this.http.get<string>(this.infoUrl);
+  }
+
+  validateConfig(config:ScalusConfig){
+    return this.http.put<Array<string>>(this.validateUrl, config);
   }
 }

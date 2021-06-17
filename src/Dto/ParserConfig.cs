@@ -37,7 +37,9 @@ namespace scalus.Dto
 
             if (Options?.Count > 0)
             {
-                var opts = string.Join(", ", Enum.GetNames(typeof(ParserConfigDefinitions.ProcessingOptions)));
+                var opts = string.Join(',', Enum.GetValues(typeof(ParserConfigDefinitions.ProcessingOptions))
+                    .Cast<ParserConfigDefinitions.ProcessingOptions>());
+
                 foreach (var opt in Options)
                 {
                     if (string.IsNullOrEmpty(opt))
@@ -63,8 +65,7 @@ namespace scalus.Dto
             {
                 if (!UseDefaultTemplate && string.IsNullOrEmpty(UseTemplateFile))
                 {
-                    errors.Add(
-                        $"{nameof(PostProcessingExec)} can only be used with {nameof(UseDefaultTemplate)} or {nameof(UseTemplateFile)}");
+                    errors.Add($"{nameof(PostProcessingExec)} can only be used with {nameof(UseDefaultTemplate)} or {nameof(UseTemplateFile)}");
                 }
             }
         }

@@ -129,5 +129,14 @@ namespace scalus.Ui.Controllers
             var info = sw.ToString();
             return Ok(info);
         }
+
+        [HttpPut, Route("Validate")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string[]))]
+        public IActionResult Validate([FromBody] ScalusConfig config)
+        {
+            var validationErrors = new List<string>();
+            config.Validate(validationErrors);
+            return Ok(validationErrors.ToArray());
+        }
     }
 }
