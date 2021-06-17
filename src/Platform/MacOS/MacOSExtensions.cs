@@ -89,7 +89,7 @@ namespace scalus
         public static bool Refresh(IOsServices osServices, bool reg)
         {
             string output;
-            var args = new List<string> {"-kill", reg ? "-r" : "-u", GetAppPath(osServices), "-domain", "user", "-domain", "local", "-domain", "system"};
+            var args = new List<string> {"-kill", reg ? "-r" : "-u","-f", GetAppPath(osServices), "-domain", "user", "-domain", "local", "-domain", "system"};
             var res = RunCommand(osServices, _lsRegisterCmd, args, out output);
             if (!res)
             {

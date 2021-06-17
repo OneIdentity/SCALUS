@@ -6,7 +6,7 @@ on open location
 	set res to do shell script "test -f " & cmdpath & "; echo $?"
 	set exitCode to res as number
 	if (exitCode = 0)  then
-		do shell script cmdpath & " info"
+		do shell script cmdpath & " launch -u " & theURL
 	else
 		display dialog "scalus was not found in path:" & findpath
 	end if
