@@ -20,6 +20,10 @@ namespace scalus.Dto
 
         public void Validate(List<string> errors)
         {
+            if (string.IsNullOrEmpty(Protocol))
+            {
+                errors.Add("Protocol name must be configured");
+            }
         }
     }
 }

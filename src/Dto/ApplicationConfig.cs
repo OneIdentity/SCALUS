@@ -49,6 +49,19 @@ namespace scalus.Dto
 
         public void Validate(List<string> errors)
         {
+            if (string.IsNullOrEmpty(Id))
+            {
+                errors.Add("Id must be configured for an application");
+            }
+
+            if (string.IsNullOrEmpty(Exec))
+            {
+                errors.Add($"An Exec must be configured for application:{Name}({Id})");
+            }
+            if (string.IsNullOrEmpty(Protocol))
+            {
+                errors.Add($"A protocol must be configured for application:{Name}({Id})");
+            }
             if (Platforms.Count == 0)
             { 
                 errors.Add($"Application:{Name}({Id}) does not have any platforms defined.");
