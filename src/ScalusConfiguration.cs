@@ -17,37 +17,41 @@ namespace scalus
         protected string _configFile = ConfigurationManager.ScalusJson;
         protected ScalusConfigurationBase()
         {
-            Load();
         }
 
 
         public ScalusConfig GetConfiguration()
         {
+            Config = Load(_configFile);
             return Config;
         }
 
-        protected void Load()
+        protected ScalusConfig Load(string path)
         {
             ValidationErrors = new List<string>();
+            var config = new ScalusConfig();
 
-            if (!File.Exists(_configFile))
+            if (!File.Exists(path))
             {
-                ValidationErrors.Add($"Missing config file:{_configFile}");
+                ValidationErrors.Add($"Missing config file:{path}");
             }
             else
             {
-                var configJson = File.ReadAllText(_configFile);
-                Validate(configJson);
+                var configJson = File.ReadAllText(path);
+                (_,config) = Validate(configJson);
             }
             if (ValidationErrors.Count > 0)
             {
                 Serilog.Log.Error($"**** Validation of {_configFile} failed");
                 Serilog.Log.Error($"*** Validation errors: {string.Join(", ", ValidationErrors)}");
             }
+
+            return config;
         }
 
-        public bool Validate(string json)
+        public (bool, ScalusConfig) Validate(string json)
         {
+            var config = new ScalusConfig();
             var serializerSettings = new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -55,7 +59,7 @@ namespace scalus
             ValidationErrors = new List<string>();
             try
             {
-                Config = JsonConvert.DeserializeObject<ScalusConfig>(json, serializerSettings);
+                config = JsonConvert.DeserializeObject<ScalusConfig>(json, serializerSettings);
             }
             catch (Exception e)
             {
@@ -63,14 +67,14 @@ namespace scalus
             }
             try
             {
-                Config?.Validate(ValidationErrors, false);
+                config?.Validate(ValidationErrors, false);
             }
             catch (Exception e)
             {
                 ValidationErrors.Add($"Error validating json configuration:{e.Message}");
-                return false;
+                return (false, config);
             }
-            return (ValidationErrors.Count == 0);
+            return (ValidationErrors.Count == 0, config);
         }
 
     }
@@ -94,9 +98,9 @@ namespace scalus
             // config as json5 replace the values from the incoming config
             // object and then write it out again
 
-            if (Validate(configuration))
+            if (ValidateAndSave(configuration))
             {
-                Load();
+                Load(_configFile);
             }
             if (ValidationErrors.Count > 0)
             {
@@ -108,7 +112,7 @@ namespace scalus
         }
 
 
-        private bool Validate(ScalusConfig configuration, bool save = true)
+        private bool ValidateAndSave(ScalusConfig configuration, bool save = true)
         {
             var serializerSettings = new JsonSerializerSettings
             {
@@ -118,7 +122,9 @@ namespace scalus
             try
             {
                 var json = JsonConvert.SerializeObject(configuration, serializerSettings);
-                if (Validate(json))
+                var ok = false;
+                (ok, _) = Validate(json);
+                if (ok)
                 {
                     if (save)
                     {
@@ -179,6 +185,11 @@ namespace scalus
             }
 
             return ProtocolHandlerFactory.Create(uri, protocolConfig);
+        }
+
+        public ScalusConfig GetConfiguration(string path = null)
+        {
+            return Load(path??_configFile);
         }
     }
 }

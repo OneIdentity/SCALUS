@@ -63,8 +63,13 @@ while(( "$#" )); do
     esac
 done
   
+appid="com.oneidentity.${appname}.macos"
 pkgname="${appname}-${version}_${runtime}.pkg"
 pkgfile="${outpath}/${pkgname}"
+
+pkgtar="${appname}-${version}_${runtime}.tar.gz"
+pkgtarfile="${outpath}/${pkgtar}"
+
 
 if [ -z "${infile}" ]; then 
 	echo "Missing infile"
@@ -106,13 +111,33 @@ function resetInfo()
 '
 <array>
 	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Viewer</string>
 		<key>CFBundleURLName</key>
-			<string>com.oneidentity.${appname}.macos</string>
+		<string>scalus telnet URL</string>
 		<key>CFBundleURLSchemes</key>
-			<array>
-			<string>rdp</string>
-			<string>ssh</string>
+		<array>
 			<string>telnet</string>
+		</array>
+	</dict>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Viewer</string>
+		<key>CFBundleURLName</key>
+		<string>scalus ssh URL</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<string>ssh</string>
+		</array>
+	</dict>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Viewer</string>
+		<key>CFBundleURLName</key>
+		<string>scalus rdp URL</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<string>rdp</string>
 		</array>
 	</dict>
 </array> '"
@@ -122,7 +147,7 @@ function resetInfo()
 /bin/bash -c "defaults write $filename CFBundleShortVersion  -string \"${version}\""
 /bin/bash -c "defaults write $filename CFBundleName  -string 'Scalus'"
 /bin/bash -c "defaults write $filename CFBundleDisplayName  -string 'Session URL Launcher Utility'"
-/bin/bash -c "defaults write $filename CFBundleIdentifier  -string  'com.oneidentity.${appname}.macos'"
+/bin/bash -c "defaults write $filename CFBundleIdentifier  -string  '${appid}'"
 /bin/bash -c "defaults write $filename ITSAppUsesNonExemptEncryption -bool false"
 /bin/bash -c "defaults write $filename LSApplicationCategoryType -string 'public.app-category.developer-tools'"
 /bin/bash -c "defaults write $filename LSMinimumSystemVersion -string '10.6.0'"
@@ -137,7 +162,7 @@ function make_app()
 	fi
         mkdir -p ${tmpdir}
 
-        cat ${infile} | awk -v appname="com.oneidentity.${appname}.macos" '
+        cat ${infile} | awk -v appname="${appid}" '
 {
         str=sprintf("kMDItemCFBundleIdentifier=%s", appname);
         sub(/kMDItemCFBundleIdentifier=\S+/, str);
@@ -158,6 +183,11 @@ fi
 
 	cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
 	chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
+	here=`pwd`
+	cd $tmpdir
+	tar -cvf - ${appname}.app | gzip -c > ${pkgtarfile}
+	cd $here
+
 }
 
 

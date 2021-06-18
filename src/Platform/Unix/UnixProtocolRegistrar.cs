@@ -18,7 +18,7 @@ namespace scalus
         private const string XdgSettings = "/usr/bin/xdg-settings";
         private const string XdgMime = "/usr/bin/xdg-mime";
         private const string UpdateDesktopDatabase = "/usr/bin/update-desktop-database";
-        private readonly IOsServices _osServices;
+        public IOsServices OsServices { get; }
         private string _preferredConfigPath;
         private const string ScalusDesktop = "scalus.desktop";
         private const string AppRelPath = ".local/share/applications";
@@ -51,7 +51,7 @@ namespace scalus
         {
             string filepath;
             var args = new List<string> { "-c", $"XDG_UTILS_DEBUG_LEVEL=2 {XdgSettings} get default-url-scheme-handler" };
-            var exitCode = _osServices.Execute( "sh", args, out var stdOut, out _);
+            var exitCode = OsServices.Execute( "sh", args, out var stdOut, out _);
             if (exitCode == 0)
             {
                 var lines = stdOut.Split("\n");
@@ -82,7 +82,7 @@ namespace scalus
 
         public UnixProtocolRegistrar(IOsServices osServices)
         {
-            _osServices = osServices;
+            OsServices = osServices;
         }
 
         
@@ -176,7 +176,7 @@ namespace scalus
             if (File.Exists(XdgSettings))
             {
                 var args = new List<string> { "get", "default-url-scheme-handler", protocol };
-                var exitCode = _osServices.Execute( XdgSettings, args, out string stdOut, out string stdErr);
+                var exitCode = OsServices.Execute( XdgSettings, args, out string stdOut, out string stdErr);
                 if (exitCode == 0)
                 {
                     return (stdOut );
@@ -191,7 +191,7 @@ namespace scalus
             if (File.Exists(XdgMime))
             {
                 var args = new List<string> {"default", ScalusDesktop, $"{SchemeHandler}{protocol}"};
-                var exitCode = _osServices.Execute(XdgMime, args, out string stdOut, out string stdErr);
+                var exitCode = OsServices.Execute(XdgMime, args, out string stdOut, out string stdErr);
                 if (exitCode!=0)
                 {
                     Serilog.Log.Warning($"Failed to run {XdgMime}, stdout:{stdOut}, stderr:{stdErr}");
@@ -205,7 +205,7 @@ namespace scalus
         {
             if (File.Exists(UpdateDesktopDatabase))
             {
-                var exitCode = _osServices.Execute(UpdateDesktopDatabase, new List<string> { AppDataPath }, out string stdOut, out string stdErr);
+                var exitCode = OsServices.Execute(UpdateDesktopDatabase, new List<string> { AppDataPath }, out string stdOut, out string stdErr);
                 if (exitCode!=0)
                 {
                     Serilog.Log.Warning($"Failed to run {UpdateDesktopDatabase}: Stdoutput: {stdOut}, StdErr:{stdErr}");

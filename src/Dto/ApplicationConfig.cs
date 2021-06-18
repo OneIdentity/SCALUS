@@ -18,6 +18,7 @@ namespace scalus.Dto
     {
         [JsonRequired]
         public string Id { get; set; }
+        [JsonRequired]
         public string Name { get; set; }
         public string Description { get; set; }
 
@@ -61,6 +62,10 @@ namespace scalus.Dto
             if (string.IsNullOrEmpty(Protocol))
             {
                 errors.Add($"A protocol must be configured for application:{Name}({Id})");
+            }
+            if (string.IsNullOrEmpty(Name))
+            {
+                errors.Add($"Application:{Id} must have a name");
             }
             if (Platforms.Count == 0)
             { 

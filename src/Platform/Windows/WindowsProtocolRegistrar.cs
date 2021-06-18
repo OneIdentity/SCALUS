@@ -1,10 +1,12 @@
 ﻿using scalus.Util;
 using System.Linq;
+using scalus.Platform;
 
 namespace scalus
 {
     class ProtocolRegistrar : IProtocolRegistrar
     {
+        public IOsServices OsServices { get; }
         public bool UseSudo { get; set; }
         public bool RootMode { get; set; }
         public string Name { get; } = "WindowsURLRegistry";

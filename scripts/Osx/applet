@@ -1,13 +1,20 @@
 #!/usr/bin/osascript
-on open location
-
-	set findcmd to do shell script "mdfind kMDItemCFBundleIdentifier=com.oneidentity.scalus.macos | head -1"
+on checkit()
+	
+	set findcmd to do shell script "/usr/bin/mdfind kMDItemCFBundleIdentifier=com.oneidentity.scalus.macos | head -1"
+	display dialog "findcmd:" & findcmd
 	set cmdpath to findcmd & "/Contents/MacOS/scalus"
+	display dialog "cmdpath : " & cmdpath
 	set res to do shell script "test -f " & cmdpath & "; echo $?"
 	set exitCode to res as number
-	if (exitCode = 0)  then
-		do shell script cmdpath & " launch -u " & theURL
-	else
-		display dialog "scalus was not found in path:" & findpath
+	if (exitCode is not equal to 0) then
+		display dialog "scalus was not found in path:" & cmdpath
 	end if
+	return cmdpath
+end checkit
+
+on open location
+	set cmdpath to checkit()
+	do shell script cmdpath & " launch -u " & theURL
 end open location
+

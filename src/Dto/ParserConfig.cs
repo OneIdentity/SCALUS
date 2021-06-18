@@ -32,7 +32,7 @@ namespace scalus.Dto
             var supported = ProtocolHandlerFactory.GetSupportedParsers(); 
             if (!supported.Contains(ParserId))
             {
-                errors.Add($"Selected parser is not in the supported list:{string.Join(',',supported.ToArray())}");
+                errors.Add($"Selected parser '{ParserId}' is not in the supported list:{string.Join(',',supported.ToArray())}");
             }
 
             if (Options?.Count > 0)

@@ -2,6 +2,7 @@
 {
     class UnsupportedPlatformRegistrar : IProtocolRegistrar
     {
+        public IOsServices OsServices { get; }
         public bool UseSudo { get; set; }
         public bool RootMode { get; set; }
         public string Name { get; } = "Unknown";
