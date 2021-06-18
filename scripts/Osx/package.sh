@@ -63,6 +63,7 @@ while(( "$#" )); do
     esac
 done
   
+appid="com.oneidentity.${appname}.macos"
 pkgname="${appname}-${version}_${runtime}.pkg"
 pkgfile="${outpath}/${pkgname}"
 
@@ -146,7 +147,7 @@ function resetInfo()
 /bin/bash -c "defaults write $filename CFBundleShortVersion  -string \"${version}\""
 /bin/bash -c "defaults write $filename CFBundleName  -string 'Scalus'"
 /bin/bash -c "defaults write $filename CFBundleDisplayName  -string 'Session URL Launcher Utility'"
-/bin/bash -c "defaults write $filename CFBundleIdentifier  -string  'com.oneidentity.${appname}.macos'"
+/bin/bash -c "defaults write $filename CFBundleIdentifier  -string  '${appid}'"
 /bin/bash -c "defaults write $filename ITSAppUsesNonExemptEncryption -bool false"
 /bin/bash -c "defaults write $filename LSApplicationCategoryType -string 'public.app-category.developer-tools'"
 /bin/bash -c "defaults write $filename LSMinimumSystemVersion -string '10.6.0'"
@@ -161,7 +162,7 @@ function make_app()
 	fi
         mkdir -p ${tmpdir}
 
-        cat ${infile} | awk -v appname="com.oneidentity.${appname}.macos" '
+        cat ${infile} | awk -v appname="${appid}" '
 {
         str=sprintf("kMDItemCFBundleIdentifier=%s", appname);
         sub(/kMDItemCFBundleIdentifier=\S+/, str);
