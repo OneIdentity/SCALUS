@@ -13,7 +13,7 @@ namespace scalus
     {
         IProtocolHandler GetProtocolHandler(string uri);
 
-        ScalusConfig GetConfiguration();
+        ScalusConfig GetConfiguration(string path = null);
         List<string> ValidationErrors { get; }
     }
 

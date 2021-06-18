@@ -66,6 +66,10 @@ done
 pkgname="${appname}-${version}_${runtime}.pkg"
 pkgfile="${outpath}/${pkgname}"
 
+pkgtar="${appname}-${version}_${runtime}.tar.gz"
+pkgtarfile="${outpath}/${pkgtar}"
+
+
 if [ -z "${infile}" ]; then 
 	echo "Missing infile"
 	exit 1
@@ -106,13 +110,33 @@ function resetInfo()
 '
 <array>
 	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Viewer</string>
 		<key>CFBundleURLName</key>
-			<string>com.oneidentity.${appname}.macos</string>
+		<string>scalus telnet URL</string>
 		<key>CFBundleURLSchemes</key>
-			<array>
-			<string>rdp</string>
-			<string>ssh</string>
+		<array>
 			<string>telnet</string>
+		</array>
+	</dict>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Viewer</string>
+		<key>CFBundleURLName</key>
+		<string>scalus ssh URL</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<string>ssh</string>
+		</array>
+	</dict>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Viewer</string>
+		<key>CFBundleURLName</key>
+		<string>scalus rdp URL</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<string>rdp</string>
 		</array>
 	</dict>
 </array> '"
@@ -158,6 +182,11 @@ fi
 
 	cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
 	chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
+	here=`pwd`
+	cd $tmpdir
+	tar -cvf - ${appname}.app | gzip -c > ${pkgtarfile}
+	cd $here
+
 }
 
 

@@ -1,8 +1,8 @@
-﻿using scalus.Platform;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using scalus.Platform;
 
 namespace scalus
 {
@@ -12,21 +12,11 @@ namespace scalus
         private static readonly string _lsRegisterCmd =
             "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
 
-        public static bool RunCommand(this MacOsProtocolRegistrar registrar, string cmd, List<string> args,
-            out string output)
-        {
-            return RunCommand(registrar.OsServices, cmd, args, out output);
-        }
-        public static bool RunCommand(this MacOsUserDefaultRegistrar registrar, string cmd, List<string> args,
-            out string output)
-        {
-            return RunCommand(registrar.OsServices, cmd, args, out output);
-        }
-        public static bool RunCommand(IOsServices osServices, string cmd, List<string> args,  out string output)
+        public static bool RunCommand(this IProtocolRegistrar registrar, string cmd, List<string> args,  out string output)
         {
             try {
                 string err;
-                var res = osServices.Execute(cmd, args, out output, out err);
+                var res = registrar.OsServices.Execute(cmd, args, out output, out err);
                 if (res == 0)
                 {
                     return true;
@@ -44,15 +34,12 @@ namespace scalus
             }
         }
 
-        public static string GetAppPath(this MacOsUserDefaultRegistrar registrar)
+        public static string GetAppPath(this IProtocolRegistrar registrar)
         {
             return GetAppPath(registrar.OsServices);
         }
-        public static string GetAppPath(this MacOsProtocolRegistrar registrar)
-        {
-            return GetAppPath(registrar.OsServices);
-        }
-        public static string GetAppPath(this IOsServices osServices)
+
+        public static string GetAppPath(IOsServices osServices)
         {
             string path;
             var apath = string.Empty;
@@ -78,19 +65,12 @@ namespace scalus
             return apath;
         }
 
-        public static bool Refresh(this MacOsProtocolRegistrar registrar, bool reg)
-        {
-            return Refresh(registrar.OsServices, reg);
-        }
-        public static bool Refresh(this MacOsUserDefaultRegistrar registrar, bool reg)
-        {
-            return Refresh(registrar.OsServices, reg);
-        }
-        public static bool Refresh(IOsServices osServices, bool reg)
+        public static bool Refresh(this IProtocolRegistrar registrar)
         {
             string output;
-            var args = new List<string> {"-kill", reg ? "-r" : "-u","-v", "-f", GetAppPath(osServices), "-domain", "user", "-domain", "local", "-domain", "system"};
-            var res = RunCommand(osServices, _lsRegisterCmd, args, out output);
+            var home = Environment.GetEnvironmentVariable("HOME");
+            var args = new List<string> {"-c", $"HOME=\"{home}\"; export HOME; {_lsRegisterCmd} -kill -v -f {registrar.GetAppPath()}"};
+            var res = registrar.RunCommand("/bin/sh", args, out output);
             if (!res)
             {
                 Serilog.Log.Warning($"Failed to update the Launch Services database:{output}");

@@ -1,5 +1,7 @@
-﻿using scalus.Platform;
+﻿using System;
+using scalus.Platform;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 
 namespace scalus
@@ -22,26 +24,29 @@ namespace scalus
         private bool UpdateConfiguredDefault(string protocol, bool add = true)
         {
             var handler = add ? MacOsExtensions.ScalusHandler : string.Empty;
-            var res= this.RunCommand( "python", 
+            var home = Environment.GetEnvironmentVariable("HOME");
+            var res= this.RunCommand( "/bin/sh", 
                 new List<string> {
                     "-c",
-                    $"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')"}, 
+                    $"HOME=\"{home}\";export HOME; python -c \"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')\""}, 
                 out var output);
             if (!res)
             {
                 Serilog.Log.Error($"Failed to update the configured default:{output}");
                 return false;
             }
+            return true;
 
-            return this.Refresh(add);
+           // return this.Refresh();
         }
 
         //get the current configured default 
         public string GetRegisteredCommand(string protocol)
         {
+            var home = Environment.GetEnvironmentVariable("HOME");
             var res =
-                this.RunCommand("python",
-                    new List<string> { "-c", $"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')" },
+                this.RunCommand("/bin/sh",
+                    new List<string> { "-c", $"HOME=\"{home}\"; export HOME; python -c \"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')\"" },
                     out string output);
             if (!res)
             {
@@ -75,6 +80,7 @@ namespace scalus
         public bool Register(string protocol)
         {
             return UpdateConfiguredDefault(protocol);
+            
         }   
         public bool ReplaceRegistration(string protocol)
         {

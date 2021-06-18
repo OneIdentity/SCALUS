@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using scalus.Platform;
 
 namespace scalus
 {
-    interface IProtocolRegistrar
+    public interface IProtocolRegistrar
     {
+        IOsServices OsServices { get; }
         bool UseSudo { get; set; }
         bool RootMode { get; set; }
         string Name { get; }
