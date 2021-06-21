@@ -38,7 +38,7 @@ namespace scalus.UrlParser
         protected override IEnumerable<string> GetDefaultTemplate()
         {
             Serilog.Log.Error("No default template is supported for this parser type");
-            throw new Exception("No default file is defined for this parser type");
+            throw new Exception("No default template is defined for this parser type");
         }
 
     }

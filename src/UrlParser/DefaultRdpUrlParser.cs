@@ -32,11 +32,11 @@ namespace scalus.UrlParser
         //If not in this format, it will default to parsing the string as a standard URL
         public Regex RdpPattern = new Regex("(([^:]+)://)?((([^&=]+)=([^&]+))(&(([^&=]+)=([^&]+)))*)");
         public Regex RdpPatt = new Regex("&");
-        private List<string> _msArgList { get; set; } = new List<string>();
+        private readonly List<string> _msArgList  = new List<string>();
 
         public const string rdpPattern = "\\S=[s|i]:\\S+";
-        public const string username = "username";
-        public const string fulladdress = "full address";
+        public const string UsernameKey = "username";
+        public const string FulladdressKey = "full address";
         public DefaultRdpUrlParser(ParserConfig config) : base(config)
         {            
             FileExtension = ".rdp";
@@ -64,18 +64,31 @@ namespace scalus.UrlParser
             var match = RdpPattern.Match(url.TrimEnd('/'));
             if (!match.Success)
             {
-                if (Uri.TryCreate(url, UriKind.Absolute, out Uri result))
+                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
+                    throw new Exception($"The RDP parser cannot parse the URL:{url}");
+
+                foreach (var (key, value) in DefaultArgs)
                 {
-                    Parse(result);
-                    return Dictionary;
+                    if (key.Equals(FulladdressKey))
+                    {
+                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.Host, UriFormat.SafeUnescaped)}");
+                    }
+                    else if (key.Equals(UsernameKey))
+                    {
+                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.Host, UriFormat.SafeUnescaped)}");
+
+                    }
+                    else {
+                        _msArgList.Add($"{key}:{value}");
+                    }
                 }
+                Parse(result);
             }
             else
             {
                 ParseArgs(match.Groups[3].Value);
+                ParseConfig();
             }
-
-            ParseConfig();
             //tokens required are username and host
 
             if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
@@ -93,7 +106,8 @@ namespace scalus.UrlParser
             return _msArgList;
         }
 
-        public static readonly Dictionary<string, string> defaultArgs = new Dictionary<string, string>()
+        
+        public static readonly Dictionary<string, string> DefaultArgs = new Dictionary<string, string>()
         {
             {"full address", ":s:%Host%"},
             {"username", ":s:%user%"},
@@ -184,9 +198,9 @@ namespace scalus.UrlParser
                 }
                 var name = HttpUtility.UrlDecode(m.Groups[1].Value);
                 var value = m.Groups[2].Value;
-                if (name.Equals(username))
+                if (name.Equals(UsernameKey))
                 {
-                    if (value.IndexOf("%25") >= 0 || value.IndexOf("%5c")>= 0)
+                    if (value.IndexOf("%25", StringComparison.Ordinal) >= 0 || value.IndexOf("%5c", StringComparison.Ordinal)>= 0)
                     {
                         value = HttpUtility.UrlDecode(value);
                     }
@@ -201,7 +215,7 @@ namespace scalus.UrlParser
                     Dictionary[Token.User] = Regex.Replace(value, "^.:", "");
                     GetSafeguardUserValue();
                 }
-                else if (Regex.IsMatch(name, fulladdress))
+                else if (Regex.IsMatch(name, FulladdressKey))
                 {
                     value = HttpUtility.UrlDecode(value);
                     var hostval = m.Groups[2].Value;
@@ -227,7 +241,7 @@ namespace scalus.UrlParser
                 usedNames.Add(name);
             }
 
-            foreach (var arg in defaultArgs)
+            foreach (var arg in DefaultArgs)
             {
                 if (!usedNames.Contains(arg.Key))
                 {
@@ -258,9 +272,8 @@ namespace scalus.UrlParser
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Could not generate RDP password hash: {ex}");
+                Log.Warning( $"Could not generate RDP password hash: {ex}");
             }
-
             return "";
         }
 

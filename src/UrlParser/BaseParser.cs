@@ -9,7 +9,6 @@ using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNetCore.Http;
 using scalus.Util;
 using Serilog;
 using static scalus.Dto.ParserConfigDefinitions;
@@ -58,17 +57,17 @@ namespace scalus.UrlParser
         {
             if (string.IsNullOrEmpty(_fileProcessorExe ))
                 return;
-            Serilog.Log.Debug($"Starting file preprocessor: '{_fileProcessorExe}' with args: '{string.Join(' ', _fileProcessorArgs)}'");
+            Log.Debug($"Starting file preprocessor: '{_fileProcessorExe}' with args: '{string.Join(' ', _fileProcessorArgs)}'");
 
             if (!File.Exists(_fileProcessorExe ))
             {
-                Serilog.Log.Error($"Selected file preprocessor does not exist:{_fileProcessorExe}");
+                Log.Error($"Selected file preprocessor does not exist:{_fileProcessorExe}");
                 return;
             }
             string output;
             string err;
             var res = services.Execute(_fileProcessorExe, _fileProcessorArgs, out output, out err);
-            Serilog.Log.Information($"File preprocess result:{res}, output:{output}, err:{err}");
+            Log.Information($"File preprocess result:{res}, output:{output}, err:{err}");
             
         }
 
@@ -111,7 +110,7 @@ namespace scalus.UrlParser
 
             if (process.HasExited)
             {
-                Serilog.Log.Information($"Application exited with exit code: {process.ExitCode}");
+                Log.Information($"Application exited with exit code: {process.ExitCode}");
             }
         }
 
@@ -153,7 +152,8 @@ namespace scalus.UrlParser
             try
             {
                 string tempFile;
-                if (!string.IsNullOrEmpty(Dictionary[Token.Vault]))
+                var isSafeguard = Dictionary.ContainsKey(Token.Vault) && !string.IsNullOrEmpty(Dictionary[Token.Vault]);
+                if ( isSafeguard)
                 {
                     var guid = Guid.NewGuid().ToString();
                     var host = Dictionary[Token.TargetHost];
@@ -163,22 +163,31 @@ namespace scalus.UrlParser
                     tempFile = Path.Combine(Path.GetTempPath(),
                         $"SG-{host}_{user}_{guid}.{ext}");
                 }
-                else if (!string.IsNullOrEmpty(Dictionary[Token.Host]) && !string.IsNullOrEmpty(Dictionary[Token.User]))
+                else
                 {
-                    var guid = Guid.NewGuid().ToString();
-                    var host = Dictionary[Token.Host];
-                    host = Regex.Replace(host, "[.]", "~");
-                    var user = Dictionary[Token.User];
-                    user = user.Replace('\\', '~');
+                    var host = (Dictionary.ContainsKey(Token.Host) && !string.IsNullOrEmpty(Dictionary[Token.Host])
+                        ? Dictionary[Token.Host]
+                        : string.Empty);
+                    var user = (Dictionary.ContainsKey(Token.User) &&
+                                !string.IsNullOrEmpty(Dictionary[Token.User])
+                        ? Dictionary[Token.User]
+                        : string.Empty);
+                    if (!string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(user))
+                    {
+                        var guid = Guid.NewGuid().ToString();
+                        host = Regex.Replace(host, "[.]", "~");
+                        user = user.Replace('\\', '~');
 
-                    tempFile = Path.Combine(Path.GetTempPath(),
+                        tempFile = Path.Combine(Path.GetTempPath(),
                         $"Scalus-{host}_{user}_{guid}{ext}");
-                }
-                else {
-                    tempFile = Path.GetTempFileName();
-                    string renamed = Path.ChangeExtension(tempFile, ext);
-                    File.Move(tempFile, renamed);
-                    tempFile = renamed;
+                    }
+                    else
+                    {
+                        tempFile = Path.GetTempFileName();
+                        string renamed = Path.ChangeExtension(tempFile, ext);
+                        File.Move(tempFile, renamed);
+                        tempFile = renamed;
+                    }
                 }
                 Disposables.Add(Disposable.Create(() => File.Delete(tempFile)));
                 var newlines = new List<string>();
@@ -212,23 +221,23 @@ namespace scalus.UrlParser
 
                     if (!found)
                     {
-                        _fileProcessorArgs.Add($"%{Dictionary[Token.GeneratedFile]}%");
+                        _fileProcessorArgs.Add(Dictionary[Token.GeneratedFile]);
                     }
                 }
 
-                Serilog.Log.Information(
+                Log.Information(
                     $"Preprocessing cmd:{_fileProcessorExe} args:{string.Join(',', _fileProcessorArgs)}");
             }
             catch (Exception e)
             {
-                Serilog.Log.Error($"Failed to process temp file: {e.Message}");
+                Log.Error($"Failed to process temp file: {e.Message}");
             }
         }
     
 
         protected (string host,string port) ParseHost(string host)
         {
-            var sep = host.LastIndexOf(":");
+            var sep = host.LastIndexOf(":", StringComparison.Ordinal);
             if (sep == -1)
             {
                 return (host, null);
@@ -237,13 +246,13 @@ namespace scalus.UrlParser
         }
         protected static string StripProtocol(string url)
         {
-            var protocolIndex = url.IndexOf("://");
+            var protocolIndex = url.IndexOf("://", StringComparison.Ordinal);
             if (protocolIndex == -1) return url;
             return  url.Substring(protocolIndex + 3);
         }
         protected static string Protocol(string url, string def = null)
         {
-            var protocolIndex = url.IndexOf("://");
+            var protocolIndex = url.IndexOf("://", StringComparison.Ordinal);
             if (protocolIndex == -1) return def;
             return url.Substring(0, protocolIndex);
         }
@@ -277,19 +286,19 @@ namespace scalus.UrlParser
             IEnumerable<string> fileLines = null;
             if (Config.UseDefaultTemplate)
             {
-                Serilog.Log.Information("Using default template");
+                Log.Information("Using default template");
                 fileLines = GetDefaultTemplate();
             }
             else if (!string.IsNullOrEmpty(Config.UseTemplateFile))
             {
-                Serilog.Log.Information($"Using template :{Config.UseTemplateFile}");
+                Log.Information($"Using template :{Config.UseTemplateFile}");
                 var templatefile = ReplaceTokens(Config.UseTemplateFile);
                 templatefile = GetFullPath(templatefile);
-                Serilog.Log.Information($"Using template file:{templatefile}");
+                Log.Information($"Using template file:{templatefile}");
 
                 if (!File.Exists(templatefile))
                 {
-                    Serilog.Log.Error($"Application template does not exist:{templatefile}");
+                    Log.Error($"Application template does not exist:{templatefile}");
                     throw new Exception($"Application template file does not exist: {templatefile}");
                 }
                 
@@ -303,7 +312,7 @@ namespace scalus.UrlParser
                 }
                 catch (Exception e)
                 {
-                    Serilog.Log.Error(e, $"Cannot read template file: {templatefile}");
+                    Log.Error(e, $"Cannot read template file: {templatefile}");
                 }
             }
             if (fileLines != null)
@@ -329,21 +338,21 @@ namespace scalus.UrlParser
             }
             catch
             {
-                Serilog.Log.Warning($"The string does not appear to be a valid URL: {url} ");
+                Log.Warning($"The string does not appear to be a valid URL: {url} ");
             }
         }
        
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
                     Disposables.Dispose();
                 }
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
@@ -358,6 +367,6 @@ namespace scalus.UrlParser
             return newargs;
         }
 
-        private bool disposedValue;
+        private bool _disposedValue;
     }
 }

@@ -45,11 +45,11 @@ namespace scalus.UrlParser
             }
             if (!match.Success)
             {
-                if (Uri.TryCreate(url, UriKind.Absolute, out Uri result))
+                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
                 {
-                    Parse(result);
-                    return Dictionary;
+                    throw new Exception($"The SSH parser cannot parse URL:{url}");
                 }
+                Parse(result);
             }
             else
             {
@@ -60,9 +60,9 @@ namespace scalus.UrlParser
                 SetValue(match, 7, Token.Port, false, "22");
 
                 GetSafeguardUserValue();
+                ParseConfig();
             }
 
-            ParseConfig();
             if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
             {
                 Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
@@ -71,7 +71,6 @@ namespace scalus.UrlParser
             {
                 Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
             }
-
             return Dictionary;        
         }
 

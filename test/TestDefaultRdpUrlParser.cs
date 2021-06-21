@@ -1,3 +1,4 @@
+using System;
 using scalus.Dto;
 using scalus.UrlParser;
 using System.Collections.Generic;
@@ -163,10 +164,8 @@ namespace scalus.Test
             //somerandomstring
             var sut = new DefaultRdpUrlParser(new Dto.ParserConfig());
             var str = "somerandomstring@here";
-            var dictionary = sut.Parse(str);
-            Assert.Equal(str, dictionary[Token.OriginalUrl]);
-            Assert.Equal(str, dictionary[Token.RelativeUrl]);
-            Assert.Equal("rdp", dictionary[Token.Protocol]);
+            Assert.ThrowsAny<Exception>(() => sut.Parse(str));
+           
 
             //standard URI
             //myprot://myuser:mypass@myhost:2222/thisisapath?queryit#fragment
@@ -175,7 +174,7 @@ namespace scalus.Test
             str="myuser%5c:mypass@myhost:3456/thisisapath?queryit#fragment";
             var uri=$"myprot://{str}";
 
-            dictionary = sut.Parse(uri);
+            var dictionary = sut.Parse(uri);
             Assert.Equal("myprot", dictionary[Token.Protocol]);
             Assert.Equal(uri, dictionary[Token.OriginalUrl]);
             Assert.Equal(str, dictionary[Token.RelativeUrl]);
