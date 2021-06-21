@@ -105,6 +105,7 @@
       "Protocol": "rdp",
       "Parser": {
         "ParserId": "rdp",
+        "UseDefaultTemplate": true,
         "Options": [ "wait:60" ]
       },
       "Exec": "/usr/bin/open",

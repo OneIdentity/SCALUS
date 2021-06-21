@@ -7,5 +7,8 @@ namespace scalus.Launch
     {
         [Option('u', "url", Required = true, HelpText = "The URL to launch.")]
         public string Url { get; set; }
+
+        [Option('p', "preview", Required = false, HelpText = "Show me what will launch, but dont run it" )]
+        public bool Preview { get; set; }
     }
 }

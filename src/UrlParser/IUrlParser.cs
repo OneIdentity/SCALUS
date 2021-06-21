@@ -26,6 +26,7 @@ namespace scalus.UrlParser
         IDictionary<Token,string> Parse(string url);
         void PostExecute(Process process);
         List<string> ReplaceTokens(List<string> args);
+        string ReplaceTokens(string arg);
         void PreExecute(IOsServices services);
     }
 }

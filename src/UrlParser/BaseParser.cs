@@ -75,10 +75,12 @@ namespace scalus.UrlParser
         {
             if(Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforexit.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
+                Log.Information($"post processing - wait for exit");
                 process.WaitForExit();
             }
             else if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforinputidle.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
+                Log.Information($"post processing - wait for inputidle");
                 process.WaitForInputIdle();
             }
             else
@@ -104,6 +106,8 @@ namespace scalus.UrlParser
                 }
                 if (time > 0)
                 {
+                    Log.Information($"post processing - waiting for {time} seconds");
+
                     Task.Delay(time * 1000).Wait();
                 }
             }
@@ -111,6 +115,10 @@ namespace scalus.UrlParser
             if (process.HasExited)
             {
                 Log.Information($"Application exited with exit code: {process.ExitCode}");
+            }
+            else
+            {
+                Log.Information($"Application still running - scalus has finished");
             }
         }
 
@@ -259,7 +267,7 @@ namespace scalus.UrlParser
 
         protected abstract IEnumerable<string> GetDefaultTemplate();
     
-        private string ReplaceTokens(string line)
+        public string ReplaceTokens(string line)
         {
             var newline = line;
             foreach (var variable in Dictionary)
