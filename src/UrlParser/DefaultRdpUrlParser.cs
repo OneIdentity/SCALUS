@@ -66,7 +66,7 @@ namespace scalus.UrlParser
             {
                 if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
                     throw new Exception($"The RDP parser cannot parse the URL:{url}");
-
+                Log.Information($"Parsing URL{url} as a default URL");
                 foreach (var (key, value) in DefaultArgs)
                 {
                     if (key.Equals(FulladdressKey))
@@ -86,6 +86,7 @@ namespace scalus.UrlParser
             }
             else
             {
+                Log.Information($"Parsing URL{url} as an rdp URL");
                 ParseArgs(match.Groups[3].Value);
                 ParseConfig();
             }

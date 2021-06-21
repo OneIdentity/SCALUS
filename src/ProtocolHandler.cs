@@ -2,7 +2,10 @@
 using scalus.Platform;
 using scalus.UrlParser;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Security.Policy;
+using System.Text;
 
 namespace scalus
 {
@@ -21,23 +24,65 @@ namespace scalus
             OsServices = osServices;
             ApplicationConfig = applicationConfig;
         }
-        
 
-        public void Run()
+        public string PreviewOutput(IDictionary<ParserConfigDefinitions.Token, string> dictionary, string cmd, List<string> args)
+        {
+            var str = new StringBuilder();
+ 
+            str.Append(@" 
+ - Application:
+   ----------
+");
+            str.Append (string.Format(  "   - {0,-16} : {1}{2}", "Application", cmd, Environment.NewLine));
+            str.Append (string.Format(  "   - {0,-16} : {1}{2}", "Arguments", string.Join(',', args), Environment.NewLine));
+
+            str.Append(@" 
+ - Dictionary:
+   ----------
+");
+            foreach (var (key, val) in dictionary)
+            {
+                str.Append(string.Format("   - {0,-16} : {1}{2}", key, val, Environment.NewLine));
+            }
+            if (dictionary.ContainsKey(ParserConfigDefinitions.Token.GeneratedFile))
+            {
+                var fname = dictionary[ParserConfigDefinitions.Token.GeneratedFile];
+
+                if (!string.IsNullOrEmpty(fname) && File.Exists(fname))
+                {
+                    var contents = File.ReadAllText(fname);
+                    str.Append(string.Format("   - {0} : {1}", "Generated File Contents", Environment.NewLine));
+                    str.Append(contents);
+                }
+            }
+
+            return str.ToString();
+        }
+        public void Run(bool preview = false)
         {
             try {
+                
                 var dictionary = Parser.Parse(Uri);
                 Parser.PreExecute(OsServices);           
-                var args = Parser.ReplaceTokens(ApplicationConfig.Args);          
-                Serilog.Log.Debug($"Starting external application: '{ApplicationConfig.Exec}' with args: '{string.Join(',', args)}'");
-                if (!File.Exists(ApplicationConfig.Exec))
+                var args = Parser.ReplaceTokens(ApplicationConfig.Args);
+
+                var cmd = Parser.ReplaceTokens(ApplicationConfig.Exec);
+                Serilog.Log.Debug($"Starting external application: '{cmd}' with args: '{string.Join(',', args)}'");
+                if (!File.Exists(cmd))
                 {
-                    Serilog.Log.Error($"Selected application does not exist:{ApplicationConfig.Exec}");
-                    OsServices.OpenText($"Selected application does not exist:{ApplicationConfig.Exec}");
+                    Serilog.Log.Error($"Selected application does not exist:{cmd}");
+                    OsServices.OpenText($"Selected application does not exist:{cmd}");
 
                     return;
                 }
-                var process = OsServices.Execute(ApplicationConfig.Exec, args);
+
+                if (preview)
+                {
+                    Serilog.Log.Information($"Preview mode - returning");
+                    Console.WriteLine(PreviewOutput(dictionary, cmd, args));
+                    return;
+                }
+                var process = OsServices.Execute(cmd, args);
                 Serilog.Log.Debug("Post execute starting.");
                 
                 Parser.PostExecute(process);

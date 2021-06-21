@@ -1,12 +1,14 @@
 ﻿using scalus.Dto;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace scalus
 {
     interface IProtocolHandler : IDisposable
     {
-        void Run();
+        void Run(bool preview = false);
     }
 
     interface IScalusConfiguration

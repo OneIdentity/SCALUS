@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Newtonsoft.Json;
 using scalus.Util;
 
 namespace scalus.Launch
@@ -25,6 +26,7 @@ namespace scalus.Launch
 
         public int Run()
         {
+            
             Serilog.Log.Debug($"Dispatching URL: {Options.Url}");
 
             try
@@ -37,7 +39,7 @@ namespace scalus.Launch
                     OsServices.OpenText($"SCALUS configuration does not provide a method to handle the URL: {Options.Url}");
                     return 1;
                 }
-                handler.Run();
+                handler.Run(Options.Preview);
                 return 0;
             }
             catch(Exception ex)
