@@ -1,3 +1,4 @@
+using System;
 using System.Web;
 using scalus.UrlParser;
 using Xunit;
@@ -128,9 +129,12 @@ namespace scalus.Test
         {
             var str = "abc";
             var sut = new DefaultSshUrlParser(new Dto.ParserConfig());
+            Assert.ThrowsAny<Exception>(() => sut.Parse(str));
+
+            str = "ssh://abc/";
             var dictionary =sut.Parse(str);
-            Assert.Equal("abc", dictionary[Token.OriginalUrl]);
-            Assert.Equal("abc", dictionary[Token.RelativeUrl]);
+            Assert.Equal("ssh://abc/", dictionary[Token.OriginalUrl]);
+            Assert.Equal("abc/", dictionary[Token.RelativeUrl]);
             Assert.Equal("ssh", dictionary[Token.Protocol]);
         }
         

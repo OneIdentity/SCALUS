@@ -12,7 +12,24 @@ namespace scalus
 
     class ScalusConfigurationBase
     {
-        protected ScalusConfig Config { get; set; } = new ScalusConfig();
+        private ScalusConfig _scalusConfig = null;
+
+        protected ScalusConfig Config
+        {
+            get
+            {
+                if (_scalusConfig == null)
+                {
+                    _scalusConfig = Load(_configFile);
+                }
+                return _scalusConfig;
+            }
+            set
+            {
+                _scalusConfig = value;
+            }
+        }
+
         public List<string> ValidationErrors { get; protected set;  }= new List<string>();
         protected string _configFile = ConfigurationManager.ScalusJson;
         protected ScalusConfigurationBase()
@@ -22,7 +39,6 @@ namespace scalus
 
         public ScalusConfig GetConfiguration()
         {
-            Config = Load(_configFile);
             return Config;
         }
 
