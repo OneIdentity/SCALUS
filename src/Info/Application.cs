@@ -146,10 +146,12 @@ namespace scalus.Info
    The following tokens can be used in the scalus configuration file. 
    Each token will be evaluated and replaced when launching the configured application.
 ");
-            foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
+            var tokenList = ((string[]) Enum.GetNames(typeof(ParserConfigDefinitions.Token))).ToList();
+            tokenList.Sort();
+            foreach (var one in tokenList)
             {
                 Console.WriteLine("   - {0,-10} : {1}", one,
-                    ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token) one]);
+                    ParserConfigDefinitions.TokenDescription[Enum.Parse<ParserConfigDefinitions.Token>(one, true)]);
             }
 
         }

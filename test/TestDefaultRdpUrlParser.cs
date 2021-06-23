@@ -199,6 +199,19 @@ namespace scalus.Test
             Assert.Equal("myhost", dictionary[Token.Host]);
 
         }
-        
+        [Fact]
+        public void Test6()
+        {
+            var sut = new UrlParser.UrlParser(new Dto.ParserConfig());
+            var dictionary=sut.Parse("customprotocol://user:password@www.myhost.com:111/mylocation");
+            Assert.Equal("customprotocol://user:password@www.myhost.com:111/mylocation", dictionary[Token.OriginalUrl]);
+            Assert.Equal("user:password@www.myhost.com:111/mylocation", dictionary[Token.RelativeUrl]);
+            Assert.Equal("customprotocol", dictionary[Token.Protocol]);
+            Assert.Equal("user:password", dictionary[Token.User]);
+            Assert.Equal("www.myhost.com", dictionary[Token.Host]);
+            Assert.Equal("mylocation", dictionary[Token.Path]);
+            Assert.Equal("111", dictionary[Token.Port]);
+
+        }
     }
 }
