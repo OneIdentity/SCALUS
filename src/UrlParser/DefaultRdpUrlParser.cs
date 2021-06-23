@@ -75,7 +75,7 @@ namespace scalus.UrlParser
                     }
                     else if (key.Equals(UsernameKey))
                     {
-                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.Host, UriFormat.SafeUnescaped)}");
+                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.UserInfo, UriFormat.SafeUnescaped)}");
 
                     }
                     else {

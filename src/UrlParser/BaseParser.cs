@@ -209,6 +209,11 @@ namespace scalus.UrlParser
 
                     newlines.Add(newline);
                 }
+                var dir = Path.GetDirectoryName(tempFile);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
                 File.WriteAllText(tempFile, string.Join(Environment.NewLine, newlines));
                 Dictionary[Token.GeneratedFile] = tempFile;
                 _fileProcessorArgs = new List<string>();
