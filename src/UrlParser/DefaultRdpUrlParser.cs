@@ -112,7 +112,7 @@ namespace scalus.UrlParser
         {
             {"full address", ":s:%Host%"},
             {"username", ":s:%user%"},
-            {"screen mode id", ":i:2"},
+            {"screen mode id", ":i:1"},
             {"use multimon", ":i:0"},
             {"desktopwidth", ":i:1024"},
             {"desktopheight", ":i:768"},
@@ -172,7 +172,7 @@ namespace scalus.UrlParser
             {"selectedmonitors", ":s:"},
             {"maximizetocurrentdisplays", ":i:0"},
             {"singlemoninwindowedmode", ":i:0"},
-            {"smart sizing", ":i:0"},
+            {"smart sizing", ":i:1"},
             {"dynamic resolution", ":i:1"},
             {"desktop size id", ":i:1"},
             {"desktopscalefactor", ":i:100"},

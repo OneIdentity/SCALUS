@@ -222,9 +222,13 @@ Task("OsxInstall")
 
 		var resourceDir = scalusappdir + "/Contents/Resources/examples";
 		CopyDirectory(exdir, resourceDir);
-		var zipfile= outputdir +  "/scalus-" + Version + "_" + runtime + ".tar.gz";
+		var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
 		Information( "Building " + runtime + " zipfile: " + zipfile);
 		GZipCompress(tmpdir, zipfile);
+		DeleteDirectory(tmpdir, new DeleteDirectorySettings {
+	    		Recursive = true,
+	    		Force = true
+		});
 	});
 
 Task("LinuxInstall")
@@ -248,7 +252,7 @@ Task("LinuxInstall")
 		var to = examples + "/scalus.json";
 		CopyFile(from, to);
 
-		var zipfile= outputdir +  "/scalus-" + Version + "_" + runtime + ".tar.gz";
+		var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
 		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
 		{
     			BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);

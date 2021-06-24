@@ -1,63 +1,34 @@
 # SCALUS - Session Client Application Launch Uri System
 
-This is a proxy/dispatcher for URI protocol handlers. A URL protocol is the part of the url before the : for example http or https are URL protocols.  Specifically, SCALUS is intended to handle protocols like ssh or rdp but it can be used for any protocol. SCALUS lets you register URL protocols and allows you to configure other programs to launch to handle those URLS. The configuration allows you to define variables that pull their values from parts of the URL and those can be passed on the command line or via config file to tools like ssh, rdesktop, RdpClient, FreeRDP etc.
+This is a proxy/dispatcher for URI protocol handlers. A URL protocol is the part of the url before the : for example http or https are URL protocols.  Specifically, SCALUS is intended to handle protocols like ssh or rdp but it can be used for any protocol. SCALUS lets you register a URL protocol with the underlying operating system and allows you to configure other programs to launch to handle that URL. 
+The configuration allows you to define variables that pull their values from parts of the URL and those can be passed on the command line or via a configuration file to tools like ssh, rdesktop, RdpClient, FreeRDP etc.
 
-# Using SCALUS
-First, register SCALUS to handle the URL protocols you are interested in (you should be administrator for this part):
+# Downloading SCALUS
+Download the release version of scalus for your platform.
 
-```
-scalus.exe register -p rdp ssh
-```
+* Windows :  `scalus-setup-_version_-win-x64.msi` 
+* Linux : `scalus-_version_-linux-x64.tar.gz`
+* Mac OSX : `scalus-_version_-osx-x64.pkg`
 
-Next, configure SCALUS to launch a remote session app for the protocol:
+# Installing SCALUS
 
-```
-scalus.exe ui
-```
+* Windows     
+     
+    Run the msi installer, which installs to _C:/program files/scalus_ and creates a Scalus link from the start menu.    
+    Run the ScalusUI to configure scalus.     
+	    
+* Linux    
 
-This will launch the configuration UI in your browser, but the scalus.json configuration file contains all the details.
+    Run the following command to install to the selected installdir (this also creates a link to the scalus program from /usr/bin):    
+    `sudo /bin/sh "-c mkdir -p _installdir_; tar xf _tarfile_ -C _installdir_; _installdir_/setup.sh"`    
+     
+    To start the UI, run  `/usr/bin/scalus ui`    
+			  
+* Mac OSX
+	    
+    Install the scalus.app application from the downloaded package file  e.g.     
+    `installer -pkg scalus-_version__osx-x64.pkg -target /`    
 
-That's it. Now when something (like your browser) launches a URL with one of the registered protocols it will automatically trigger the configured application. You can test it this way:
+    To start the UI, run `/Applications/scalus.app/Contents/MacOS/scalus ui`    
 
-```
-explorer.exe rdp://123.45.6.7/test/url
-```
-
-Uninstall with:
-```
-scalus.exe unregister -p rdp ssh
-```
-
-
-# Configure Firefox to allow SSH protocol handlers:
-
-Navigate to about:config
-
-Paste these values, click + to add them as BOOL and make sure the value is true:
-```
-network.protocol-handler.external.ssh
-network.protocol-handler.expose.ssh
-```
-Paste these values, click + to add them as BOOL and make sure the value is false:
-```
-network.protocol-handler.warn-external.ssh
-```
-
-# Manual registration on Ubuntu
-
-Run these commands from bash prompt:
-```
-cat << EOF > ~/.local/share/applications/scalus.desktop
-[Desktop Entry]
-Name=SCALUS
-Comment=Session URL Launcher Utility
-Exec=/usr/bin/dotnet /<path to SCALUS>/scalus.dll launch -u %u
-Terminal=false
-Type=Application
-MimeType=x-scheme-handler/ssh;x-scheme-handler/rdp;x-scheme-handler/telnet
-EOF
-
-xdg-mime default scalus.desktop x-scheme-handler/rdp
-xdg-mime default scalus.desktop x-scheme-handler/ssh
-xdg-mime default scalus.desktop x-scheme-handler/telnet
-```
+    The readme and examples can be found in _/Applications/scalus.app/Contents/Resources/examples_    

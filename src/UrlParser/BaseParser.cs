@@ -73,43 +73,48 @@ namespace scalus.UrlParser
 
         public virtual void PostExecute(Process process)
         {
-            if(Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforexit.ToString(), StringComparison.OrdinalIgnoreCase)))
+            var time = 0;
+            if (Config.Options == null || Config.Options.Count == 0)
             {
-                Log.Information($"post processing - wait for exit");
-                process.WaitForExit();
+                time = 10;
             }
-            else if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforinputidle.ToString(), StringComparison.OrdinalIgnoreCase)))
-            {
-                Log.Information($"post processing - wait for inputidle");
-                process.WaitForInputIdle();
-            }
-            else
-            {
-                var time = 0;
-                var wait = Config.Options.FirstOrDefault(x =>
-                    x.StartsWith($"{ProcessingOptions.wait}", StringComparison.OrdinalIgnoreCase));
-                if (!string.IsNullOrEmpty(wait))
+            else {
+                if(Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforexit.ToString(), StringComparison.OrdinalIgnoreCase)))
                 {
-                    if (wait.Equals($"{ProcessingOptions.wait}", StringComparison.OrdinalIgnoreCase))
+                    Log.Information($"post processing - wait for exit");
+                    process.WaitForExit();
+                }
+                else if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforinputidle.ToString(), StringComparison.OrdinalIgnoreCase)))
+                {
+                    Log.Information($"post processing - wait for inputidle");
+                    process.WaitForInputIdle();
+                }
+                else
+                {
+                    time = 10;
+                    var wait = Config.Options.FirstOrDefault(x =>
+                        x.StartsWith($"{ProcessingOptions.wait}", StringComparison.OrdinalIgnoreCase));
+                    if (!string.IsNullOrEmpty(wait))
                     {
-                        time = 20;
-
-                    }
-                    else
-                    {
-                        var parts = wait.Split(":");
-                        if (parts.Length > 1)
+                        if (wait.Equals($"{ProcessingOptions.wait}", StringComparison.OrdinalIgnoreCase))
                         {
-                            int.TryParse(parts[1], out time);
+                            time = 0;
+                        }
+                        else
+                        {
+                            var parts = wait.Split(":");
+                            if (parts.Length > 1)
+                            {
+                                int.TryParse(parts[1], out time);
+                            }
                         }
                     }
                 }
-                if (time > 0)
-                {
-                    Log.Information($"post processing - waiting for {time} seconds");
-
-                    Task.Delay(time * 1000).Wait();
-                }
+            }
+            if (time > 0)
+            {
+                Log.Information($"post processing - waiting for {time} seconds");
+                Task.Delay(time * 1000).Wait();
             }
 
             if (process.HasExited)
@@ -374,7 +379,7 @@ namespace scalus.UrlParser
             var newargs = new List<string>();
             foreach (var arg in args)
             {
-                var newarg = ReplaceTokens(arg);
+                var newarg = ReplaceTokens(arg.Trim());
                 newargs.Add(newarg);
             }
             return newargs;

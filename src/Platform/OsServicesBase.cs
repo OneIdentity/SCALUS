@@ -48,7 +48,7 @@ namespace scalus.Platform
             };
             foreach (var arg in args)
             {
-                startupInfo.ArgumentList.Add(arg);
+                startupInfo.ArgumentList.Add(arg.Trim());
             }
             Log.Logger.Information($"Running process:{command} with args:{string.Join(' ', args)}");
             var process = Process.Start(startupInfo);
