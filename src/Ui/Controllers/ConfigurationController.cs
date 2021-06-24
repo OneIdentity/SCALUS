@@ -78,7 +78,7 @@ namespace scalus.Ui.Controllers
                     !Registration.IsRegistered(one.Protocol))
                 {
                     var protocols = new List<string> { one.Protocol };
-                    Registration.Register(protocols);
+                    Registration.Register(protocols, true);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace scalus.Ui.Controllers
             var tokens = new Dictionary<string, string>();
             foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
             {
-                tokens.Add(one.ToString()!, ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
+                tokens.Add("%" +one.ToString()! + "%", ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
             }
             return Ok(tokens);
         }

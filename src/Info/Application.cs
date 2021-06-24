@@ -150,7 +150,7 @@ namespace scalus.Info
             tokenList.Sort();
             foreach (var one in tokenList)
             {
-                Console.WriteLine("   - {0,-10} : {1}", one,
+                Console.WriteLine("   - {0,-10} : {1}", "%"+ one + "%",
                     ParserConfigDefinitions.TokenDescription[Enum.Parse<ParserConfigDefinitions.Token>(one, true)]);
             }
 

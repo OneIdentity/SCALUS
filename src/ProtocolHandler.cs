@@ -66,7 +66,7 @@ namespace scalus
                 Parser.PreExecute(OsServices);           
                 var args = Parser.ReplaceTokens(ApplicationConfig.Args);
 
-                var cmd = Parser.ReplaceTokens(ApplicationConfig.Exec);
+                var cmd = Parser.ReplaceTokens(ApplicationConfig.Exec.Trim());
                 Serilog.Log.Debug($"Starting external application: '{cmd}' with args: '{string.Join(',', args)}'");
                 if (!File.Exists(cmd))
                 {

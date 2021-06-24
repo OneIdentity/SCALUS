@@ -64,10 +64,10 @@ while(( "$#" )); do
 done
   
 appid="com.oneidentity.${appname}.macos"
-pkgname="${appname}-${version}_${runtime}.pkg"
+pkgname="${appname}-${version}-${runtime}.pkg"
 pkgfile="${outpath}/${pkgname}"
 
-pkgtar="${appname}-${version}_${runtime}.tar.gz"
+pkgtar="${appname}-${version}-${runtime}.tar.gz"
 pkgtarfile="${outpath}/${pkgtar}"
 
 
@@ -218,7 +218,7 @@ function build_package()
 	mv ${expdir}/Distribution2 ${expdir}/Distribution
 	
 	pkgutil --flatten ${expdir} ${pkgfile}
-        rm -rf ${tmpdir}/${appname}.app
+        rm -rf ${tmpdir}
         rm -rf ${expdir}
 }
 make_app

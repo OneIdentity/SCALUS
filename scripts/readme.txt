@@ -18,12 +18,15 @@ The configuration file allows you to use tokens that pull their values from part
 of available tokens, run "scalus info -t"
 
  - To view or edit the current configuration:
-    - Run the scalus UI 
-    - From the commandline, view the current configuration by running:
+    - Start the scalusUI from the desktop link, or from the command line by running &"C:/program files/scalus/scalus.exe" ui 
+    - From the commandline, view the registered protocols by running:
      	scalus info
 
  - To test the current scalus configuration, run:
-        scalus launch -u <URL>
+        scalus launch -u <URL> [-p]
+
+ - To syntax check the scalus configuration file, run:
+        scalus verify
 
  - To register the current scalus.json configuration with the OS, run:
  	scalus register [-p protocol]
