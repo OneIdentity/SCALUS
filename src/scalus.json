@@ -13,7 +13,7 @@
   "Applications": [
     {
       "Id": "windows-rdp",
-      "Description": "Windows RDP Client",
+      "Description": "Run MS Windows RDP Client with a default connection file, which can be customized by the examplePlugin.pl perl script ",
       "Name": "Windows RDP Client",
       "Platforms": [ "Windows" ],
       "Protocol": "rdp",
@@ -30,7 +30,7 @@
     },
     {
       "Id": "windows-rdp-withtemplate",
-      "Description": "Windows RDP Client",
+      "Description": "Run MS Windows RDP Client with a user-supplied connection file: exampleRdpTemplate.rdp",
       "Name": "Windows RDP Client with template",
       "Platforms": [ "Windows" ],
       "Protocol": "rdp",
@@ -45,7 +45,7 @@
 
     {
       "Id": "freerdp",
-      "Description": "FreeRDP",
+      "Description": "Run FreeRdp client with the supplied connection settings",
       "Name": "FreeRDP",
       "Platforms": [ "Linux" ],
       "Protocol": "rdp",
@@ -58,7 +58,7 @@
     },
     {
       "Id": "windows-openssh",
-      "Description": "Windows OpenSSH",
+      "Description": "Run the Windows OpenSSH client. An auth key can be provided by adding the '-i, keypath' arguments.",
       "Name": "Windows OpenSSH",
       "Platforms": [ "Windows" ],
       "Protocol": "ssh",
@@ -67,13 +67,13 @@
         "Options": []
       },
       "Exec": "C:\\windows\\system32\\cmd.exe",
-      "Args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe", "%User%@%Host%" ]
+      "Args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe -l %User% %Host%" ]
     },
 
     {
       "Id": "gnome-terminal-ssh",
       "Name": "Gnome Terminal SSH",
-      "Description": "Open Gnome Terminal on Linux with the SSH connection information",
+      "Description": "Run Open Gnome Terminal on Linux to connect to SSH. An SSH key can be provided by adding the '-i, keyfile' args",
       "Platforms": [ "Linux" ],
       "Protocol": "ssh",
       "Parser": {
@@ -81,13 +81,13 @@
         "Options": []
       },
       "Exec": "/usr/bin/gnome-terminal",
-      "Args": [ "-x", "ssh", "-t", "%User%@%Host%" ]
+      "Args": [ "-x", "ssh", "-t", "-l", "%User%", "%Host%" ]
     },
 
     {
       "Id": "mac-ssh",
       "Name": "MAC TerminalSSH",
-      "Description": "Open Terminal on Mac OS with the SSH connection information",
+      "Description": "Run Open Terminal on Mac OS with the SSH connection information",
       "Platforms": [ "Mac" ],
       "Protocol": "ssh",
       "Parser": {
@@ -100,7 +100,7 @@
     {
       "Id": "mac-rdp",
       "Name": "Mac RDP",
-      "Description": "Run MS Windows RDP on MAC",
+      "Description": "Run MS Windows RDP on MAC using default connection settings",
       "Platforms": [ "Mac" ],
       "Protocol": "rdp",
       "Parser": {
@@ -118,7 +118,7 @@
 
     {
       "Id": "putty-ssh",
-      "Description": "Putty client",
+      "Description": "Run the Putty client to connect using SSH. An SSH key can be provided by adding the '-i, keyfile' args",
       "Name": "Putty",
       "Platforms": [ "Windows" ],
       "Protocol": "ssh",
@@ -131,7 +131,7 @@
     },
     {
       "Id": "putty-telnet",
-      "Description": "Putty client",
+      "Description": "Run the Putty client to connect using telnet",
       "Name": "Putty Telnet",
       "Platforms": [ "Windows" ],
       "Protocol": "telnet",
@@ -144,7 +144,7 @@
     },
     {
       "Id": "remmina-rdp",
-      "Description": "Use remmina client on linux",
+      "Description": "Run Remmina client on linux to connect to RDP using a user-supplied template:rdp.remmina",
       "Name": "remmina Rdp client",
       "Platforms": [ "Linux" ],
       "Protocol": "rdp",
@@ -158,7 +158,7 @@
     },
     {
       "Id": "remmina-ssh",
-      "Description": "Use remmina client on ubuntu",
+      "Description": "Run Remmina client on Linux to connect to SSH using a user-supplied template:ssh.remmina",
       "Name": "remmina SSH client",
       "Platforms": [ "Linux" ],
       "Protocol": "ssh",
