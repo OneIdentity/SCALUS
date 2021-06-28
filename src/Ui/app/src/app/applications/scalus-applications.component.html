@@ -1,7 +1,10 @@
 <div class="container">
 
+    <div class="header">
+        <mat-toolbar>Applications</mat-toolbar>
+    </div>
+
     <div class='content'>
-        
         <mat-accordion class="applications">
             <mat-expansion-panel class="application" *ngFor="let a of applications">
             <mat-expansion-panel-header>
@@ -123,11 +126,9 @@
                 </div>
             </mat-expansion-panel>
         </mat-accordion>
-
     </div>
 
     <div class="footer">
-        
         <div class="row-reverse">
             <button mat-flat-button color="primary" style="margin-left: 10px;"
               (click)="cancel()">Cancel</button>
@@ -136,7 +137,6 @@
             <button mat-flat-button color="primary" 
               (click)="add()">Add</button>
         </div>
-        
     </div>
     
 </div>

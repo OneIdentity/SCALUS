@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { EuiSidesheetService, EuiSidesheetConfig } from '@elemental-ui/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay, Platform } from './api/api.service';
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
@@ -33,7 +32,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private sidesheetService: EuiSidesheetService,
     private matDialog: MatDialog,) {
   }
 
@@ -230,12 +228,12 @@ export class AppComponent implements OnInit {
       descriptions: this.applicationDescriptions,
       tokens: this.tokens
     };
-    const config: EuiSidesheetConfig = {
-      title: 'Applications',
-      testId: 'applications-sidesheet',
+
+    var ref = this.matDialog.open(ScalusApplicationsComponent, {
+      width: '100%',
+      height: '100%',
       data: applicationData
-    };
-    var ref = this.sidesheetService.open(ScalusApplicationsComponent, config);
+    });
     ref.afterClosed().subscribe(
       () => {
         this.loadConfig(this.config, this.registrations);

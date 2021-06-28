@@ -16,17 +16,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from "@angular/forms";
-import { EuiCoreModule } from '@elemental-ui/core';
-import { ScalusApplicationsModule } from './applications/scalus-applications.module';
+import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
+import { ScalusApplicationsTokensDialogComponent } from './applications/tokens/scalus-applications-tokens-dialog.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ScalusApplicationsComponent,
+    ScalusApplicationsTokensDialogComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    EuiCoreModule,
     HttpClientModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -40,8 +41,7 @@ import { ScalusApplicationsModule } from './applications/scalus-applications.mod
     MatTooltipModule,
     MatTableModule,
     MatDialogModule,
-    FormsModule,
-    ScalusApplicationsModule
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
