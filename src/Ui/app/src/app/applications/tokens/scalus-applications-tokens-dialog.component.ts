@@ -4,7 +4,7 @@ import { TokenDisplay } from '../../api/api.service';
 
 @Component({
   selector: 'applications-tokens-dialog',
-  templateUrl: 'scalus-applications-tokens-dialog.component.html',
+  templateUrl: './scalus-applications-tokens-dialog.component.html'
 })
 export class ScalusApplicationsTokensDialogComponent {
 

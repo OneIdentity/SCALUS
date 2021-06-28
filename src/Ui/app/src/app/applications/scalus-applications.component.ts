@@ -1,7 +1,6 @@
 import { Component, OnInit, Inject, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService, ScalusConfig, ApplicationConfig, ApplicationConfigDisplay, ParserConfig, ParserConfigDisplay, Platform } from '../api/api.service';
-import { EuiSidesheetService, EUI_SIDESHEET_DATA } from '@elemental-ui/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ScalusApplicationsTokensDialogComponent } from "./tokens/scalus-applications-tokens-dialog.component";
 import { ErrorDialogComponent } from '../error/error-dialog.component';
 
@@ -22,13 +21,13 @@ export class ScalusApplicationsComponent implements OnInit {
   tokens: object;
 
   constructor(private apiService: ApiService,
-    private sidesheetService: EuiSidesheetService,
     private matDialog: MatDialog,
-    @Inject(EUI_SIDESHEET_DATA) public sidesheetdata?: any) {
+    private dialogRef: MatDialogRef<ScalusApplicationsComponent>,
+    @Inject(MAT_DIALOG_DATA) public data?: any) {
       
-      this.config = <ScalusConfig>sidesheetdata.config;
-      this.descriptions = sidesheetdata.descriptions;
-      this.tokens = sidesheetdata.tokens;
+      this.config = <ScalusConfig>data.config;
+      this.descriptions = data.descriptions;
+      this.tokens = data.tokens;
       
       var apps = new Array();
       this.config.applications.slice().forEach(ac => {
@@ -80,7 +79,7 @@ export class ScalusApplicationsComponent implements OnInit {
         {
           this.apiService.setConfig(this.config).subscribe(
           x => {
-            this.sidesheetService.close();
+            this.dialogRef.close();
           }, 
           error => {
             this.showError("Failed to save configuration.");
@@ -97,7 +96,7 @@ export class ScalusApplicationsComponent implements OnInit {
   }
 
   cancel() {
-    this.sidesheetService.close();
+    this.dialogRef.close();
   }
 
   showError(msg: string) {
