@@ -65,12 +65,13 @@ namespace scalus
             return config;
         }
 
-        public (bool, ScalusConfig) Validate(string json)
+        public (bool, ScalusConfig) Validate(string json, bool strict = false)
         {
             var config = new ScalusConfig();
             var serializerSettings = new JsonSerializerSettings
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                MissingMemberHandling = strict ? MissingMemberHandling.Error: MissingMemberHandling.Ignore
             };
             ValidationErrors = new List<string>();
             try

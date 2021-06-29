@@ -27,7 +27,9 @@
 					<Component Id="ExampleFiles" Guid="1c2b8871-25c0-41a1-92f5-46104da2a0da" >
 							<File Id="eg1" Source="$(var.tmpdir)\examples\examplePlugin.pl" />
 							<File Id="eg2" Source="$(var.tmpdir)\examples\exampleRdpTemplate.rdp" />
-							<File Id="eg3" Source="$(var.sourcedir)\scalus.json" />
+							<File Id="eg3" Source="$(var.tmpdir)\examples\scalus.json" />
+							<File Id="eg4" Source="$(var.tmpdir)\examples\rdp.remmina" />
+							<File Id="eg5" Source="$(var.tmpdir)\examples\ssh.remmina" />
 					</Component>
 					</Directory>
 				</Directory>

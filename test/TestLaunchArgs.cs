@@ -197,7 +197,7 @@ namespace scalus.Test
         private void CheckJson(string json, int expErrors)
         {
             var apiConfig = new ScalusApiConfiguration(json);
-            apiConfig.Validate(json);
+            apiConfig.Validate(json, true);
             Assert.Equal( expErrors, apiConfig.ValidationErrors.Count);
         }
 
@@ -330,12 +330,15 @@ namespace scalus.Test
 
         [Fact]
         public void TestInstalledJson()
-        {
-            string startupPath = Environment.CurrentDirectory;
-            var path = Path.Combine(startupPath, "scalus.json");
-            Assert.True(File.Exists(path));
-            var json = File.ReadAllText(path);
-            CheckJson(json, 0);
+        {            
+            var root = Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName, "scripts");
+            foreach(var dir in new string[] { "Win", "Linux", "Osx"})
+            { 
+                var path = Path.Combine(root, Path.Combine(dir, "scalus.json"));
+                Assert.True(File.Exists(path));
+                var json = File.ReadAllText(path);
+                CheckJson(json, 0);
+            }
         }
     }
 }
