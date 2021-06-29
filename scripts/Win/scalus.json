@@ -1,0 +1,176 @@
+{
+  "Protocols": [
+    {
+      "Protocol": "rdp",
+      "AppId": "windows-rdp"
+    },
+    {
+      "Protocol": "ssh",
+      "AppId": "windows-openssh"
+    },
+    {
+      "Protocol":  "telnet" 
+    }
+  ],
+  "Applications": [
+    {
+      "Id": "windows-rdp",
+      "Description": "Run MS Windows RDP Client with a default connection file, which can be customized by the examplePlugin.pl perl script ",
+      "Name": "Windows RDP Client",
+      "Platforms": [ "Windows" ],
+      "Protocol": "rdp",
+      "Parser": {
+        "ParserId": "rdp",
+        "Options": [ "waitForInputIdle" ],
+        "UseDefaultTemplate": true,
+        "PostProcessingExec": "C:/strawberry/perl/bin/perl.exe",
+        "PostProcessingArgs": [ "%AppData%/examplePlugin.pl" ]
+
+      },
+      "Exec": "C:\\windows\\system32\\mstsc.exe",
+      "Args": [ "%GeneratedFile%" ]
+    },
+    {
+      "Id": "windows-rdp-withtemplate",
+      "Description": "Run MS Windows RDP Client with a user-supplied connection file: exampleRdpTemplate.rdp",
+      "Name": "Windows RDP Client with template",
+      "Platforms": [ "Windows" ],
+      "Protocol": "rdp",
+      "Parser": {
+        "ParserId": "rdp",
+        "UseTemplateFile": "%AppData%\\exampleRdpTemplate.rdp",
+        "Options": [ "waitForInputIdle" ]
+      },
+      "Exec": "C:\\windows\\system32\\mstsc.exe",
+      "Args": [ "%GeneratedFile%" ]
+    },
+
+    {
+      "Id": "freerdp",
+      "Description": "Run FreeRdp client with the supplied connection settings",
+      "Name": "FreeRDP",
+      "Platforms": [ "Linux" ],
+      "Protocol": "rdp",
+      "Parser": {
+        "ParserId": "rdp",
+        "Options": []
+      },
+      "Exec": "/usr/bin/xfreerdp",
+      "Args": [ "/u:%User%", "/v:%host%:%Port%", "/p:Safeguard" ]
+    },
+    {
+      "Id": "windows-openssh",
+      "Description": "Run the Windows OpenSSH client. An auth key can be provided by adding the '-i, keypath' arguments.",
+      "Name": "Windows OpenSSH",
+      "Platforms": [ "Windows" ],
+      "Protocol": "ssh",
+      "Parser": {
+        "ParserId": "ssh",
+        "Options": []
+      },
+      "Exec": "C:\\windows\\system32\\cmd.exe",
+      "Args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe -l %User% %Host%" ]
+    },
+
+    {
+      "Id": "gnome-terminal-ssh",
+      "Name": "Gnome Terminal SSH",
+      "Description": "Run Open Gnome Terminal on Linux to connect to SSH. An SSH key can be provided by adding the '-i, keyfile' args",
+      "Platforms": [ "Linux" ],
+      "Protocol": "ssh",
+      "Parser": {
+        "ParserId": "ssh",
+        "Options": []
+      },
+      "Exec": "/usr/bin/gnome-terminal",
+      "Args": [ "-x", "ssh", "-t", "-l", "%User%", "%Host%" ]
+    },
+
+    {
+      "Id": "mac-ssh",
+      "Name": "MAC TerminalSSH",
+      "Description": "Run Open Terminal on Mac OS with the SSH connection information",
+      "Platforms": [ "Mac" ],
+      "Protocol": "ssh",
+      "Parser": {
+        "ParserId": "ssh",
+        "Options": [ "waitforexit" ]
+      },
+      "Exec": "/usr/bin/open",
+      "Args": [ "-b", "com.apple.terminal", "%OriginalURL%" ]
+    },
+    {
+      "Id": "mac-rdp",
+      "Name": "Mac RDP",
+      "Description": "Run MS Windows RDP on MAC using default connection settings",
+      "Platforms": [ "Mac" ],
+      "Protocol": "rdp",
+      "Parser": {
+        "ParserId": "rdp",
+        "UseDefaultTemplate": true,
+        "Options": [ "wait:60" ]
+      },
+      "Exec": "/usr/bin/open",
+      "Args": [
+        "-nb",
+        "com.microsoft.rdc.macos",
+        "%GeneratedFile%"
+      ]
+    },
+
+    {
+      "Id": "putty-ssh",
+      "Description": "Run the Putty client to connect using SSH. An SSH key can be provided by adding the '-i, keyfile' args",
+      "Name": "Putty",
+      "Platforms": [ "Windows" ],
+      "Protocol": "ssh",
+      "Parser": {
+        "ParserId": "ssh",
+        "Options": []
+      },
+      "Exec": "C:\\windows\\system32\\cmd.exe",
+      "Args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-ssh", "%user%@%host%" ]
+    },
+    {
+      "Id": "putty-telnet",
+      "Description": "Run the Putty client to connect using telnet",
+      "Name": "Putty Telnet",
+      "Platforms": [ "Windows" ],
+      "Protocol": "telnet",
+      "Parser": {
+        "ParserId": "telnet",
+        "Options": []
+      },
+      "Exec": "C:\\windows\\system32\\cmd.exe",
+      "Args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-telnet", "%user%@%host%" ]
+    },
+    {
+      "Id": "remmina-rdp",
+      "Description": "Run Remmina client on linux to connect to RDP using a user-supplied template:rdp.remmina",
+      "Name": "remmina Rdp client",
+      "Platforms": [ "Linux" ],
+      "Protocol": "rdp",
+      "Parser": {
+        "ParserId": "rdp",
+        "UseTemplateFile": "%AppData%/rdp.remmina",
+        "Options": [ "waitforexit" ]
+      },
+      "Exec": "/usr/bin/remmina",
+      "Args": [ "%GeneratedFile%" ]
+    },
+    {
+      "Id": "remmina-ssh",
+      "Description": "Run Remmina client on Linux to connect to SSH using a user-supplied template:ssh.remmina",
+      "Name": "remmina SSH client",
+      "Platforms": [ "Linux" ],
+      "Protocol": "ssh",
+      "Parser": {
+        "ParserId": "ssh",
+        "UseTemplateFile": "%AppData%/ssh.remmina",
+        "Options": [ "waitforexit" ]
+      },
+      "Exec": "/usr/bin/remmina",
+      "Args": [ "%GeneratedFile%" ]
+    }
+  ]
+}

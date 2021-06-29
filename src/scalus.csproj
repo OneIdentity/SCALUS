@@ -11,6 +11,11 @@
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64</RuntimeIdentifiers>
     <UserSecretsId>dc8f57ba-8a9d-40c4-bf34-a2ffba1ff687</UserSecretsId>
+    <Company>One Identity LLC</Company>
+    <Copyright>Copyright 2021 One Identity LLC</Copyright>
+    <Authors>One Identity</Authors>
+    <PackageProjectUrl>https://github.com/OneIdentity/SCALUS</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
     <!-- For a fancy windows implemenation that drops the console window...
     <OutputType>WinExe</OutputType>
     <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">

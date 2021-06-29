@@ -1,10 +1,12 @@
 {
   "Protocols": [
     {
-      "Protocol": "rdp"
+      "Protocol": "rdp",
+      "AppId": "mac-rdp"
     },
     {
-      "Protocol": "ssh"
+      "Protocol": "ssh",
+      "APpId": "mac-ssh"
     },
     {
       "Protocol":  "telnet" 

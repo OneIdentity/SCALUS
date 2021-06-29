@@ -56,10 +56,13 @@ Task("MsiInstaller")
 
 	var sourcedir = publishdir;
 	var msiPath=outputdir + "/scalus-setup-" + Version + "-" + runtime + ".msi";
-	CopyDirectory("scripts/Win", tmpdir);
+
+
 
 	var examples = tmpdir + "/examples";
 	CopyDirectory("scripts/examples", examples);
+	CopyFile("scripts/Win/scalus.json", examples + "/scalus.json");
+	CopyFile("scripts/Win/Product.wxs", tmpdir + "/Product.wxs");
 
 	var readme = tmpdir + "/readme.txt";
 	CopyFile("./scripts/readme.txt", readme);
@@ -97,12 +100,9 @@ Task("MsiInstaller")
     	});
 
 	var wobjFiles = GetFiles(tmpdir + "/*.wixobj");
-	//var culture = "en-us";
-	//var prodCulturePath = tmpdir + "/Product_" + culture + ".wxl";
 	WiXLight(wobjFiles, new LightSettings
 	{
 		Extensions = new[] { "WixUIExtension", "WixUtilExtension" },
-		//RawArguments = "-cultures:" + culture + " -loc " + prodCulturePath,
 		OutputFile = msiPath
 	});
 	if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
@@ -202,7 +202,6 @@ Task("OsxInstall")
 		ReplaceTextInFiles(exdir + "/readme.txt", "SCALUSVERSION", Version);
 
 
-		CopyFile(publishdir + "/scalus.json", exdir + "/scalus.json");
 		CopyFile(publishdir + "/appsettings.json", exdir + "/appsettings.json");
 		CopyFile(publishdir + "/web.config", exdir + "/web.config");
 
@@ -215,6 +214,8 @@ Task("OsxInstall")
 			CreateDirectory(scalusappdir); 
 		}
 		CopyDirectory("scripts/Osx/scalus.app", scalusappdir);
+
+		CopyFile("scripts/Osx/scalus.json", exdir + "/scalus.json");
 		CopyFile(publishdir + "/scalus", targetdir + "/scalus");
 
 
@@ -247,10 +248,6 @@ Task("LinuxInstall")
 		CopyFile("./scripts/readme.txt", readme);
 		ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
 		CopyDirectory("scripts/Linux", publishdir);
-
-		var from = publishdir + "/scalus.json";
-		var to = examples + "/scalus.json";
-		CopyFile(from, to);
 
 		var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
 		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
