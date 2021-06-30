@@ -63,7 +63,8 @@ namespace scalus.Test
         [Fact]
         public void Test1()
         {
-            var parser = new DefaultSshUrlParser(new Dto.ParserConfig(), SetupData());
+            using( var parser = new DefaultSshUrlParser(new Dto.ParserConfig(), SetupData()))
+            {
             var args = new List<string>()
             {
                 $"%{Token.Protocol}%",
@@ -151,7 +152,7 @@ namespace scalus.Test
             Assert.True(one.MoveNext());
             Assert.Equal("thisismyhosthide", one.Current);
             Assert.False(one.MoveNext());
-
+            }
         }
 
         [Fact]
@@ -325,8 +326,33 @@ namespace scalus.Test
                     }
 ";
             CheckJson(json, 1);
+
+            json = "{'Protocols':[{'Protocol':'one$'}]}";
+            CheckJson(json, 1);
         }
 
+         [Fact]
+        public void TestJson1()
+        {
+            var json = "{'Protocols':[{'Protocol':'one$'}]}";
+            CheckJson(json, 1);
+            json = "{'Protocols':[{'Protocol':'1one'}]}";
+            CheckJson(json, 1);
+            json = "{'Protocols':[{'Protocol':'one_'}]}";
+            CheckJson(json, 1);
+            json = "{'Protocols':[{'Protocol':'one-'}]}";
+            CheckJson(json, 0);
+            json = "{'Protocols':[{'Protocol':'one+'}]}";
+            CheckJson(json, 0);
+            json = "{'Protocols':[{'Protocol':'one.'}]}";
+            CheckJson(json, 0);
+            json = "{'Protocols':[{'Protocol':'one111'}]}";
+            CheckJson(json, 0);
+   
+           
+
+
+        }
 
         [Fact]
         public void TestInstalledJson()

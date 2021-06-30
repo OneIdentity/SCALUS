@@ -32,8 +32,8 @@ namespace scalus
                 var application = parser.Build(args, x =>
                 {
                     var type = x.GetType();
-                    var verb = type.GetCustomAttribute<VerbAttribute>().Name;
-                    return lifetimeScope.ResolveNamed<IApplication>(verb, new TypedParameter(type, x));
+                    var verb = type?.GetCustomAttribute<VerbAttribute>()?.Name;
+                    return verb == null ? null : lifetimeScope.ResolveNamed<IApplication>(verb, new TypedParameter(type, x));
                 });
 
                 // If application is null, then they ran help or version commands, just return

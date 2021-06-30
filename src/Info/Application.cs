@@ -53,37 +53,39 @@ namespace scalus.Info
 ");
             Console.WriteLine("     {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Configured Command");
             Console.WriteLine("     ------------------------------------------------------------------------------------------------");
-            if (config?.Protocols?.Count > 0)
+            if (config == null || config.Protocols == null || config.Protocols.Count == 0)
+                return;
+                
+            foreach (var one in config.Protocols)
             {
-                foreach (var one in config.Protocols)
+                if (one == null)
+                    continue;
+                Console.Write("     {0,-10} ", one.Protocol);
+                ApplicationConfig appConfig = null;
+                if (config.Applications?.Count > 0)
                 {
-                    Console.Write("     {0,-10} ", one.Protocol);
-                    ApplicationConfig appConfig = null;
-                    if (config?.Applications?.Count > 0)
-                    {
-                        foreach (var a in from a in config.Applications
-                            where a.Id == one.AppId
+                    foreach (var a in from a in config.Applications
+                        where a.Id == one.AppId
                             select a)
-                        {
-                            appConfig = a;
-                            break;
-                        }
-                    }
-
-                    if (appConfig != null)
                     {
-                        Console.Write("{0,-10} {1,-20} ({2} {3})",
-                            Registration.IsRegistered(one.Protocol) ? "yes" : "no", appConfig.Description,
-                            appConfig.Exec, string.Join(' ', appConfig.Args));
+                        appConfig = a;
+                        break;
                     }
-                    else
-                    {
-                        Console.Write("{0,-10} {1,-20}", Registration.IsRegistered(one.Protocol) ? "yes" : "no",
-                            "Not configured");
-                    }
-
-                    Console.WriteLine();
                 }
+
+                if (appConfig != null)
+                {
+                    Console.Write("{0,-10} {1,-20} ({2} {3})",
+                        Registration.IsRegistered(one.Protocol) ? "yes" : "no", appConfig.Description,
+                        appConfig.Exec, string.Join(' ', appConfig.Args));
+                }
+                else
+                {
+                    Console.Write("{0,-10} {1,-20}", Registration.IsRegistered(one.Protocol) ? "yes" : "no",
+                            "Not configured");
+                }
+
+                Console.WriteLine();
             }
         }
 

@@ -52,7 +52,7 @@ namespace scalus.Platform
             }
             Log.Logger.Information($"Running process:{command} with args:{string.Join(' ', args)}");
             var process = Process.Start(startupInfo);
-            Log.Logger.Information($"Started process, id:{process.Id}, exited:{process.HasExited}");
+            Log.Logger.Information($"Started process, id:{process?.Id}, exited:{process?.HasExited}");
             return process;
         }
         //execute a command, wait for it to end, return the exit code and retrieve the stdout & stderr
@@ -124,13 +124,19 @@ namespace scalus.Platform
                 File.WriteAllText(tempFile, message);
                 var l = File.ReadAllText(tempFile);
                 var process = OpenDefault(tempFile);
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                if (process == null)
                 {
-                    process.WaitForExit();
-                }
-                else
-                {
-                    Task.Delay(10* 1000).Wait();
+                    Log.Error($"Failed to report warning:{message}");
+                } 
+                else {
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        process.WaitForExit();
+                    }
+                    else
+                    {
+                        Task.Delay(10* 1000).Wait();
+                    }
                 }
             }
             catch (System.Exception ex)

@@ -15,9 +15,10 @@ namespace scalus.Util
 
         private static RegistryKey EnsurePath(string path)
         {
+            RegistryKey curKey = null;
             try
             {
-                var curKey = GetPrefix(ref path);
+                curKey = GetPrefix(ref path);
                 var parts = path.Split('\\');
 
                 foreach (var part in parts)
@@ -25,19 +26,36 @@ namespace scalus.Util
                     var key = curKey;
                     try
                     {
-                        curKey = key.CreateSubKey(part); // Try to create/open read/write
+                        curKey = key?.CreateSubKey(part); // Try to create/open read/write
                     }
-                    catch (UnauthorizedAccessException)
+                    catch (UnauthorizedAccessException e)
                     {
-                        curKey = key.OpenSubKey(part); // Try to open readonly
+                        Serilog.Log.Error(e, $"Failed to create registry key [{key}] [{part}]");
+                        curKey = key?.OpenSubKey(part); // Try to open readonly
+                        if (curKey == null)
+                            return null;
                     }
-                    if (curKey == null) return null;
+                    finally
+                    {
+                        if (curKey == null)
+                        {
+                            Serilog.Log.Warning($"Failed to create registry key [{key}] [{part}]");
+                        }
+                    }
                 }
-                return EnsureWritable(curKey); // Explicitly reopen with write access
+                return curKey == null ? null : EnsureWritable(curKey); // Explicitly reopen with write access
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Serilog.Log.Error(e, $"Failed to create registry key from path:{path}");
                 return null;
+            }
+            finally
+            {
+                if (curKey == null)
+                {
+                    Serilog.Log.Error($"Failed to create registry key from path:{path}");
+                }
             }
         }
 

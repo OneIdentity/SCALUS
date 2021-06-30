@@ -3,14 +3,15 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="*" UpgradeCode="$(var.ProductUpgradeCode)"
 		Name="scalus" Version="$(var.Version)" Manufacturer="One Identity" Language="1033">
-		<Package InstallerVersion="$(var.Minimum_Version)" Compressed="yes" Comments="Windows Installer Package" InstallScope="perMachine" />
+		<Package InstallerVersion="$(var.Minimum_Version)" Compressed="yes" Comments="Windows Installer Package" InstallScope="perMachine"/>
 		<Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
 
 		<Upgrade Id="$(var.ProductUpgradeCode)">
-			<UpgradeVersion Minimum="$(var.Version)" OnlyDetect="yes" Property="NEWERVERSIONDETECTED"/>
-			<UpgradeVersion Minimum="0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="no" Property="OLDERVERSIONBEINGUPGRADED"/>
+			<UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="no" Property="NEWERVERSIONDETECTED"/>
+			<UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes" Property="OLDERVERSIONBEINGUPGRADED"/>
 		</Upgrade>
 		<Condition Message="A newer version of this software is already installed.">NOT NEWERVERSIONDETECTED</Condition>
+    <MajorUpgrade AllowSameVersionUpgrades="yes" AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed. If you are sure you want to downgrade, remove the existing installation via Programs and Features." Schedule="afterInstallFinalize"/>
 
 		<WixVariable Id="WixUILicenseRtf" Value="$(var.tmpdir)\license.rtf" />
 
@@ -65,15 +66,11 @@
 		<Property Id="WixShellExecReadFile" Value="[#AppFile5]" />
 		<CustomAction Id="LaunchFile" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
 	
-
-		<InstallExecuteSequence>
-			<RemoveExistingProducts After="InstallValidate"/>
-		</InstallExecuteSequence>
-
 		<Feature Id="DefaultFeature" Level="1">
 			<ComponentRef Id="ApplicationFiles"/>
 			<ComponentRef Id="ExampleFiles"/>
 			<ComponentRef Id="ApplicationShortcuts"/>
 		</Feature>
+
 	</Product>
 </Wix>
