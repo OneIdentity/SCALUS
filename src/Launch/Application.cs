@@ -70,7 +70,7 @@ $@"[SCALUS]: Failed to launch registered URL handler.
 
   ApplicationId: {application?.Id ?? "<none>"}
   Command:       {application?.Exec ?? "<none>"}
-  Args:          {(application.Args != null ? string.Join(" ", application.Args) : "<none>")}
+  Args:          {(application?.Args != null ? string.Join(" ", application?.Args) : "<none>")}
 
   Config File:   {scalusJsonPath}  
 

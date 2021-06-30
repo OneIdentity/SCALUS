@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using scalus.Util;
+using System.Threading.Tasks;
 
 namespace scalus
 {
@@ -105,7 +106,7 @@ namespace scalus
         {
         }
 
-        public ScalusConfig SaveConfiguration(ScalusConfig configuration)
+        public List<string> SaveConfiguration(ScalusConfig configuration)
         {
             ValidationErrors = new List<string>();
 
@@ -125,7 +126,7 @@ namespace scalus
                 Serilog.Log.Error($"*** Validation errors: {string.Join(", ", ValidationErrors)}");
             }
 
-            return Config;
+            return ValidationErrors;
         }
 
 

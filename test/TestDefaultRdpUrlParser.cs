@@ -17,9 +17,8 @@ namespace scalus.Test
         {
             //Rdp string
             //full+address=s:host&username=s:safeguarduserstring
-            var sut = new DefaultRdpUrlParser(new Dto.ParserConfig());
-
-            
+            using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig()))
+            {            
             var prot="rdp";
             var host="10.5.32.168";
             var port="3389";
@@ -53,7 +52,7 @@ namespace scalus.Test
             Assert.Equal(uri, dictionary[Token.OriginalUrl]);
             Assert.Equal(str, dictionary[Token.RelativeUrl]);
             Assert.Equal(prot, dictionary[Token.Protocol]);
-
+            }
         }
 
         [Fact]
@@ -169,7 +168,7 @@ namespace scalus.Test
 
             //standard URI
             //myprot://myuser:mypass@myhost:2222/thisisapath?queryit#fragment
-            sut = new DefaultRdpUrlParser(new Dto.ParserConfig());
+            using (sut = new DefaultRdpUrlParser(new Dto.ParserConfig())) {
 
             str="myuser%5c:mypass@myhost:3456/thisisapath?queryit#fragment";
             var uri=$"myprot://{str}";
@@ -185,24 +184,25 @@ namespace scalus.Test
             Assert.Equal("queryit", dictionary[Token.Query]);
             Assert.Equal("fragment", dictionary[Token.Fragment]);          
             Assert.False(dictionary.ContainsKey(Token.GeneratedFile));
-
+            }
         }
         [Fact]
         public void Test5()
         {
-            var sut = new DefaultTelnetUrlParser(new Dto.ParserConfig());
+            using( var sut = new DefaultTelnetUrlParser(new Dto.ParserConfig())) {
             var dictionary=sut.Parse("tel://myuser@myhost");
             Assert.Equal("tel://myuser@myhost", dictionary[Token.OriginalUrl]);
             Assert.Equal("myuser@myhost", dictionary[Token.RelativeUrl]);
             Assert.Equal("tel", dictionary[Token.Protocol]);
             Assert.Equal("myuser", dictionary[Token.User]);
             Assert.Equal("myhost", dictionary[Token.Host]);
+            }
 
         }
         [Fact]
         public void Test6()
         {
-            var sut = new UrlParser.UrlParser(new Dto.ParserConfig());
+            using (var sut = new UrlParser.UrlParser(new Dto.ParserConfig())) {
             var dictionary=sut.Parse("customprotocol://user:password@www.myhost.com:111/mylocation");
             Assert.Equal("customprotocol://user:password@www.myhost.com:111/mylocation", dictionary[Token.OriginalUrl]);
             Assert.Equal("user:password@www.myhost.com:111/mylocation", dictionary[Token.RelativeUrl]);
@@ -211,6 +211,7 @@ namespace scalus.Test
             Assert.Equal("www.myhost.com", dictionary[Token.Host]);
             Assert.Equal("mylocation", dictionary[Token.Path]);
             Assert.Equal("111", dictionary[Token.Port]);
+            }
 
         }
     }

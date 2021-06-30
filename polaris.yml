@@ -8,9 +8,9 @@ project:
 capture:
   build:
     cleanCommands:
-    - shell: [powershell, ./build.ps1, "-Target clean"]
+    - shell: [powershell, "${project.projectDir}/build.ps1", "-Target clean"]
     buildCommands:
-    - shell: [powershell, ./build.ps1]
+    - shell: [powershell, "${project.projectDir}/build.ps1"]
   fileSystem:
     ears:
       extensions: [ear]

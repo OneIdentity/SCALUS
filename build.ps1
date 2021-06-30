@@ -143,9 +143,10 @@ if (!(Test-Path $CAKE_EXE)) {
 [System.Net.ServicePointManager]::SecurityProtocol = $previousSecurityProtocol
 
 
+$scpt="${PSScriptRoot}/${Script}"
 
 # Build Cake arguments
-$cakeArguments = @("$Script");
+$cakeArguments = @("$scpt");
 if ($Target) { $cakeArguments += "--target=$Target" }
 if ($Configuration) { $cakeArguments += "--configuration=$Configuration" }
 if ($Version) { $cakeArguments += "--version=$Version" }
@@ -157,6 +158,6 @@ if ($Pre) { $cakeArguments += "--pre=true" }
 $cakeArguments += $ScriptArgs
 
 # Start Cake
-Write-Host "Running build script..."
+Write-Host "Running build script for Scalus..."
 &$CAKE_EXE $cakeArguments
 exit $LASTEXITCODE

@@ -23,21 +23,22 @@ namespace scalus
 
         public IApplication Build(string[] args, Func<object, IApplication> appResolver)
         {
-            var parser = new CommandLine.Parser(with => {
+            using (var parser = new CommandLine.Parser(with => {
                 with.HelpWriter = null;
-            });
+            })) 
+            {
+                var verbTypes = Verbs.Select(x => x.GetType()).OrderBy(x => x?.GetCustomAttribute<VerbAttribute>()?.Name)?.ToArray(); 
+                var parserResult = parser.ParseArguments(args, verbTypes);
 
-            var verbTypes = Verbs.Select(x => x.GetType()).OrderBy(x => x.GetCustomAttribute<VerbAttribute>().Name).ToArray(); 
-            var parserResult = parser.ParseArguments(args, verbTypes);
-
-            IApplication application = null;
-            parserResult
-                .WithParsed(x => 
-                    { 
-                        application = appResolver(x);
-                    })
-                .WithNotParsed(x => HandleErrors(parserResult, x));
-            return application;
+                IApplication application = null;
+                parserResult
+                    .WithParsed(x => 
+                        { 
+                            application = appResolver(x);
+                        })
+                    .WithNotParsed(x => HandleErrors(parserResult, x));
+                return application;
+            }
         }
 
         static void HandleErrors<T>(ParserResult<T> parserResult, IEnumerable<Error> errs)
@@ -48,7 +49,7 @@ namespace scalus
             // Handle version 
             if (errs.IsVersion())
             {
-                Console.WriteLine($"{header}\r\n{copyright}\r\nVersion: {Assembly.GetEntryAssembly().GetName().Version}\r\n");
+                Console.WriteLine($"{header}\r\n{copyright}\r\nVersion: {Assembly.GetEntryAssembly()?.GetName()?.Version}\r\n");
                 return;
             }
 

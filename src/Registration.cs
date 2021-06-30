@@ -22,6 +22,12 @@ namespace scalus
 
         public bool IsRegistered(string protocol, bool useSudo = false)
         {
+            if (!ProtocolMapping.ValidateProtocol(protocol, out string err))
+            {
+                Serilog.Log.Error($"Invalid protocol:{protocol}");
+                UserInteraction.Message($"{protocol}: The protocol is invalid.");
+                return false;
+            }
             var registered = true;
             foreach (var registrar in Registrars)
             {
@@ -37,10 +43,16 @@ namespace scalus
         public bool Register(IEnumerable<string> protocols, bool force, bool rootMode = false, bool useSudo=false)
         {
             var retval = false;
-
             foreach (var protocol in protocols)
             {
                 retval = true;
+                if (!ProtocolMapping.ValidateProtocol(protocol, out string err))
+                {
+                    retval = false;
+                    Serilog.Log.Error($"{err}");
+                    UserInteraction.Message($"{protocol}: {err}");
+                    continue;
+                }
 
                 foreach (var registrar in Registrars)
                 {
@@ -89,6 +101,13 @@ namespace scalus
         {
             foreach (var protocol in protocols)
             {
+                if (!ProtocolMapping.ValidateProtocol(protocol, out string err))
+                {
+                    Serilog.Log.Error($"{err}");
+                    UserInteraction.Message($"{protocol}: {err}");
+                    continue;
+                }
+
                 foreach (var registrar in Registrars)
                 {
                     if (rootMode)

@@ -1,13 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 namespace scalus.Dto
 {
     public class ProtocolMapping
     {
+        public static bool ValidateProtocol(string val, out string err)
+        {
+            err=null;
+            if (string.IsNullOrEmpty(val))
+            {
+                err =("Protocol name must be configured");
+                return false;
+            }
+            if (Regex.IsMatch(val, "^[a-zA-Z][a-zA-Z0-9-+.]+$"))
+            {
+                return true;
+            }
+            err =($"Protocol name contains invalid chars:{val}");
+            return false;
+        }
+
         [JsonRequired]
-        public string Protocol { get; set; }
+        public string Protocol { get;set; }
         public string AppId { get; set; }
 
         private static readonly Dictionary<string, string> _dtoPropertyDescription = new Dictionary<string, string>
@@ -20,9 +37,9 @@ namespace scalus.Dto
 
         public void Validate(List<string> errors)
         {
-            if (string.IsNullOrEmpty(Protocol))
+            if (!ValidateProtocol(Protocol, out string err))
             {
-                errors.Add("Protocol name must be configured");
+                errors.Add(err);
             }
         }
     }

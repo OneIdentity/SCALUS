@@ -83,6 +83,11 @@ namespace scalus
                     return;
                 }
                 var process = OsServices.Execute(cmd, args);
+                if (process == null)
+                {
+                    Serilog.Log.Error("Failed to create process for cmd:{cmd}");
+                    throw new Exception($"Failed to create process for cmd:{cmd}");
+                }
                 Serilog.Log.Debug("Post execute starting.");
                 
                 Parser.PostExecute(process);

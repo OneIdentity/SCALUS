@@ -39,13 +39,15 @@ namespace scalus.Ui.Controllers
         }
         
         [HttpPut]
-        public void Post([FromBody] ScalusConfig value)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult Post([FromBody] ScalusConfig value)
         {
-            Configuration.SaveConfiguration(value);
-            if (Configuration.ValidationErrors?.Count > 0)
+            var errs = Configuration.SaveConfiguration(value);
+            if (errs?.Count > 0)
             {
-                throw new Exception("Invalid configuration");
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
+            return Ok();
         }
 
         [HttpGet, Route("Registrations")]
@@ -69,33 +71,41 @@ namespace scalus.Ui.Controllers
         }
 
         [HttpPut, Route("Register")]
-        public void Register([FromBody] ProtocolMapping protocolMapping)
-        {
-            var config = Configuration.GetConfiguration();
-            foreach (var one in config.Protocols)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult Register([FromBody] ProtocolMapping protocolMapping)
+        { 
+            if (!ProtocolMapping.ValidateProtocol(protocolMapping.Protocol, out string err))
             {
-                if (one.Protocol.Equals(protocolMapping.Protocol) &&
-                    !Registration.IsRegistered(one.Protocol))
-                {
-                    var protocols = new List<string> { one.Protocol };
-                    Registration.Register(protocols, true);
-                }
+                Serilog.Log.Error($"Cannot register invalid protocol:{protocolMapping.Protocol}:{err}");
+                return BadRequest();
             }
+            if (Registration.IsRegistered(protocolMapping.Protocol))
+            {
+                return Ok();
+            }
+            if (Registration.Register(new List<string> { protocolMapping.Protocol }, true))
+                return Ok();
+            Serilog.Log.Error($"Cannot register {protocolMapping.Protocol} :  registration reported failure");
+            return UnprocessableEntity();         
         }
 
         [HttpPut, Route("UnRegister")]
-        public void UnRegister([FromBody] ProtocolMapping protocolMapping)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult UnRegister([FromBody] ProtocolMapping protocolMapping)
         {
-            var config = Configuration.GetConfiguration();
-            foreach (var one in config.Protocols)
+            if (!ProtocolMapping.ValidateProtocol(protocolMapping.Protocol, out string err))
             {
-                if (one.Protocol.Equals(protocolMapping.Protocol) &&
-                    Registration.IsRegistered(one.Protocol))
-                {
-                    var protocols = new List<string> { one.Protocol };
-                    Registration.UnRegister(protocols);
-                }
+                Serilog.Log.Error($"Cannot register invalid protocol:{protocolMapping.Protocol}:{err}");
+                return BadRequest();
             }
+            if (!Registration.IsRegistered(protocolMapping.Protocol))
+            {
+                return Ok();
+            }
+            if (Registration.UnRegister(new List<string> { protocolMapping.Protocol }))
+                return Ok();
+            Serilog.Log.Error($"Protocol: {protocolMapping.Protocol} -deregistration reported failure");
+            return UnprocessableEntity();       
         }
 
         [HttpGet, Route("Tokens")]

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace scalus
 {
@@ -22,7 +23,7 @@ namespace scalus
     public interface IScalusApiConfiguration
     {
         ScalusConfig GetConfiguration();
-        ScalusConfig SaveConfiguration(ScalusConfig configuration);
+        List<string> SaveConfiguration(ScalusConfig configuration);
         List<string> ValidationErrors { get; }
     }
 

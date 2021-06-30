@@ -59,9 +59,9 @@ namespace scalus.Dto
             {
                 errors.Add($"An Exec must be configured for application:{Name}({Id})");
             }
-            if (string.IsNullOrEmpty(Protocol))
+            if (!ProtocolMapping.ValidateProtocol(Protocol, out string err))
             {
-                errors.Add($"A protocol must be configured for application:{Name}({Id})");
+                errors.Add(err);
             }
             if (string.IsNullOrEmpty(Name))
             {
