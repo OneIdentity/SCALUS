@@ -32,3 +32,4 @@ Download the release version of scalus for your platform.
     To start the UI, run `/Applications/scalus.app/Contents/MacOS/scalus ui`    
 
     The readme and examples can be found in _/Applications/scalus.app/Contents/Resources/examples_    
+
