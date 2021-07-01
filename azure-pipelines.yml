@@ -47,7 +47,12 @@ jobs:
       targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
       artifact: 'Scalus-Win10'
       publishLocation: 'pipeline'
-      
+    task: SynopsysPolaris@1
+      inputs:
+        polarisCommand: 'analyze -w --incremental $CHANGE_SET_FILE_PATH'
+        waitForIssues: true
+        populateChangeSetFile: true
+
 - job: Linux
   dependsOn: BuildAndTest
   pool:
