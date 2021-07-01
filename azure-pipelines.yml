@@ -50,6 +50,7 @@ jobs:
 
   - task: SynopsysPolaris@1
     inputs:
+      polarisService: 'https://quest.polaris.synopsys.com'
       polarisCommand: 'analyze -w --incremental $CHANGE_SET_FILE_PATH'
       waitForIssues: true
       populateChangeSetFile: true
