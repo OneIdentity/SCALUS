@@ -71,6 +71,9 @@
 			<ComponentRef Id="ExampleFiles"/>
 			<ComponentRef Id="ApplicationShortcuts"/>
 		</Feature>
-
+		<InstallExecuteSequence>
+                  <Custom Action="UninstallScalus" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") </Custom>
+                </InstallExecuteSequence>
+		<CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister"/>
 	</Product>
 </Wix>
