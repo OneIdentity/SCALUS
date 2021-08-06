@@ -145,7 +145,7 @@ namespace scalus.UrlParser
             }
             Dictionary[property] = val;
         }
-
+        
         protected void GetSafeguardUserValue()
         {
             var match = SafeguardUserPattern.Match(Dictionary[Token.User]);
@@ -174,7 +174,7 @@ namespace scalus.UrlParser
                     var user = Dictionary[Token.TargetUser];
                     user = user.Replace('\\', '~');
                     tempFile = Path.Combine(Path.GetTempPath(),
-                        $"SG-{host}_{user}_{guid}.{ext}");
+                        $"SG-{host}_{user}_{guid}{ext}");
                 }
                 else
                 {
@@ -343,15 +343,15 @@ namespace scalus.UrlParser
         {
             Dictionary = new Dictionary<Token, string>();
             try {
-                Dictionary[Token.OriginalUrl]=url.GetComponents(UriComponents.AbsoluteUri, UriFormat.SafeUnescaped);
+                Dictionary[Token.OriginalUrl]=url.GetComponents(UriComponents.AbsoluteUri, UriFormat.UriEscaped);
                 Dictionary[Token.RelativeUrl] = StripProtocol(Dictionary[Token.OriginalUrl]);
-                Dictionary[Token.Protocol] = url.GetComponents(UriComponents.Scheme, UriFormat.SafeUnescaped);
-                Dictionary[Token.Host] = url.GetComponents(UriComponents.Host, UriFormat.SafeUnescaped);
-                Dictionary[Token.Port] = url.GetComponents(UriComponents.Port, UriFormat.SafeUnescaped);
-                Dictionary[Token.Path] = url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped);
-                Dictionary[Token.User] = url.GetComponents(UriComponents.UserInfo, UriFormat.SafeUnescaped);
-                Dictionary[Token.Query] = url.GetComponents(UriComponents.Query, UriFormat.SafeUnescaped);
-                Dictionary[Token.Fragment] = url.GetComponents(UriComponents.Fragment, UriFormat.SafeUnescaped);
+                Dictionary[Token.Protocol] = url.GetComponents(UriComponents.Scheme, UriFormat.Unescaped);
+                Dictionary[Token.Host] = url.GetComponents(UriComponents.Host, UriFormat.Unescaped);
+                Dictionary[Token.Port] = url.GetComponents(UriComponents.Port, UriFormat.Unescaped);
+                Dictionary[Token.Path] = url.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+                Dictionary[Token.User] = url.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped);
+                Dictionary[Token.Query] = url.GetComponents(UriComponents.Query, UriFormat.Unescaped);
+                Dictionary[Token.Fragment] = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped);
                 ParseConfig();
             }
             catch

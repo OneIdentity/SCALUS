@@ -71,11 +71,11 @@ namespace scalus.UrlParser
                 {
                     if (key.Equals(FulladdressKey))
                     {
-                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.Host, UriFormat.SafeUnescaped)}");
+                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.Host, UriFormat.Unescaped)}");
                     }
                     else if (key.Equals(UsernameKey))
                     {
-                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.UserInfo, UriFormat.SafeUnescaped)}");
+                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped)}");
 
                     }
                     else {
@@ -188,7 +188,7 @@ namespace scalus.UrlParser
         private void ParseArgs(string clArgs)
         {
             var usedNames = new HashSet<string>();
-            var re = new Regex("([^=]+)=(\\S+)");
+            var re = new Regex("([^=]+)=(.+)");
             var args = clArgs.Split('&');
             foreach (var arg in args)
             {
@@ -201,7 +201,9 @@ namespace scalus.UrlParser
                 var value = m.Groups[2].Value;
                 if (name.Equals(UsernameKey))
                 {
-                    if (value.IndexOf("%25", StringComparison.Ordinal) >= 0 || value.IndexOf("%5c", StringComparison.Ordinal)>= 0)
+                    if ((value.IndexOf("%25", StringComparison.Ordinal) >= 0) || 
+                        (value.IndexOf("%5c", StringComparison.Ordinal)>= 0) ||
+                            (value.IndexOf("%20", StringComparison.Ordinal) >=0))
                     {
                         value = HttpUtility.UrlDecode(value);
                     }
