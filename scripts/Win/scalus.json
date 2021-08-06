@@ -68,8 +68,12 @@
         "ParserId": "ssh",
         "Options": []
       },
-      "Exec": "C:\\windows\\system32\\cmd.exe",
-      "Args": [ "/c", "C:\\Windows\\System32\\OpenSSH\\ssh.exe -l %User% %Host%" ]
+      "Exec": "C:\\Windows\\System32\\OpenSSH\\ssh.exe", 
+      "Args": [ 
+	     "-l",
+	     "%User%",
+	     "%Host%" 
+      ]
     },
 
     {
@@ -128,8 +132,11 @@
         "ParserId": "ssh",
         "Options": []
       },
-      "Exec": "C:\\windows\\system32\\cmd.exe",
-      "Args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-ssh", "%user%@%host%" ]
+      "Exec": "C:\\Program Files\\PuTTY\\putty.exe",
+      "Args": [ 
+	      "-ssh", 
+	      "%user%@%host%" 
+      ]
     },
     {
       "Id": "putty-telnet",
@@ -141,8 +148,11 @@
         "ParserId": "telnet",
         "Options": []
       },
-      "Exec": "C:\\windows\\system32\\cmd.exe",
-      "Args": [ "/c", "C:\\Program Files\\PuTTY\\putty.exe", "-telnet", "%user%@%host%" ]
+      "Exec": "C:\\Program Files\\PuTTY\\putty.exe",
+      "Args": [ 
+	      "-telnet", 
+	      "%user%@%host%" 
+      ]
     },
     {
       "Id": "remmina-rdp",

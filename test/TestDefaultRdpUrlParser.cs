@@ -24,11 +24,12 @@ namespace scalus.Test
             var port="3389";
             var vault="10.5.33.238";
             var token="epdFwRQSofwL6xJV4Ud32g4TXKM7XgXkYU8ks4i5GQHURRoBiFq5Rjr4dT";
-            var targetuser="win10-acct1";
+            var targetuser="win10-acct1%20with%20Space";
+            var decodedTargetUser = "win10-acct1 with Space";
             var targethost="10.5.60.94";
             var targetport="3389";
             var user = $"username=s:localhost%5cvaultaddress%7e{vault}%25token%7e{token}%25{targetuser}%25{targethost}:{targetport}";
-            var decodedUser = $"localhost\\vaultaddress~{vault}%token~{token}%{targetuser}%{targethost}:{targetport}";
+            var decodedUser = $"localhost\\vaultaddress~{vault}%token~{token}%{decodedTargetUser}%{targethost}:{targetport}";
 
             var str = $"full+address=s:{host}:{port}&{user}";
             var dictionary =sut.Parse($"{str}/");
@@ -40,7 +41,7 @@ namespace scalus.Test
             Assert.Equal(decodedUser, dictionary[Token.User]);
             Assert.Equal(vault, dictionary[Token.Vault]);
             Assert.Equal(token, dictionary[Token.Token]);
-            Assert.Equal(targetuser, dictionary[Token.TargetUser]);
+            Assert.Equal(decodedTargetUser, dictionary[Token.TargetUser]);
             Assert.Equal(targethost, dictionary[Token.TargetHost]);
             Assert.Equal(targetport, dictionary[Token.TargetPort]);
             Assert.Equal(string.Empty, dictionary[Token.GeneratedFile]);
@@ -62,13 +63,13 @@ namespace scalus.Test
             //rdp://username=s:encodeduser&full+address=s:hostname:port&screen%20mode%20id=i:3&shell working directory=s:C:/dir1 dir2
             using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig{ UseDefaultTemplate = true }))
             {
-                var url = "rdp://username=s:myuser%5cishere&full%20address=s:myhostname:3333&screen%20mode%20id=i:3&shell+working+directory=s:C%3a%2Fdir1+dir2/";
+                var url = "rdp://username=s:my%20test%20user%5cishere&full%20address=s:myhostname:3333&screen%20mode%20id=i:3&shell+working+directory=s:C%3a%2Fdir1+dir2/";
                 var dictionary = sut.Parse($"{url}");
                 Assert.Equal(url, dictionary[Token.OriginalUrl]);
                 Assert.Equal("rdp", dictionary[Token.Protocol]);
                 Assert.Equal("myhostname", dictionary[Token.Host]);
                 Assert.Equal("3333", dictionary[Token.Port]);
-                Assert.Equal("myuser\\ishere", dictionary[Token.User]);
+                Assert.Equal("my test user\\ishere", dictionary[Token.User]);
                 var tempfile = dictionary[Token.GeneratedFile ];
                 var lines = File.ReadAllLines(tempfile);
                 var count = 0;
@@ -92,7 +93,7 @@ namespace scalus.Test
                     if (Regex.IsMatch(one,"^username" ))
                     {
                         count++;
-                        Assert.Equal("username:s:myuser\\ishere", one);
+                        Assert.Equal("username:s:my test user\\ishere", one);
                     }
                 }
             Assert.Equal(4, count);
@@ -116,13 +117,13 @@ namespace scalus.Test
 
             using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig{ UseTemplateFile = template }))
             {
-                var url = "rdp://username=s:myuser%5cishere&full%20address=s:myhostname:3333&screen%20mode%20id=i:3&shell+working+directory=s:C%3a%2Fdir1+dir2/";
+                var url = "rdp://username=s:my test user%5cishere&full%20address=s:myhostname:3333&screen%20mode%20id=i:3&shell+working+directory=s:C%3a%2Fdir1+dir2/";
                 var dictionary = sut.Parse($"{url}");
                 Assert.Equal(url, dictionary[Token.OriginalUrl]);
                 Assert.Equal("rdp", dictionary[Token.Protocol]);
                 Assert.Equal("myhostname", dictionary[Token.Host]);
                 Assert.Equal("3333", dictionary[Token.Port]);
-                Assert.Equal("myuser\\ishere", dictionary[Token.User]);
+                Assert.Equal("my test user\\ishere", dictionary[Token.User]);
                 var tempfile = dictionary[Token.GeneratedFile ];
                 var fileLines = File.ReadAllLines(tempfile);
                 var count = 0;
@@ -146,7 +147,7 @@ namespace scalus.Test
                     else if (Regex.IsMatch(one,"^username" ))
                     {
                         count++;
-                        Assert.Equal("username:s:myuser\\ishere", one);
+                        Assert.Equal("username:s:my test user\\ishere", one);
                     }
                 }
                 Assert.Equal(4, count);
@@ -167,17 +168,18 @@ namespace scalus.Test
            
 
             //standard URI
-            //myprot://myuser:mypass@myhost:2222/thisisapath?queryit#fragment
+            //myprot://my test user:mypass@myhost:2222/thisisapath?queryit#fragment
             using (sut = new DefaultRdpUrlParser(new Dto.ParserConfig())) {
 
-            str="myuser%5c:mypass@myhost:3456/thisisapath?queryit#fragment";
+            str="my%20test%20user%5c:mypass@myhost:3456/thisisapath?queryit#fragment";
+            var decodedStr = "my test user\\:mypass@myhost:3456/thisisapath?queryit#fragment";
             var uri=$"myprot://{str}";
 
             var dictionary = sut.Parse(uri);
             Assert.Equal("myprot", dictionary[Token.Protocol]);
             Assert.Equal(uri, dictionary[Token.OriginalUrl]);
             Assert.Equal(str, dictionary[Token.RelativeUrl]);
-            Assert.Equal("myuser%5c:mypass", dictionary[Token.User]);
+            Assert.Equal("my test user\\:mypass", dictionary[Token.User]);
             Assert.Equal("myhost", dictionary[Token.Host]);
             Assert.Equal("3456", dictionary[Token.Port]);
             Assert.Equal("thisisapath", dictionary[Token.Path]);

@@ -25,7 +25,7 @@ namespace scalus.UrlParser
                 Dictionary = dictionary;
         }
 
-        public Regex ScpPattern = new Regex("(([^:]+)://)?((\\S+)@([^:]+)(:(\\d+))?)", RegexOptions.IgnoreCase);
+        public Regex ScpPattern = new Regex("(([^:]+)://)?((.+)@([^:]+)(:(\\d+))?)", RegexOptions.IgnoreCase);
         
         public override IDictionary<Token, string> Parse(string url)
         {
@@ -54,7 +54,6 @@ namespace scalus.UrlParser
             else
             {
                 SetValue(match, 2, Token.Protocol, false, "ssh");
-                SetValue(match, 3, Token.RelativeUrl, false);
                 SetValue(match, 4, Token.User, true);
                 SetValue(match, 5, Token.Host, false);
                 SetValue(match, 7, Token.Port, false, "22");
