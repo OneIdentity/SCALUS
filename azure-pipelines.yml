@@ -38,6 +38,22 @@ jobs:
   pool:
     vmImage: 'windows-latest'
   steps:
+  - task: AzureKeyVault@1
+    inputs:
+      azureSubscription: 'Azure.Infrastructure.CodeSigning'
+      KeyVaultName: 'CodeSigningCertificates'
+    displayName: 'Get code signing certificate from Azure Key Vault'
+    condition: succeeded()
+  - powershell: |
+      $kvSecretBytes = [System.Convert]::FromBase64String("$(OneIdentity-CodeSigning)")
+      $certCollection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
+      $certCollection.Import($kvSecretBytes,$null,[System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+      $protectedCertificateBytes = $certCollection.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pkcs12,"$(OneIdentity-CodeSigningCertPassword)")
+      $certpath = '$(Build.BinariesDirectory)/$(codeSigningCertFileName)'
+      Write-Verbose -Verbose $certpath
+      [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
+    displayName: 'Save code signing certificate to PFX file'
+    condition: succeeded()
   - task: Cake@2
     inputs:
       script: 'build.cake'
@@ -49,7 +65,13 @@ jobs:
       targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
       artifact: 'Scalus-Win10'
       publishLocation: 'pipeline'
-      
+  - task: DeleteFiles@1
+    inputs:
+      SourceFolder: '$(Build.BinariesDirectory)'
+      Contents: '$(codeSigningCertFileName)'
+    condition: succeededOrFailed()
+    displayName: 'Delete code signing certificate files'
+
 - job: Linux
   dependsOn: BuildAndTest
   pool:
