@@ -33,7 +33,8 @@ namespace scalus.UrlParser
             return dictionary;
         }
         public Regex SafeguardUserPattern = new Regex(
-           @"(vaultaddress[=|~]([^@%]+)[@|%]token[~|=]([^@%]+)[@|%]([^@%]+)[@|%](.*))", RegexOptions.IgnoreCase);
+           @"(account[=|~]([^@%]+)[@|%]asset[=|~]([^@%]+)[@|%]vaultaddress[=|~]([^@%]+)[@|%]token[~|=]([^@%]+)[@|%]([^@%]+)[@|%](.*))", RegexOptions.IgnoreCase);
+
 
         protected ParserConfig Config { get; }
           
@@ -145,19 +146,49 @@ namespace scalus.UrlParser
             }
             Dictionary[property] = val;
         }
-        
-        protected void GetSafeguardUserValue()
+        protected static void SetValue(string user, IDictionary<Token, string> dictionary, string pattern, int index, Token property, bool decode, string defValue = null)
         {
-            var match = SafeguardUserPattern.Match(Dictionary[Token.User]);
-           
-            SetValue(match, 2, Token.Vault, false);
-            SetValue(match, 3, Token.Token,false );
-            SetValue(match, 4, Token.TargetUser, false);
+            var re = new Regex(pattern);
+            var match = re.Match(user);
             
-            SetValue(match, 5, Token.TargetHost, false);
-            (string host, string port) = ParseHost(Dictionary[Token.TargetHost]);
-            Dictionary[Token.TargetHost] = host;
-            Dictionary[Token.TargetPort] = port;
+            var val = defValue ?? string.Empty;
+            if (match.Success && match.Groups.Count >= index)
+            {
+                if (!string.IsNullOrEmpty(match.Groups[index].Value))
+                {
+                    val = match.Groups[index].Value;
+                }
+            }
+            if (decode)
+            {
+                val = HttpUtility.UrlDecode(val);
+            }
+            dictionary[property] = val;
+        }
+        public static void GetSafeguardUserValue(IDictionary<Token, string> dictionary)
+        {
+            var user = dictionary[Token.User];
+
+            SetValue(user, dictionary, "vaultaddress[=|~]([^@%]+)", 1, Token.Vault, false);
+            SetValue(user, dictionary, "account[=|~]([^@%]+)", 1, Token.Account, false);
+
+            SetValue(user, dictionary, "asset[=|~]([^@%]+)", 1, Token.Asset, false);
+
+            
+            var tokenpattern = "(token[=|~]([^@%]+)[@|%]([^%]+)[@|%]([^%]+))";
+            var i = user.IndexOf("token");
+            if (i >= 0)
+            {
+                var tokstr = user.Substring(i);
+                SetValue(tokstr, dictionary, tokenpattern, 2, Token.Token, false);
+                SetValue(tokstr, dictionary, tokenpattern, 3, Token.TargetUser, false);
+                SetValue(tokstr, dictionary, tokenpattern, 4, Token.TargetHost, false);
+
+                (string host, string port) = ParseHost(dictionary[Token.TargetHost]);
+                dictionary[Token.TargetHost] = host;
+                dictionary[Token.TargetPort] = port;
+            }
+
          }
 
         private void WriteTempFile(IEnumerable<string> lines, string ext)
@@ -206,13 +237,7 @@ namespace scalus.UrlParser
                 var newlines = new List<string>();
                 foreach (var line in lines)
                 {
-                    var newline = line;
-                    foreach (var onevar in Dictionary)
-                    {
-                        newline = Regex.Replace(newline, $"%{onevar.Key}%", $"{onevar.Value}", RegexOptions.IgnoreCase);
-                    }
-
-                    newlines.Add(newline);
+                    newlines.Add(ReplaceTokens(line));
                 }
                 var dir = Path.GetDirectoryName(tempFile);
                 if (!Directory.Exists(dir))
@@ -253,7 +278,7 @@ namespace scalus.UrlParser
         }
     
 
-        protected (string host,string port) ParseHost(string host)
+        protected static (string host,string port) ParseHost(string host)
         {
             var sep = host.LastIndexOf(":", StringComparison.Ordinal);
             if (sep == -1)
@@ -277,7 +302,7 @@ namespace scalus.UrlParser
 
         protected abstract IEnumerable<string> GetDefaultTemplate();
     
-        public string ReplaceTokens(string line)
+        public virtual string ReplaceTokens(string line)
         {
             var newline = line;
             foreach (var variable in Dictionary)
@@ -327,6 +352,7 @@ namespace scalus.UrlParser
                 }
                 try {
                     fileLines = File.ReadAllLines(templatefile);
+                    fileLines = GetTemplateOverrides(fileLines);
                 }
                 catch (Exception e)
                 {
@@ -383,6 +409,10 @@ namespace scalus.UrlParser
                 newargs.Add(newarg);
             }
             return newargs;
+        }
+        protected virtual IEnumerable<string>  GetTemplateOverrides(IEnumerable<string> templateContents)
+        {
+            return templateContents;
         }
 
         private bool _disposedValue;

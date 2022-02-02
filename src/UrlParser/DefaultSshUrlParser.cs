@@ -58,7 +58,7 @@ namespace scalus.UrlParser
                 SetValue(match, 5, Token.Host, false);
                 SetValue(match, 7, Token.Port, false, "22");
 
-                GetSafeguardUserValue();
+                GetSafeguardUserValue(Dictionary);
                 ParseConfig();
             }
 

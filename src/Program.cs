@@ -5,10 +5,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Configuration;
 using scalus.Util;
 using Serilog.Core;
-using Serilog.Events;
 
 [assembly:InternalsVisibleTo("scalus.Test")]
 

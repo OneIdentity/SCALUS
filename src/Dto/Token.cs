@@ -28,7 +28,10 @@ namespace scalus.Dto
             GeneratedFile = 15,
             TempPath = 16,
             Home = 17,
-            AppData = 18
+            AppData = 18,
+
+            Account = 19,
+            Asset = 20
         };
 
         //processing options supported
@@ -65,7 +68,9 @@ namespace scalus.Dto
             {Token.GeneratedFile,"The generated file that will be passed to the application, if UseDefaultTemplate is true or UseTemplateFile is configured. The file extension will be set to that of the template (if provided), or determined by the parser."},
             {Token.TempPath, "The user's temp directory on this platform."},
             {Token.Home, "The user's home directory on this platform."},
-            {Token.AppData, "The user's local application directory on this platform."}
+            {Token.AppData, "The user's local application directory on this platform."},
+            {Token.Account, "The account part of a Safeguard URL." },
+            {Token.Asset, "The asset part of a Safeguard URL." }
         };
     }
 }
