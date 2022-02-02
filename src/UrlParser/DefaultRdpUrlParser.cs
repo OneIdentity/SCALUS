@@ -8,6 +8,10 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Serilog;
 using static scalus.Dto.ParserConfigDefinitions;
+using System.Reflection;
+using System.Linq;
+using System.Diagnostics;
+using System.IO;
 
 namespace scalus.UrlParser
 {
@@ -26,21 +30,73 @@ namespace scalus.UrlParser
         //  query values for:    
         //  full address    :  <ipaddress>[:<port>]
         //  username        :  <username>|<safeguardauth>
-        //  safeguardauth   :  vaultaddress(=|~)<ipaddress>(%|@)token
+        //  safeguardauth   :  vaultaddress(=|~)<ipaddress>(%|@)token~<token>[account~<name>%asset~<name>]
         //                     Name and value strings can be url encoded
 
         //If not in this format, it will default to parsing the string as a standard URL
         public Regex RdpPattern = new Regex("(([^:]+)://)?((([^&=]+)=([^&]+))(&(([^&=]+)=([^&]+)))*)");
         public Regex RdpPatt = new Regex("&");
-        private readonly List<string> _msArgList  = new List<string>();
 
+        private readonly IDictionary<string, Tuple<bool, string>> _msArgList1 = new Dictionary<string, Tuple<bool, string>>();
+       
+        private static string GetResource(string name)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resources = assembly.GetManifestResourceNames();
+            var resourceName = assembly.GetManifestResourceNames().Single(x => x.EndsWith(name, StringComparison.OrdinalIgnoreCase));
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                Debug.Assert(stream != null, "stream != null");
+
+                using (var reader = new StreamReader(stream, Encoding.ASCII))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
+
+
+        
         public const string rdpPattern = "\\S=[s|i]:\\S+";
+        public const string FullAddressKey = "full address";
         public const string UsernameKey = "username";
-        public const string FulladdressKey = "full address";
+       // private const string RdpPasswordHashKey = "password 51:b";
+        public const string RdpPasswordHashKey = "password 51";
+
+
+        public Dictionary<string, string> DefaultArgs = new Dictionary<string, string>();
+
+        private Dictionary<string,string> ParseTemplate(IEnumerable<string> list)
+        {
+            var dict = new Dictionary<string, string>();
+            if (list == null || list.Count()== 0)
+                return dict;
+            foreach (var one in list)
+            {
+                var line = one.Split(":");
+                if (line.Length < 3)
+                    continue;
+                dict[line[0]] = line[1] + ":" + line[2];
+            }
+            return dict;
+        }
+
+        public void GetDefaults()
+        {
+            var str = GetResource("Default.rdp");
+            var list =str?.Split(Environment.NewLine);
+
+            DefaultArgs = ParseTemplate(list);
+            return;
+        }
+
         public DefaultRdpUrlParser(ParserConfig config) : base(config)
         {            
             FileExtension = ".rdp";
+            GetDefaults();
+            
         }
+#if hide
         public DefaultRdpUrlParser(ParserConfig config, IDictionary<Token, string> dictionary=null, List<string> defs = null) : this(config)
         {
             if (dictionary != null)
@@ -52,7 +108,7 @@ namespace scalus.UrlParser
                 _msArgList = defs;
             }           
         }
-        
+#endif
         public override  IDictionary<Token,string> Parse(string url)
         {
             Dictionary = DefaultDictionary();
@@ -69,17 +125,17 @@ namespace scalus.UrlParser
                 Log.Information($"Parsing URL{url} as a default URL");
                 foreach (var (key, value) in DefaultArgs)
                 {
-                    if (key.Equals(FulladdressKey))
+                    if (key.Equals(FullAddressKey))
                     {
-                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.Host, UriFormat.Unescaped)}");
+                        _msArgList1[key] = Tuple.Create(true, ":s:"+ result.GetComponents(UriComponents.Host, UriFormat.Unescaped));
+
                     }
                     else if (key.Equals(UsernameKey))
                     {
-                        _msArgList.Add($"{key}:s:{result.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped)}");
-
-                    }
+                        _msArgList1[key] = Tuple.Create(true, ":s:"+ result.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped));
+                    }                 
                     else {
-                        _msArgList.Add($"{key}:{value}");
+                        _msArgList1[key] = Tuple.Create(true, value);
                     }
                 }
                 Parse(result);
@@ -87,7 +143,7 @@ namespace scalus.UrlParser
             else
             {
                 Log.Information($"Parsing URL{url} as an rdp URL");
-                ParseArgs(match.Groups[3].Value);
+                ParseArgs(Dictionary[Token.RelativeUrl]);
                 ParseConfig();
             }
             //tokens required are username and host
@@ -104,91 +160,39 @@ namespace scalus.UrlParser
         }
         protected override IEnumerable<string> GetDefaultTemplate()
         {
-            return _msArgList;
+            var list = new List<string>();
+            foreach(var one in _msArgList1)
+            {
+                list.Add(one.Key + ":" + one.Value.Item2);
+            }
+            return list;
         }
-
-        
-        public static readonly Dictionary<string, string> DefaultArgs = new Dictionary<string, string>()
+        protected override IEnumerable<string> GetTemplateOverrides(IEnumerable<string> templateList)
         {
-            {"full address", ":s:%Host%"},
-            {"username", ":s:%user%"},
-            {"screen mode id", ":i:1"},
-            {"use multimon", ":i:0"},
-            {"desktopwidth", ":i:1024"},
-            {"desktopheight", ":i:768"},
-          //  {"session bpp", ":i:16"},
-          //  {"winposstr", ":s:0,3,0,0,1024,768"},
-            {"compression", ":i:1"},
-            {"keyboardhook", ":i:2"},
-            {"audiocapturemode", ":i:0"},
-            {"videoplaybackmode", ":i:1"},
-           // {"connection type", ":i:7"},
-            {"networkautodetect", ":i:1"},
-            {"bandwidthautodetect", ":i:1"},
-            //{"displayconnectionbar", ":i:1"},
-            //{"enableworkspacereconnect", ":i:0"},
-            //{"disable wallpaper", ":i:1"},
-            //{"allow font smoothing", ":i:1"},
-            //{"allow desktop composition", ":i:1"},
-            //{"disable full window drag", ":i:1"},
-            //{"disable menu anims", ":i:1"},
-            //{"disable themes", ":i:0"},
-            //{"disable cursor setting", ":i:0"},
-            //{"bitmapcachepersistenable", ":i:1"},
-            {"audiomode", ":i:0"},
-            {"redirectprinters", ":i:1"},
-            {"redirectcomports", ":i:0"},
-            {"redirectsmartcards", ":i:1"},
-            {"redirectclipboard", ":i:1"},
-            //{"redirectposdevices", ":i:0"},
-            {"autoreconnection enabled", ":i:1"},
-            {"authentication level", ":i:2"},
-            //{"prompt for credentials", ":i:0"},
-            //{"prompt for credentials on client", ":i:0"},
-            //{"negotiate security layer", ":i:1"},
-            {"remoteapplicationmode", ":i:0"},
-            {"alternate shell", ":s:"},
-            //{"shell working directory", ":s:"},
-            {"gatewayhostname", ":s:"},
-            {"gatewayusagemethod", ":i:4"},
-            {"gatewaycredentialssource", ":i:4"},
-            {"gatewayprofileusagemethod", ":i:0"},
-            {"promptcredentialonce", ":i:0"},
-            //{"gatewaybrokeringtype", ":i:0"},
-            //{"use redirection server name", ":i:0"},
-            //{"rdgiskdcproxy", ":i:0"},
-            //{"kdcproxyname", ":s:"},
+            var templateDict = ParseTemplate(templateList);
 
-            {"alternate full address", "s:"},
-            {"domain", "s:"},
-            {"enablecredsspsupport", ":i:0"},
-            {"disableconnectionsharing", ":i:0"},
-            {"encode redirected video capture", ":i:1"},
-            {"redirected video capture encoding quality", ":i:0"},
-            {"camerastoredirect", "s:"},
-            {"devicestoredirect", ":s:"},
-            {"drivestoredirect", ":s:"},
-            {"usbdevicestoredirect", ":s:"},
-            {"selectedmonitors", ":s:"},
-            {"maximizetocurrentdisplays", ":i:0"},
-            {"singlemoninwindowedmode", ":i:0"},
-            {"smart sizing", ":i:1"},
-            {"dynamic resolution", ":i:1"},
-            {"desktop size id", ":i:1"},
-            {"desktopscalefactor", ":i:100"},
-            {"remoteapplicationexpandcmdline", ":i:1"},
-            {"remoteapplicationexpandworkingdir", ":i:1"},
-            {"remoteapplicationicon", ":s:"},
-            {"remoteapplicationname", "s:"},
-            {"remoteapplicationprogram", "s:"},
-        };
-
-        private const string RdpPasswordHashKey = "password 51:b";
-
+            // add any settings that were specified in the url, but arenet in the template
+           
+            foreach (var one in _msArgList1)
+            {
+                if (one.Value.Item1)
+                {
+                    if (!templateDict.ContainsKey(one.Key))
+                    {
+                        templateDict[one.Key] = one.Value.Item2;
+                    }
+                }
+            }
+            var newList = new List<string>();
+            foreach(var one in templateDict)
+            {
+                newList.Add(one.Key + ":" + one.Value);
+            }
+            return newList;
+        }
         private void ParseArgs(string clArgs)
         {
-            var usedNames = new HashSet<string>();
-            var re = new Regex("([^=]+)=(.+)");
+            var re = new Regex("(([^=]+)=(.):(.*))|(([^:]+):(s|i):(.*))");
             var args = clArgs.Split('&');
             foreach (var arg in args)
             {
@@ -197,8 +201,23 @@ namespace scalus.UrlParser
                 {
                     continue;
                 }
-                var name = HttpUtility.UrlDecode(m.Groups[1].Value);
-                var value = m.Groups[2].Value;
+                string name;
+                string type;
+                string value;
+                if (!string.IsNullOrEmpty(m.Groups[1].Value))
+                {
+                    name = m.Groups[2].Value;
+                    type = m.Groups[3].Value;
+                    value = m.Groups[4].Value;
+                }
+                else
+                {
+                    name = m.Groups[6].Value;
+                    type = m.Groups[7].Value;
+                    value = m.Groups[8].Value;
+                }
+                name = HttpUtility.UrlDecode(name);
+                value = HttpUtility.UrlDecode(value);
                 if (name.Equals(UsernameKey))
                 {
                     if ((value.IndexOf("%25", StringComparison.Ordinal) >= 0) || 
@@ -216,12 +235,11 @@ namespace scalus.UrlParser
                     value = value.Replace("\\\\", "\\");
                     
                     Dictionary[Token.User] = Regex.Replace(value, "^.:", "");
-                    GetSafeguardUserValue();
+                    GetSafeguardUserValue(Dictionary);
                 }
-                else if (Regex.IsMatch(name, FulladdressKey))
+                else if (Regex.IsMatch(name, FullAddressKey))
                 {
-                    value = HttpUtility.UrlDecode(value);
-                    var hostval = m.Groups[2].Value;
+                    var hostval = value;
 
                     (string host, string port) = ParseHost(Regex.Replace(hostval, "^.:", ""));
                     Dictionary[Token.Host] = host;
@@ -240,15 +258,15 @@ namespace scalus.UrlParser
                     value = HttpUtility.UrlDecode(value);
                 }
 
-                _msArgList.Add($"{name}:{value}");
-                usedNames.Add(name);
+                _msArgList1[name] = Tuple.Create(true, type + ":" + value);
             }
+             
 
             foreach (var arg in DefaultArgs)
             {
-                if (!usedNames.Contains(arg.Key))
+                if (!_msArgList1.ContainsKey(arg.Key))
                 {
-                    _msArgList.Add($"{arg.Key}:{arg.Value}");
+                    _msArgList1[arg.Key] = Tuple.Create(false, arg.Value);
                 }
             }
 
@@ -256,7 +274,7 @@ namespace scalus.UrlParser
             {
                 //Add hashed password so that the user isn't prompted to enter a password
                 var passwordHash = GenerateRdpPasswordHash();
-                _msArgList.Add(RdpPasswordHashKey + ":" + passwordHash);
+                _msArgList1[RdpPasswordHashKey] = Tuple.Create(false, "b:" + passwordHash);
             }
         }
     
@@ -293,6 +311,30 @@ namespace scalus.UrlParser
                 }
             }
             return sb.ToString();
+        }
+
+        public override string ReplaceTokens(string line)
+        {
+            var newline = line;
+            foreach (var variable in Dictionary)
+            {
+                // TODO: Make this more robust. Edge case escapes don't work.
+                newline = Regex.Replace(newline, $"%{variable.Key}%", variable.Value ?? string.Empty, RegexOptions.IgnoreCase);
+            }
+            var re = new Regex("(([^:]+):([^:]+):(.*))");
+            var match = re.Match(newline);
+
+            if (match.Success && !string.IsNullOrEmpty(match.Groups[2].Value))
+            {
+                var name = match.Groups[2].Value;
+                var val = match.Groups[3].Value + ":" + match.Groups[4].Value;
+                if (_msArgList1.ContainsKey(name) && _msArgList1[name].Item1)
+                {
+                    val = _msArgList1[name].Item2;
+                    newline = name + ":" + val;
+                }
+            }
+            return newline;         
         }
     }
 }
