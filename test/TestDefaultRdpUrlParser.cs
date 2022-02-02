@@ -6,6 +6,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
 using static scalus.Dto.ParserConfigDefinitions;
+using System.Runtime.InteropServices;
 
 namespace scalus.Test
 {
@@ -102,7 +103,8 @@ namespace scalus.Test
                     if (check(one, "remoteapplicationname", $"s:{remname}", names, ref count)) continue;
                     if (check(one, "password 51", $"b:\\S+", names, ref count)) continue;
                 }
-                Assert.True(8==count, "Matched names: " + string.Join(",", names));
+                var exp = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) ? 8 : 7;
+                Assert.True(exp==count, "Matched names: " + string.Join(",", names));
             }
         }
 
@@ -156,8 +158,8 @@ namespace scalus.Test
                     if (check(one, "password 51", "b:keepthis", names, ref count)) continue;
 
                 }
-                Assert.True(9 == count, "Matched names: " + string.Join(",", names));
-
+                var exp = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) ? 9 : 8;
+                Assert.True(exp == count, "Matched names: " + string.Join(",", names));
             }
             if (File.Exists(template))
             {

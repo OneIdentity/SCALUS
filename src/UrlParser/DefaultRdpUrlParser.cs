@@ -60,7 +60,6 @@ namespace scalus.UrlParser
         public const string rdpPattern = "\\S=[s|i]:\\S+";
         public const string FullAddressKey = "full address";
         public const string UsernameKey = "username";
-       // private const string RdpPasswordHashKey = "password 51:b";
         public const string RdpPasswordHashKey = "password 51";
 
 
@@ -96,19 +95,7 @@ namespace scalus.UrlParser
             GetDefaults();
             
         }
-#if hide
-        public DefaultRdpUrlParser(ParserConfig config, IDictionary<Token, string> dictionary=null, List<string> defs = null) : this(config)
-        {
-            if (dictionary != null)
-            {
-                Dictionary = dictionary;
-            }
-            if (defs != null)
-            {
-                _msArgList = defs;
-            }           
-        }
-#endif
+
         public override  IDictionary<Token,string> Parse(string url)
         {
             Dictionary = DefaultDictionary();
