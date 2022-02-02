@@ -59,7 +59,7 @@ jobs:
       script: 'build.cake'
       target: 'Default'
       verbosity: 'Verbose'
-      arguments: '--runtime=win10-x64 --Version=$(version) --SignFiles=true --CertPath="$(Build.BinariesDirectory)/$(codeSigningCertFileName)" --ToolPath=$(signingToolPath) --CertPass=$(OneIdentity-CodeSigningCertPassword)'
+      arguments: '--runtime=win10-x64 --Version=$(version) --SignFiles=true --CertPath="$(Build.BinariesDirectory)/$(codeSigningCertFileName)" --ToolPath="$(signingToolPath)" --CertPass=$(OneIdentity-CodeSigningCertPassword)'
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
