@@ -1,11 +1,10 @@
-#addin "Cake.Powershell"
-
-#tool "nuget:?package=xunit.runner.console"
-#tool "nuget:?package=WiX"
-#addin nuget:?package=SharpZipLib   
-#addin nuget:?package=Cake.Compression
-#addin nuget:?package=Cake.FileHelpers
-#addin nuget:?package=Cake.Incubator
+#addin "Cake.Powershell&version=1.0.1"
+#tool "nuget:?package=xunit.runner.console&version=2.4.1"
+#tool "nuget:?package=WiX&version=3.11.2"
+#addin nuget:?package=SharpZipLib&version=1.3.2   
+#addin nuget:?package=Cake.Compression&version=0.2.6
+#addin nuget:?package=Cake.FileHelpers&version=4.0.1
+#addin nuget:?package=Cake.Incubator&version=6.0.0
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -17,12 +16,35 @@ var Version         = Argument<string>("Version", "1.0.0");
 var runtime         = Argument<string>("Runtime", "win-x64");
 var GitRevision     = Argument<string>("GitRevision", "0000000000000000000000000000000000000000");
 var GitRepo         = Argument<string>("GitRepo", "broken/repo");
+var CertPath        = Argument<string>("CertPath", "");
+var CertPass        = Argument<string>("CertPass", "");
+var ToolPath        = Argument<string>("ToolPath", "");
+var SignFiles       = Argument<bool>("SignFiles", false);
 
 var isWindows       = Argument<bool>("isWindows", runtime.StartsWithIgnoreCase("win"));
 var isLinux         = Argument<bool>("isLinux", runtime.StartsWithIgnoreCase("lin"));
 var isOsx           = Argument<bool>("isOsx", runtime.StartsWithIgnoreCase("osx"));
 var is64            = Argument<bool>("is64", runtime.EndsWithIgnoreCase("X64"));
 
+var isLocalBuild = BuildSystem.IsLocalBuild;
+
+var canSign = false;
+if (SignFiles)
+{
+	if ((ToolPath == "") || (CertPath == "") || (CertPass == ""))
+	{
+		Information("Code sign not selected");
+	}
+	else {
+		if ((!FileExists(ToolPath)) || (!FileExists(CertPath))) 
+		{
+			Information("Cannot sign code - invalid tool/cert path");
+		} else {
+			canSign = true;
+			Information("Signing with " + ToolPath + ", cert:" + CertPath );
+		}
+	}
+}
 
 var solutionPath = "./scalus.sln";
 var publishdir="Publish/" + configuration + "/" + runtime;
@@ -30,6 +52,15 @@ var builddir="Build/" + configuration + "/" + runtime;
 var outputdir="Output/" + configuration + "/" + runtime;
 var bindir="src/bin/" + configuration;
 var testdir="test/bin/" + configuration;
+var scalusExe=publishdir + "/scalus";
+var fileToSign=publishdir + "/scalus";
+var msiPath=outputdir + "/scalus-setup-" + Version + "-" + runtime + ".msi";
+
+if (isWindows)
+{
+    scalusExe=publishdir + "/scalus.exe";
+    fileToSign=scalusExe;
+}
 
 // Run dotnet restore to restore all package references.
 Task("Restore")
@@ -39,8 +70,16 @@ Task("Restore")
     });
 
 
-Task("MsiInstaller")
+Task("WindowsInstall")
     .IsDependentOn("Publish")
+    .IsDependentOn("SignPath")
+    .IsDependentOn("MsiInstaller")
+    .IsDependentOn("SignMsi")
+    .WithCriteria(isWindows)
+	;
+
+
+Task("MsiInstaller")
     .WithCriteria(isWindows)
     .Does(() =>
     {
@@ -55,9 +94,7 @@ Task("MsiInstaller")
 	}
 
 	var sourcedir = publishdir;
-	var msiPath=outputdir + "/scalus-setup-" + Version + "-" + runtime + ".msi";
-
-
+	fileToSign = msiPath;
 
 	var examples = tmpdir + "/examples";
 	CopyDirectory("scripts/examples", examples);
@@ -111,8 +148,9 @@ Task("MsiInstaller")
 	}
 	else
 	{
-		Information( "Building " + runtime + " msiPath: " + msiPath);
+		Information( "Building locally " + runtime + " msiPath: " + msiPath);
 	}
+
 	DeleteDirectory(tmpdir, new DeleteDirectorySettings {
 	    Recursive = true,
 	    Force = true
@@ -266,8 +304,41 @@ Task("LinuxInstall")
 Task("Default")
     .IsDependentOn("LinuxInstall")
     .IsDependentOn("OsxInstall")
-    .IsDependentOn("MsiInstaller");
+    .IsDependentOn("WindowsInstall")
+    .IsDependentOn("Cleanup");
 
+Task("SignPath")
+    .WithCriteria(canSign)
+	.Does(() =>
+	{
+ 		Information("Signing " + scalusExe);
+ 		Sign( new string[] { scalusExe },
+    			new SignToolSignSettings {
+            		ToolPath = ToolPath,
+            		CertPath = CertPath,
+            		Password = CertPass
+    		});
+    	});
 
-Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "...");
+Task("SignMsi")
+    .WithCriteria(canSign)
+	.Does(() =>
+	{
+ 		Information("Signing " + msiPath);
+ 		Sign( new string[] { msiPath },
+    			new SignToolSignSettings {
+            		ToolPath = ToolPath,
+            		CertPath = CertPath,
+            		Password = CertPass
+    		});
+    	});
+
+Task("Cleanup")
+    .WithCriteria(canSign)
+	.Does(() =>
+	{
+ 		Information("Cleaning up " + CertPath);
+    	});
+
+Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "..."); 
 RunTarget(target);
