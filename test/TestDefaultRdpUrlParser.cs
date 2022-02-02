@@ -158,8 +158,7 @@ namespace scalus.Test
                     if (check(one, "password 51", "b:keepthis", names, ref count)) continue;
 
                 }
-                var exp = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) ? 9 : 8;
-                Assert.True(exp == count, "Matched names: " + string.Join(",", names));
+                Assert.True(count == 9, "Matched names: " + string.Join(",", names));
             }
             if (File.Exists(template))
             {
