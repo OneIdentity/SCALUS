@@ -305,7 +305,7 @@ Task("Default")
     .IsDependentOn("LinuxInstall")
     .IsDependentOn("OsxInstall")
     .IsDependentOn("WindowsInstall")
-    .IsDependentOn("Cleanup");
+	;
 
 Task("SignPath")
     .WithCriteria(canSign)
@@ -333,12 +333,6 @@ Task("SignMsi")
     		});
     	});
 
-Task("Cleanup")
-    .WithCriteria(canSign)
-	.Does(() =>
-	{
- 		Information("Cleaning up " + CertPath);
-    	});
 
 Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "..."); 
 RunTarget(target);

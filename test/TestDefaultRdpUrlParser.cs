@@ -55,6 +55,17 @@ namespace scalus.Test
             }
         }
 
+        private bool check(string line, string name, string val, List<string> names, ref int count)
+        {
+            if (Regex.IsMatch(line, $"^{name}:"))
+            {
+                Assert.Matches($"{name}:{val}", line);
+                names.Add(name);
+                count++;
+                return true;
+            }
+            return false;
+        }
         [Fact]
         public void TestRdpDefaultTemplate()
         {
@@ -79,56 +90,19 @@ namespace scalus.Test
                 var tempfile = dictionary[Token.GeneratedFile];
                 var lines = File.ReadAllLines(tempfile);
                 var count = 0;
+                var names = new List<string>();
                 foreach (var one in lines)
                 {
-                    if (Regex.IsMatch(one, "^screen mode id:i:"))
-                    {
-                        Assert.Equal("screen mode id:i:3", one);
-                        count++;
-                    }
-                    else if (Regex.IsMatch(one, "^shell working directory"))
-                    {
-                        count++;
-                        Assert.Equal("shell working directory:s:C:/dir1 dir2", one);
-                    }
-                    else if (Regex.IsMatch(one, "^full address"))
-                    {
-                        count++;
-                        Assert.Equal("full address:s:myhostname:3333", one);
-                    }
-                    else if(Regex.IsMatch(one, "^username"))
-                    {
-                        count++;
-                        Assert.Equal("username:s:my test user\\ishere", one);
-                    }
-                    else if(Regex.IsMatch(one, "^alternate shell"))
-                    {
-                        count++;
-                        Assert.Equal($"alternate shell:s:{altshell}", one);
-                    }
-                    else if(Regex.IsMatch(one, "^remoteapplicationprogram"))
-                    {
-                        count++;
-                        Assert.Equal($"remoteapplicationprogram:s:{rempgm}", one);
-                    }
-                    else if(Regex.IsMatch(one, "^remoteapplicationname"))
-                    {
-                        count++;
-                        Assert.Equal($"remoteapplicationname:s:{remname}", one);
-                    }
-                    else if(Regex.IsMatch(one, "^remoteapplicationname"))
-                    {
-                        count++;
-                        Assert.Equal($"remoteapplicationname:i:0", one);
-                    }
-                    else if (Regex.IsMatch(one, "^password"))
-                    {
-                        count++;
-                        Assert.Matches("password 51:b:\\S+", one);
-                    }
-
+                    if (check(one, "screen mode id", "i:", names, ref count)) continue;
+                    if (check(one, "shell working directory", "s:C:/dir1 dir2", names, ref count)) continue;
+                    if (check(one, "full address", "s:myhostname:3333", names, ref count)) continue;
+                    if (check(one, "username", "s:my test user" + Regex.Escape("\\") + "ishere", names, ref count)) continue;
+                    if (check(one, "alternate shell", $"s:{altshell}", names, ref count)) continue;
+                    if (check(one, "remoteapplicationprogram", $"s:{rempgm}", names, ref count))continue;
+                    if (check(one, "remoteapplicationname", $"s:{remname}", names, ref count)) continue;
+                    if (check(one, "password 51", $"b:\\S+", names, ref count)) continue;
                 }
-                Assert.Equal(8, count);
+                Assert.True(8==count, "Matched names: " + string.Join(",", names));
             }
         }
 
@@ -166,55 +140,24 @@ namespace scalus.Test
                 var tempfile = dictionary[Token.GeneratedFile];
                 var fileLines = File.ReadAllLines(tempfile);
                 var count = 0;
+                var names = new List<string>();
+
                 foreach (var one in fileLines)
                 {
-                    if (Regex.IsMatch(one, "^singlemoninwindowedmode:i:"))
-                    {
-                        Assert.Equal("singlemoninwindowedmode:i:0", one);
-                        count++;
-                    }
-                    if (Regex.IsMatch(one, "^screen mode id:i:"))
-                    {
-                        Assert.Equal("screen mode id:i:3", one);
-                        count++;
-                    }
-                    else if (Regex.IsMatch(one, "^shell working directory"))
-                    {
-                        count++;
-                        Assert.Equal("shell working directory:s:C:/dir1 dir2", one);
-                    }
-                    else if (Regex.IsMatch(one, "^full address"))
-                    {
-                        count++;
-                        Assert.Equal("full address:s:myhostname:3333", one);
-                    }
-                    else if (Regex.IsMatch(one, "^username"))
-                    {
-                        count++;
-                        Assert.Equal("username:s:my test user\\ishere", one);
-                    }
-                    else if (Regex.IsMatch(one, "^alternate shell"))
-                    {
-                        count++;
-                        Assert.Equal($"alternate shell:s:my test user\\ishere_myhostname", one);
-                    }
-                    else if (Regex.IsMatch(one, "^remoteapplicationprogram"))
-                    {
-                        count++;
-                        Assert.Equal($"remoteapplicationprogram:s:my test user\\ishere_program", one);
-                    }
-                    else if (Regex.IsMatch(one, "^remoteapplicationname"))
-                    {
-                        count++;
-                        Assert.Equal($"remoteapplicationname:s:myhostname", one);
-                    }
-                    else if (Regex.IsMatch(one, "^password"))
-                    {
-                        count++;
-                        Assert.Equal("password 51:b:keepthis", one);
-                    }
+
+                    if (check(one, "singlemoninwindowedmode", "i:", names, ref count)) continue;
+                    if (check(one, "screen mode id", "i:3", names, ref count)) continue;
+                    if (check(one, "shell working directory", "s:C:/dir1 dir2", names, ref count)) continue;
+                    if (check(one, "full address", "s:myhostname:3333", names, ref count)) continue;
+                    if (check(one, "username", "s:my test user" + Regex.Escape("\\") + "ishere", names, ref count)) continue;
+                    if (check(one, "alternate shell", "s:my test user" + Regex.Escape("\\") + "ishere_myhostname", names, ref count)) continue;
+                    if (check(one, "remoteapplicationprogram", "s:my test user" + Regex.Escape("\\") + "ishere_program", names, ref count)) continue;
+                    if (check(one, "remoteapplicationname", "s:myhostname", names, ref count)) continue;
+                    if (check(one, "password 51", "b:keepthis", names, ref count)) continue;
+
                 }
-                Assert.Equal(9, count);
+                Assert.True(9 == count, "Matched names: " + string.Join(",", names));
+
             }
             if (File.Exists(template))
             {
