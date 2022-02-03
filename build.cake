@@ -38,7 +38,14 @@ if (SignFiles)
 	else {
 		if ((!FileExists(ToolPath)) || (!FileExists(CertPath))) 
 		{
-			Information("Cannot sign code - invalid tool/cert path");
+			if (!FileExists(ToolPath))
+			{
+				Information("Cannot sign code - invalid tool path: " + ToolPath);
+			}
+			if (!FileExists(CertPath))
+			{
+				Information("Cannot sign code - invalid cert path: " + CertPath);
+			}
 		} else {
 			canSign = true;
 			Information("Signing with " + ToolPath + ", cert:" + CertPath );
