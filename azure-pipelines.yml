@@ -45,7 +45,7 @@ jobs:
       azureSubscription: 'Azure.Infrastructure.CodeSigning'
       KeyVaultName: 'CodeSigningCertificates'
     displayName: 'Get code signing certificate from Azure Key Vault'
-    condition: and(succeeded(), eq(variables.isRelease, true)
+    condition: and(succeeded(), eq(variables.isRelease, true))
   - powershell: |
       $kvSecretBytes = [System.Convert]::FromBase64String("$(OneIdentity-CodeSigning)")
       $certCollection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
@@ -55,7 +55,7 @@ jobs:
       Write-Verbose -Verbose $certpath
       [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
     displayName: 'Save code signing certificate to PFX file'
-    condition: and(succeeded(), eq(variables.isRelease, true)
+    condition: and(succeeded(), eq(variables.isRelease, true))
   - task: Cake@2
     inputs:
       script: 'build.cake'
