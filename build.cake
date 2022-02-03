@@ -28,6 +28,7 @@ var is64            = Argument<bool>("is64", runtime.EndsWithIgnoreCase("X64"));
 
 var isLocalBuild = BuildSystem.IsLocalBuild;
 
+var signTool        = ToolPath + "/SignTool.exe";
 var canSign = false;
 if (SignFiles)
 {
@@ -325,7 +326,7 @@ Task("SignPath")
  		Information("Signing " + scalusExe);
  		Sign( new string[] { scalusExe },
     			new SignToolSignSettings {
-            		ToolPath = ToolPath,
+            		ToolPath = signTool,
             		CertPath = CertPath,
             		Password = CertPass
     		});
@@ -338,7 +339,7 @@ Task("SignMsi")
  		Information("Signing " + msiPath);
  		Sign( new string[] { msiPath },
     			new SignToolSignSettings {
-            		ToolPath = ToolPath,
+            		ToolPath = signTool,
             		CertPath = CertPath,
             		Password = CertPass
     		});
