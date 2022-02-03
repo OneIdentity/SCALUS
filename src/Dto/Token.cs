@@ -29,9 +29,11 @@ namespace scalus.Dto
             TempPath = 16,
             Home = 17,
             AppData = 18,
-
-            Account = 19,
-            Asset = 20
+            AlternateShell=19,
+            Remoteapplicationname=20,
+            Remoteapplicationprogram=21,
+            Account = 22,
+            Asset = 23
         };
 
         //processing options supported
@@ -69,6 +71,9 @@ namespace scalus.Dto
             {Token.TempPath, "The user's temp directory on this platform."},
             {Token.Home, "The user's home directory on this platform."},
             {Token.AppData, "The user's local application directory on this platform."},
+            {Token.AlternateShell, "The program to be started automatically in the remote session instead of explorer."},
+            {Token.Remoteapplicationname, "The name of the remote application to run in the session."},
+            {Token.Remoteapplicationprogram, "The alias or executable name of the remote application to run in the session."},
             {Token.Account, "The account part of a Safeguard URL." },
             {Token.Asset, "The asset part of a Safeguard URL." }
         };

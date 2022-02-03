@@ -56,11 +56,11 @@ namespace scalus.Test
             }
         }
 
-        private bool check(string line, string name, string val, List<string> names, ref int count)
+        private bool check(string line, string name, string val, List<string> names, ref int count, string sep = ":")
         {
-            if (Regex.IsMatch(line, $"^{name}:"))
+            if (Regex.IsMatch(line, $"^{name}{sep}"))
             {
-                Assert.Matches($"{name}:{val}", line);
+                Assert.Matches($"{name}{sep}{val}", line);
                 names.Add(name);
                 count++;
                 return true;
@@ -75,7 +75,7 @@ namespace scalus.Test
             using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig { UseDefaultTemplate = true }))
             {
                 //Test default rdp settings
-                // any rdp settings in the url will be preserved and will override the defaults
+                // any rdp settings in the url will be preserved and will override the hardcoded defaults
                 var altshell = "||OISGRemoteAppLauncher (1)";
                 var rempgm = "||OISGRemoteAppLauncher (1)";
                 var remname = "TestRemoteApp";
@@ -88,6 +88,9 @@ namespace scalus.Test
                 Assert.Equal("myhostname", dictionary[Token.Host]);
                 Assert.Equal("3333", dictionary[Token.Port]);
                 Assert.Equal("my test user\\ishere", dictionary[Token.User]);
+                Assert.Equal(altshell, dictionary[Token.AlternateShell]);
+                Assert.Equal(rempgm, dictionary[Token.Remoteapplicationprogram]);
+                Assert.Equal(remname, dictionary[Token.Remoteapplicationname]);
                 var tempfile = dictionary[Token.GeneratedFile];
                 var lines = File.ReadAllLines(tempfile);
                 var count = 0;
@@ -113,32 +116,38 @@ namespace scalus.Test
         {
             var template = Path.GetTempFileName();
             //test using an rdp template file
-            //any rdp settings in the url will be preserved and will override the values in the template
+            //only values in teh template are included - if not value specified, use the value passed in the url
 
             var lines = new List<string>
             {
                 "screen mode id:i:1111",
                 "shell working directory:s:C:/dir1 dir2",
                 $"full address:s:%{Token.Host}%:%{Token.Port}%",
-                $"username:s:%{Token.User}%",
-
-                $"alternate shell:s:%{Token.User}%_%{Token.Host}%",
-                $"remoteapplicationprogram:s:%{Token.User}%_program",
-                $"remoteapplicationname:s:%{Token.Host}%",
+                $"username:s:%{Token.User}%",             
                 $"singlemoninwindowedmode:i:0",
+                $"alternate shell:s:testanothershellOn %Host%",
+                $"remoteapplicationprogram:s:",
                 "password 51:b:keepthis"
             };
             File.WriteAllLines(template, lines);
 
             using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig { UseTemplateFile = template }))
             {
-                var url = "rdp://username=s:my test user%5cishere&full%20address=s:myhostname:3333&screen%20mode%20id=i:3&shell+working+directory=s:C%3a%2Fdir1+dir2/";
+                var settings = "alternate+shell:s:%7C%7COISGRemoteAppLauncher%20%281%29&remoteapplicationprogram:s:%7C%7COISGRemoteAppLauncher%20%281%29&remoteapplicationname:s:TestRemoteApp";
+                var altshell = "||OISGRemoteAppLauncher (1)";
+                var rempgm = "||OISGRemoteAppLauncher (1)";
+                var remname = "TestRemoteApp";
+                var url = $"rdp://{settings}&username=s:my test user%5cishere&full%20address=s:myhostname:3333&screen%20mode%20id=i:3&shell+working+directory=s:C%3a%2Fdir1+dir2/";
                 var dictionary = sut.Parse($"{url}");
                 Assert.Equal(url, dictionary[Token.OriginalUrl]);
                 Assert.Equal("rdp", dictionary[Token.Protocol]);
                 Assert.Equal("myhostname", dictionary[Token.Host]);
                 Assert.Equal("3333", dictionary[Token.Port]);
                 Assert.Equal("my test user\\ishere", dictionary[Token.User]);
+                Assert.Equal(altshell, dictionary[Token.AlternateShell]);
+                Assert.Equal(rempgm, dictionary[Token.Remoteapplicationprogram]);
+                Assert.Equal(remname, dictionary[Token.Remoteapplicationname]);
+
                 var tempfile = dictionary[Token.GeneratedFile];
                 var fileLines = File.ReadAllLines(tempfile);
                 var count = 0;
@@ -147,18 +156,18 @@ namespace scalus.Test
                 foreach (var one in fileLines)
                 {
 
-                    if (check(one, "singlemoninwindowedmode", "i:", names, ref count)) continue;
-                    if (check(one, "screen mode id", "i:3", names, ref count)) continue;
+                    if (check(one, "screen mode id", "i:1111", names, ref count)) continue;
                     if (check(one, "shell working directory", "s:C:/dir1 dir2", names, ref count)) continue;
                     if (check(one, "full address", "s:myhostname:3333", names, ref count)) continue;
                     if (check(one, "username", "s:my test user" + Regex.Escape("\\") + "ishere", names, ref count)) continue;
-                    if (check(one, "alternate shell", "s:my test user" + Regex.Escape("\\") + "ishere_myhostname", names, ref count)) continue;
-                    if (check(one, "remoteapplicationprogram", "s:my test user" + Regex.Escape("\\") + "ishere_program", names, ref count)) continue;
-                    if (check(one, "remoteapplicationname", "s:myhostname", names, ref count)) continue;
+                    if (check(one, "singlemoninwindowedmode", "i:0", names, ref count)) continue;
+                    if (check(one, "alternate shell", $"s:testanothershellOn myhostname", names, ref count)) continue;
                     if (check(one, "password 51", "b:keepthis", names, ref count)) continue;
+                    if (check(one, "remoteapplicationprogram", $"s:{rempgm}", names, ref count)) continue;
 
                 }
-                Assert.True(count == 9, "Matched names: " + string.Join(",", names));
+                Assert.True(count == 8, "Matched names: " + string.Join(",", names));
+                Assert.Equal(count, fileLines.Length);
             }
             if (File.Exists(template))
             {
@@ -170,18 +179,16 @@ namespace scalus.Test
         [Fact]
         public void TestRdpTemplate2()
         {
-            //Rdp string
-            //rdp://username=s:encodeduser&full+address=s:hostname:port&screen%20mode%20id=i:3&shell working directory=s:C:/dir1 dir2
             var template = Path.GetTempFileName();
-            //handle any rdp settings in the url
-
-            //test using an rdp template file
-            //any rdp settings in the url will be preserved and will override the values in the template
-
+            
+            //generic template - not ms rdp
             var lines = new List<string>
             {
-                $"full address:s:%{Token.Host}%:%{Token.Port}%",
-                $"username:s:%{Token.User}%",            
+                $"MyAddress=%{Token.Host}%:%{Token.Port}%",
+                $"User=%{Token.User}%",  
+                $"Shell=%{Token.AlternateShell}%_%{Token.Host}%",
+                $"Name=%{Token.Remoteapplicationname}%_%{Token.Host}%",
+                $"Exe=%{Token.Remoteapplicationprogram}%_%{Token.Host}%"
             };
             File.WriteAllLines(template, lines);
 
@@ -200,60 +207,26 @@ namespace scalus.Test
                 Assert.Equal("myhostname", dictionary[Token.Host]);
                 Assert.Equal("3333", dictionary[Token.Port]);
                 Assert.Equal("my test user\\ishere", dictionary[Token.User]);
+                Assert.Equal(altshell, dictionary[Token.AlternateShell]);
+                Assert.Equal(rempgm, dictionary[Token.Remoteapplicationprogram]);
+                Assert.Equal(remname, dictionary[Token.Remoteapplicationname]);
+
                 var tempfile = dictionary[Token.GeneratedFile];
                 var fileLines = File.ReadAllLines(tempfile);
                 var count = 0;
+                var names = new List<string>();
+
                 foreach (var one in fileLines)
                 {
-                    if (Regex.IsMatch(one, "^username"))
-                    {
-                        count++;
-                        Assert.Equal("username:s:my test user\\ishere", one);
-                    }
-                    else if (Regex.IsMatch(one, "^full address"))
-                    {
-                        count++;
-                        Assert.Equal("full address:s:myhostname:3333", one);
-                    }
-                    if (Regex.IsMatch(one, "^screen mode id:i:"))
-                    {
-                        Assert.Equal("screen mode id:i:3", one);
-                        count++;
-                    }
-                    else if (Regex.IsMatch(one, "^shell working directory"))
-                    {
-                        count++;
-                        Assert.Equal("shell working directory:s:C:/dir1 dir2", one);
-                    } 
-                    else if (Regex.IsMatch(one, "^alternate shell"))
-                    {
-                        count++;
-                        Assert.Equal($"alternate shell:s:{altshell}", one);
-                    }
-                    else if (Regex.IsMatch(one, "^remoteapplicationprogram"))
-                    {
-                        count++;
-                        Assert.Equal($"remoteapplicationprogram:s:{rempgm}", one);
-                    }
-                    else if (Regex.IsMatch(one, "^remoteapplicationname"))
-                    {
-                        count++;
-                        Assert.Equal($"remoteapplicationname:s:{remname}", one);
-                    }
-
-                    //these shouldnt appear as they are not in the template or in the url
-                    else if (Regex.IsMatch(one, "^singlemoninwindowedmode:i:"))
-                    {
-                        Assert.Equal("singlemoninwindowedmode:i:0", one);
-                        count++;
-                    }
-                    else if (Regex.IsMatch(one, "^password"))
-                    {
-                        count++;
-                        Assert.Equal("password 51:b:keepthis", one);
-                    }
+                    if (check(one, "User", "my test user" + Regex.Escape("\\") + "ishere", names, ref count, "=")) continue;
+                    if (check(one, "MyAddress", "myhostname:3333", names, ref count, "=")) continue;
+                    if (check(one, "Shell", $"{altshell}_myhostname", names, ref count, "=")) continue;
+                    if (check(one, "Exe", $"{rempgm}_myhostname", names, ref count, "=")) continue;
+                    if (check(one, "Name", $"{remname}_myhostname", names, ref count, "=")) continue;
+                                 
                 }
-                Assert.Equal(7, count);
+                Assert.Equal(5, count);
+                Assert.Equal(count, fileLines.Length);
             }
             if (File.Exists(template))
             {

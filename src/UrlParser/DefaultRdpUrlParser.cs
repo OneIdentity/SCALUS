@@ -61,17 +61,21 @@ namespace scalus.UrlParser
         public const string FullAddressKey = "full address";
         public const string UsernameKey = "username";
         public const string RdpPasswordHashKey = "password 51";
+        public const string AlternateShellKey = "alternate shell";
+        public const string RemoteapplicationnameKey = "remoteapplicationname";
+        public const string RemoteapplicationprogramKey = "remoteapplicationprogram";
 
-
+       
         public Dictionary<string, string> DefaultArgs = new Dictionary<string, string>();
 
+       
         private Dictionary<string,string> ParseTemplate(IEnumerable<string> list)
         {
             var dict = new Dictionary<string, string>();
             if (list == null || list.Count()== 0)
                 return dict;
             foreach (var one in list)
-            {
+            {                
                 var line = one.Split(":");
                 if (line.Length < 3)
                     continue;
@@ -120,7 +124,7 @@ namespace scalus.UrlParser
                     else if (key.Equals(UsernameKey))
                     {
                         _msArgList1[key] = Tuple.Create(true, ":s:"+ result.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped));
-                    }                 
+                    }
                     else {
                         _msArgList1[key] = Tuple.Create(true, value);
                     }
@@ -154,29 +158,7 @@ namespace scalus.UrlParser
             }
             return list;
         }
-        protected override IEnumerable<string> GetTemplateOverrides(IEnumerable<string> templateList)
-        {
-            var templateDict = ParseTemplate(templateList);
-
-            // add any settings that were specified in the url, but arenet in the template
-           
-            foreach (var one in _msArgList1)
-            {
-                if (one.Value.Item1)
-                {
-                    if (!templateDict.ContainsKey(one.Key))
-                    {
-                        templateDict[one.Key] = one.Value.Item2;
-                    }
-                }
-            }
-            var newList = new List<string>();
-            foreach(var one in templateDict)
-            {
-                newList.Add(one.Key + ":" + one.Value);
-            }
-            return newList;
-        }
+        
         private void ParseArgs(string clArgs)
         {
             var re = new Regex("(([^=]+)=(.):(.*))|(([^:]+):(s|i):(.*))");
@@ -239,12 +221,23 @@ namespace scalus.UrlParser
                     {
                         Dictionary[Token.Port] = "3389";
                     }
-                }
+                }              
                 else
                 {
                     value = HttpUtility.UrlDecode(value);
                 }
-
+                if (Regex.IsMatch(name, AlternateShellKey))
+                {
+                    Dictionary[Token.AlternateShell] = value;
+                }
+                else if (Regex.IsMatch(name, RemoteapplicationnameKey))
+                {
+                    Dictionary[Token.Remoteapplicationname] = value;
+                }
+                else if (Regex.IsMatch(name, RemoteapplicationprogramKey))
+                {
+                    Dictionary[Token.Remoteapplicationprogram] = value;
+                }
                 _msArgList1[name] = Tuple.Create(true, type + ":" + value);
             }
              
@@ -311,7 +304,9 @@ namespace scalus.UrlParser
             var re = new Regex("(([^:]+):([^:]+):(.*))");
             var match = re.Match(newline);
 
-            if (match.Success && !string.IsNullOrEmpty(match.Groups[2].Value))
+            if (match.Success && !string.IsNullOrEmpty(match.Groups[2].Value) &&
+                !string.IsNullOrEmpty(match.Groups[3].Value) &&
+                string.IsNullOrEmpty(match.Groups[4].Value))
             {
                 var name = match.Groups[2].Value;
                 var val = match.Groups[3].Value + ":" + match.Groups[4].Value;

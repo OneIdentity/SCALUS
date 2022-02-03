@@ -352,7 +352,6 @@ namespace scalus.UrlParser
                 }
                 try {
                     fileLines = File.ReadAllLines(templatefile);
-                    fileLines = GetTemplateOverrides(fileLines);
                 }
                 catch (Exception e)
                 {
