@@ -36,9 +36,9 @@ if (SignFiles)
 		Information("Code sign not selected");
 	}
 	else {
-		if ((!FileExists(ToolPath)) || (!FileExists(CertPath))) 
+		if ((!DirectoryExists(ToolPath)) || (!FileExists(CertPath))) 
 		{
-			if (!FileExists(ToolPath))
+			if (!DirectoryExists(ToolPath))
 			{
 				Information("Cannot sign code - invalid tool path: " + ToolPath);
 			}
