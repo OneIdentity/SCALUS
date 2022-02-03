@@ -1,5 +1,6 @@
 trigger:
 - master
+- release*
 
 variables:
   version: '1.0.0.$(Revision)'
@@ -8,6 +9,7 @@ variables:
   buildConfiguration: 'Release'
   codeSigningCertFileName: 'OneIdentityCodeSigning.pfx'
   signingToolPath: 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64'
+  isRelease: ( eq(variables['Build.SourceBranch'], 'refs/heads/release'))
 
 jobs:
 - job: BuildAndTest
@@ -43,7 +45,7 @@ jobs:
       azureSubscription: 'Azure.Infrastructure.CodeSigning'
       KeyVaultName: 'CodeSigningCertificates'
     displayName: 'Get code signing certificate from Azure Key Vault'
-    condition: succeeded()
+    condition: and(succeeded(), eq(variables.isRelease, true)
   - powershell: |
       $kvSecretBytes = [System.Convert]::FromBase64String("$(OneIdentity-CodeSigning)")
       $certCollection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
@@ -53,13 +55,13 @@ jobs:
       Write-Verbose -Verbose $certpath
       [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
     displayName: 'Save code signing certificate to PFX file'
-    condition: succeeded()
+    condition: and(succeeded(), eq(variables.isRelease, true)
   - task: Cake@2
     inputs:
       script: 'build.cake'
       target: 'Default'
       verbosity: 'Verbose'
-      arguments: '--runtime=win10-x64 --Version=$(version) --SignFiles=true --CertPath="$(Build.BinariesDirectory)/$(codeSigningCertFileName)" --ToolPath="$(signingToolPath)" --CertPass=$(OneIdentity-CodeSigningCertPassword)'
+      arguments: '--runtime=win10-x64 --Version=$(version) --SignFiles=$(isRelease) --CertPath="$(Build.BinariesDirectory)/$(codeSigningCertFileName)" --ToolPath="$(signingToolPath)" --CertPass=$(OneIdentity-CodeSigningCertPassword)'
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
