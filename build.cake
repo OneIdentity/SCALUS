@@ -28,6 +28,7 @@ var is64            = Argument<bool>("is64", runtime.EndsWithIgnoreCase("X64"));
 
 var isLocalBuild = BuildSystem.IsLocalBuild;
 
+var signTool        = ToolPath + "/SignTool.exe";
 var canSign = false;
 if (SignFiles)
 {
@@ -52,13 +53,17 @@ if (SignFiles)
 		}
 	}
 }
+var baseDir = Context.Environment.WorkingDirectory;
+var solution = "scalus.sln";
+var solutionPath = baseDir.GetFilePath(solution);
+var solutionDir = solutionPath.GetDirectory();
+var publishdir=solutionDir + "/Publish/" + configuration + "/" + runtime;
+var builddir=solutionDir + "/Build/" + configuration + "/" + runtime;
+var outputdir=solutionDir + "/Output/" + configuration + "/" + runtime;
+var bindir=solutionDir + "/src/bin/" + configuration;
+var testdir=solutionDir + "/test/bin/" + configuration;
 
-var solutionPath = "./scalus.sln";
-var publishdir="Publish/" + configuration + "/" + runtime;
-var builddir="Build/" + configuration + "/" + runtime;
-var outputdir="Output/" + configuration + "/" + runtime;
-var bindir="src/bin/" + configuration;
-var testdir="test/bin/" + configuration;
+Information("Building in " + solutionDir);
 var scalusExe=publishdir + "/scalus";
 var fileToSign=publishdir + "/scalus";
 var msiPath=outputdir + "/scalus-setup-" + Version + "-" + runtime + ".msi";
@@ -169,7 +174,7 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-       DotNetCoreBuild(solutionPath,
+       DotNetCoreBuild(solution,
            new DotNetCoreBuildSettings()
 	{
 	Configuration = configuration,
@@ -321,7 +326,7 @@ Task("SignPath")
  		Information("Signing " + scalusExe);
  		Sign( new string[] { scalusExe },
     			new SignToolSignSettings {
-            		ToolPath = ToolPath,
+            		ToolPath = signTool,
             		CertPath = CertPath,
             		Password = CertPass
     		});
@@ -334,7 +339,7 @@ Task("SignMsi")
  		Information("Signing " + msiPath);
  		Sign( new string[] { msiPath },
     			new SignToolSignSettings {
-            		ToolPath = ToolPath,
+            		ToolPath = signTool,
             		CertPath = CertPath,
             		Password = CertPass
     		});
