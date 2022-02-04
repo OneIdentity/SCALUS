@@ -31,6 +31,7 @@
 							<File Id="eg3" Source="$(var.tmpdir)\examples\scalus.json" />
 							<File Id="eg4" Source="$(var.tmpdir)\examples\rdp.remmina" />
 							<File Id="eg5" Source="$(var.tmpdir)\examples\ssh.remmina" />
+							<File Id="eg6" Source="$(var.tmpdir)\examples\RdpRemoteAppTemplate.rdp" />
 					</Component>
 					</Directory>
 				</Directory>
