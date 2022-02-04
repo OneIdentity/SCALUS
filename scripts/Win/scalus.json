@@ -59,6 +59,29 @@
       "Args": [ "/u:%User%", "/v:%host%:%Port%", "/p:Safeguard" ]
     },
     {
+      "id": "windows-rdp-runapplication",
+      "name": "Windows RDP Client with program template",
+      "description": "Run MS Windows RDP Client with a user-supplied connection file:RdpRemoteAppTemplate.rdp. This template is tailored to run a dedicated application program on the target host",
+      "platforms": [
+        "Windows"
+      ],
+      "protocol": "rdp",
+      "parser": {
+        "parserId": "rdp",
+        "options": [
+          "waitforexit"
+        ],
+        "useDefaultTemplate": false,
+        "useTemplateFile": "%AppData%\\RdpRemoteAppTemplate.rdp",
+        "postProcessingExec": null,
+        "postProcessingArgs": null
+      },
+      "exec": "C:\\windows\\system32\\mstsc.exe",
+      "args": [
+        "%GeneratedFile%"
+      ]
+    },
+    {
       "Id": "windows-openssh",
       "Description": "Run the Windows OpenSSH client. An auth key can be provided by adding the '-i, keypath' arguments.",
       "Name": "Windows OpenSSH",
