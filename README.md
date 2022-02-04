@@ -32,3 +32,8 @@ Download the release version of scalus for your platform.
     To start the UI, run `/Applications/scalus.app/Contents/MacOS/scalus ui`    
 
     The readme and examples can be found in _/Applications/scalus.app/Contents/Resources/examples_    
+    
+ # Upgrading SCALUS
+ 
+ Scalus operates on a personal working copy of the scalus configuration files. This personal copy is not updated when Scalus is upgraded, to avoid overwriting any customizations applied. The latest version of the configuration files can be found in 'Examples' in the Scalus install directory. Deleting your personal working copy will cause Scalus to recreate your personal working copy from the Examples directory next time it is run.
+
