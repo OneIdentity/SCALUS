@@ -197,4 +197,26 @@ export class ScalusApplicationsComponent implements OnInit {
       return "";
     }
   }
+
+  cloneApplication(ac:ApplicationConfigDisplay, event) {
+    event.stopPropagation();
+    
+    var application:ApplicationConfigDisplay = <ApplicationConfigDisplay>{};
+    application.id = ac.id + "-clone";
+    application.name = ac.name;
+    application.description = ac.description;
+    application.platforms = ac.platforms;
+    application.protocol = ac.protocol;
+    application.exec = ac.exec; 
+    application.args = ac.args;
+    application.parser = <ParserConfigDisplay>{};
+    application.parser.parserId = ac.parser.parserId;
+    application.parser.options = ac.parser.options;
+    application.parser.useDefaultTemplate = ac.parser.useDefaultTemplate;
+    application.parser.useTemplateFile = ac.parser.useTemplateFile;
+    application.parser.postProcessingExec = ac.parser.postProcessingExec;
+    application.parser.postProcessingArgs = ac.parser.postProcessingArgs;
+
+    this.applications.unshift(application);
+  }
 }

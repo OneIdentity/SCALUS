@@ -9,7 +9,11 @@
             <mat-expansion-panel class="application" *ngFor="let a of applications">
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                {{a.id}}
+                    <div class="title-row">
+                        <span style="flex-grow: 1;">{{a.id}}</span>
+                        <mat-icon aria-hidden="false" style="flex-grow: 0; cursor: pointer; margin-right: 15px;" 
+                            matTooltip="Clone {{a.id}} application" (click)="cloneApplication(a, $event)">library_add</mat-icon>
+                    </div>
                 </mat-panel-title>
             </mat-expansion-panel-header>
                 <div class="form">
