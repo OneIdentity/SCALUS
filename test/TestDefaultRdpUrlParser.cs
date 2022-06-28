@@ -32,8 +32,8 @@ namespace scalus.Test
                 var user = $"username=s:localhost%5cvaultaddress%7e{vault}%25token%7e{token}%25{targetuser}%25{targethost}:{targetport}";
                 var decodedUser = $"localhost\\vaultaddress~{vault}%token~{token}%{decodedTargetUser}%{targethost}:{targetport}";
                 var str = $"full+address=s:{host}:{port}&{user}";
-                var dictionary = sut.Parse($"{str}/");
-                Assert.Equal($"{str}/", dictionary[Token.OriginalUrl]);
+                var dictionary = sut.Parse($"{prot}://{str}/");
+                Assert.Equal($"{prot}://{str}/", dictionary[Token.OriginalUrl]);
                 Assert.Equal(str, dictionary[Token.RelativeUrl]);
                 Assert.Equal(prot, dictionary[Token.Protocol]);
                 Assert.Equal(host, dictionary[Token.Host]);
@@ -319,6 +319,36 @@ namespace scalus.Test
             Assert.Equal(targethost, dict[Token.TargetHost]);
 
         }
-      
+        
+        [Fact]
+        public void TestSafeguardUrl()
+        {
+            const string url1 = "rdp://alternate+shell:s:%7C%7COISGRemoteAppLauncher%20%281%29&remoteapplicationprogram:s:%7C%7COISGRemoteAppLauncher%20%281%29&remoteapplicationname:s:Test%20Application&full+address=s:10.5.33.211&username=s:dan.vas%5caccount%7edbuser%25asset%7eTest%20Application%25vaultaddress%7e10.5.34.63%25token%7e9ttSPCSNYvJwwE7YajAPJgRF3MbL1YCxvRUk17RT6rEGSHCDWN4vwKNExxnxXjHPMmEBrZMy9N4XWWaqE2%25bnicholes%2510.5.37.71/";
+            const string url2 = "rdp://alternate+shell:s:%7C%7COISGRemoteAppLauncher%20%281%29";
+            const string url3 = "rdp://alternate+shell=s:%7C%7COISGRemoteAppLauncher%20%281%29&remoteapplicationprogram:s:%7C%7COISGRemoteAppLauncher%20%281%29&remoteapplicationname:s:Test%20Application&full+address=s:10.5.33.211&username=s:dan.vas%5caccount%7edbuser%25asset%7eTest%20Application%25vaultaddress%7e10.5.34.63%25token%7e9ttSPCSNYvJwwE7YajAPJgRF3MbL1YCxvRUk17RT6rEGSHCDWN4vwKNExxnxXjHPMmEBrZMy9N4XWWaqE2%25bnicholes%2510.5.37.71/";
+            const string url4 = "rdp://alternate+shell=s:%7C%7COISGRemoteAppLauncher%20%281%29";
+            using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig()))
+            {
+                var dictionary = sut.Parse(url1);
+                Assert.Equal("rdp", dictionary[Token.Protocol]);
+                Assert.Equal("Test Application", dictionary[Token.Remoteapplicationname]);
+                Assert.Equal("||OISGRemoteAppLauncher (1)", dictionary[Token.Remoteapplicationprogram]);
+                Assert.Equal("||OISGRemoteAppLauncher (1)", dictionary[Token.AlternateShell]);
+
+                dictionary = sut.Parse(url2);
+                Assert.Equal("rdp", dictionary[Token.Protocol]);
+                Assert.Equal("||OISGRemoteAppLauncher (1)", dictionary[Token.AlternateShell]);
+
+                dictionary = sut.Parse(url3);
+                Assert.Equal("rdp", dictionary[Token.Protocol]);
+                Assert.Equal("Test Application", dictionary[Token.Remoteapplicationname]);
+                Assert.Equal("||OISGRemoteAppLauncher (1)", dictionary[Token.Remoteapplicationprogram]);
+                Assert.Equal("||OISGRemoteAppLauncher (1)", dictionary[Token.AlternateShell]);
+
+                dictionary = sut.Parse(url4);
+                Assert.Equal("rdp", dictionary[Token.Protocol]);
+                Assert.Equal("||OISGRemoteAppLauncher (1)", dictionary[Token.AlternateShell]);
+            }
+        }
     }
 }

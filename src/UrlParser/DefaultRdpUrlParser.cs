@@ -34,7 +34,7 @@ namespace scalus.UrlParser
         //                     Name and value strings can be url encoded
 
         //If not in this format, it will default to parsing the string as a standard URL
-        public Regex RdpPattern = new Regex("(([^:]+)://)?((([^&=]+)=([^&]+))(&(([^&=]+)=([^&]+)))*)");
+        public Regex RdpPattern = new Regex("^[^:]+:\\/\\/(([^:=]+)(:|=).:([^&]*))");
         public Regex RdpPatt = new Regex("&");
 
         private readonly IDictionary<string, Tuple<bool, string>> _msArgList1 = new Dictionary<string, Tuple<bool, string>>();
@@ -161,7 +161,7 @@ namespace scalus.UrlParser
         
         private void ParseArgs(string clArgs)
         {
-            var re = new Regex("(([^=]+)=(.):(.*))|(([^:]+):(s|i):(.*))");
+            var re = new Regex("(([^=:]+)[=|:](s|i):(.*))");
             var args = clArgs.Split('&');
             foreach (var arg in args)
             {
@@ -173,18 +173,10 @@ namespace scalus.UrlParser
                 string name;
                 string type;
                 string value;
-                if (!string.IsNullOrEmpty(m.Groups[1].Value))
-                {
-                    name = m.Groups[2].Value;
-                    type = m.Groups[3].Value;
-                    value = m.Groups[4].Value;
-                }
-                else
-                {
-                    name = m.Groups[6].Value;
-                    type = m.Groups[7].Value;
-                    value = m.Groups[8].Value;
-                }
+                name = m.Groups[2].Value;
+                type = m.Groups[3].Value;
+                value = m.Groups[4].Value;
+
                 name = HttpUtility.UrlDecode(name);
                 value = HttpUtility.UrlDecode(value);
                 if (name.Equals(UsernameKey))
