@@ -33,7 +33,8 @@ namespace scalus.Dto
             Remoteapplicationname=20,
             Remoteapplicationprogram=21,
             Account = 22,
-            Asset = 23
+            Asset = 23,
+            Remoteapplicationcmdline = 24
         };
 
         //processing options supported

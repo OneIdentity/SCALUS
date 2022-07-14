@@ -57,6 +57,12 @@ namespace scalus.Test
                 { Token.TempPath, Path.GetTempPath() },
                 { Token.Home, "homedir" },
                 { Token.AppData, "appdata/scalus"},
+                { Token.AlternateShell, "myshell" },
+                { Token.Remoteapplicationname, "myname" },
+                { Token.Remoteapplicationprogram, "myprogram" },
+                { Token.Account, "myaccount" },
+                { Token.Asset, "myasset" },
+                { Token.Remoteapplicationcmdline, "--cmd \"C:\\Apps\\TestRemoteApp\\TestRemoteApp.exe\" --args \"password={password} asset={asset} user={username}\" --enable-debug" }
             };
         }
 
@@ -85,7 +91,14 @@ namespace scalus.Test
                 $"%{Token.GeneratedFile}%",
                 $"%{Token.TempPath}%",
                 $"%{Token.Home}%",
-                $"%{Token.AppData}%"
+                $"%{Token.AppData}%",
+
+                $"%{ Token.AlternateShell}%",
+                $"%{ Token.Remoteapplicationname}%",
+                $"%{ Token.Remoteapplicationprogram}%",
+                $"%{ Token.Account}%",
+                $"%{ Token.Asset}%",
+                $"%{ Token.Remoteapplicationcmdline }%"
             };
                
             
@@ -127,6 +140,21 @@ namespace scalus.Test
             Assert.Equal("homedir", one.Current);
             Assert.True(one.MoveNext());
             Assert.Equal("appdata/scalus", one.Current);
+
+
+            Assert.True(one.MoveNext());
+            Assert.Equal("myshell", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myname", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myprogram", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myaccount", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myasset", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("--cmd \"C:\\Apps\\TestRemoteApp\\TestRemoteApp.exe\" --args \"password={password} asset={asset} user={username}\" --enable-debug", one.Current);
+
             Assert.False(one.MoveNext());
 
             args = new List<string>
