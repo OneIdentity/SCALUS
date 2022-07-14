@@ -12,6 +12,7 @@ using System.Web;
 using scalus.Util;
 using Serilog;
 using static scalus.Dto.ParserConfigDefinitions;
+using System.Text;
 
 namespace scalus.UrlParser
 {
@@ -302,13 +303,29 @@ namespace scalus.UrlParser
 
         protected abstract IEnumerable<string> GetDefaultTemplate();
     
+        public static string ReplaceToken(string tokenKey, string tokenValue, string line)
+        {    
+            var patt = "%" + tokenKey + "%";
+            var newline = line;
+            newline = Regex.Replace(newline, patt, tokenValue ?? string.Empty, RegexOptions.IgnoreCase);
+            if (!string.IsNullOrEmpty(tokenValue))
+            {
+                patt = "(%" + tokenKey + "[?]([^:]*):[^%]*%)";
+            }
+            else
+            {
+                patt = "(%" + tokenKey + "[?][^:]*:([^%]*)%)";
+            }
+
+            newline = Regex.Replace(newline, patt, x => x.Groups[2]?.Value);
+            return newline;
+        }
         public virtual string ReplaceTokens(string line)
         {
             var newline = line;
             foreach (var variable in Dictionary)
             {
-                // TODO: Make this more robust. Edge case escapes don't work.
-                newline = Regex.Replace(newline, $"%{variable.Key}%", variable.Value??string.Empty, RegexOptions.IgnoreCase);
+                newline = ReplaceToken(variable.Key.ToString(), variable.Value, newline);
             }
             return newline;
         }

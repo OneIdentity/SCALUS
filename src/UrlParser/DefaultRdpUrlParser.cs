@@ -287,12 +287,7 @@ namespace scalus.UrlParser
 
         public override string ReplaceTokens(string line)
         {
-            var newline = line;
-            foreach (var variable in Dictionary)
-            {
-                // TODO: Make this more robust. Edge case escapes don't work.
-                newline = Regex.Replace(newline, $"%{variable.Key}%", variable.Value ?? string.Empty, RegexOptions.IgnoreCase);
-            }
+            var newline = base.ReplaceTokens(line);
             var re = new Regex("(([^:]+):([^:]+):(.*))");
             var match = re.Match(newline);
 

@@ -32,6 +32,7 @@
 							<File Id="eg4" Source="$(var.tmpdir)\examples\rdp.remmina" />
 							<File Id="eg5" Source="$(var.tmpdir)\examples\ssh.remmina" />
 							<File Id="eg6" Source="$(var.tmpdir)\examples\RdpRemoteAppTemplate.rdp" />
+							<File Id="eg7" Source="$(var.tmpdir)\examples\WinRdpTemplate.rdp" />
 					</Component>
 					</Directory>
 				</Directory>
