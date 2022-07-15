@@ -328,7 +328,8 @@ Task("SignPath")
     			new SignToolSignSettings {
             		ToolPath = signTool,
             		CertPath = CertPath,
-            		Password = CertPass
+            		Password = CertPass,
+                        DigestAlgorithm = SignToolDigestAlgorithm.Sha256
     		});
     	});
 
@@ -341,7 +342,8 @@ Task("SignMsi")
     			new SignToolSignSettings {
             		ToolPath = signTool,
             		CertPath = CertPath,
-            		Password = CertPass
+            		Password = CertPass,
+                        DigestAlgorithm = SignToolDigestAlgorithm.Sha256
     		});
     	});
 
