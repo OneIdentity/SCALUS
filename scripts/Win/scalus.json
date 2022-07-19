@@ -2,7 +2,7 @@
   "Protocols": [
     {
       "Protocol": "rdp",
-      "AppId": "windows-rdp"
+      "AppId": "WindowsRDPDesktopOrApp"
     },
     {
       "Protocol": "ssh",
@@ -13,6 +13,29 @@
     }
   ],
   "Applications": [
+{
+      "id": "WindowsRDPDesktopOrApp",
+      "name": "WindowsRDPDesktopOrApp",
+      "description": "Run an RDP desktop session or an RDP remote app, using a template file",
+      "platforms": [
+        "Windows"
+      ],
+      "protocol": "rdp",
+      "parser": {
+        "parserId": "rdp",
+        "options": [
+          "waitforexit"
+        ],
+        "useDefaultTemplate": false,
+        "useTemplateFile": "%AppData%\\WinRdpTemplate.rdp",
+        "postProcessingExec": null,
+        "postProcessingArgs": null
+      },
+      "exec": "C:\\windows\\system32\\mstsc.exe",
+      "args": [
+        "%GeneratedFile%"
+      ]
+    },
     {
       "Id": "windows-rdp",
       "Description": "Run MS Windows RDP Client with a default connection file, which can be customized by the examplePlugin.pl perl script ",

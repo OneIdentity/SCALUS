@@ -8,7 +8,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   codeSigningCertFileName: 'OneIdentityCodeSigning.pfx'
-  signingToolPath: 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64'
+  signingToolPath: 'C:\Program Files (x86)\Windows Kits\10\App Certification Kit'
   isRelease: $[ startswith(variables['Build.SourceBranch'], 'refs/heads/release-')]
 
 jobs:

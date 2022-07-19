@@ -15,7 +15,7 @@ using System.IO;
 
 namespace scalus.UrlParser
 {
-    [ParserName("rdp")]  
+    [ParserName("rdp")]
     internal class DefaultRdpUrlParser : BaseParser
     {
         //This class parses an RDP string of the form
@@ -38,7 +38,7 @@ namespace scalus.UrlParser
         public Regex RdpPatt = new Regex("&");
 
         private readonly IDictionary<string, Tuple<bool, string>> _msArgList1 = new Dictionary<string, Tuple<bool, string>>();
-       
+
         private static string GetResource(string name)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -56,16 +56,18 @@ namespace scalus.UrlParser
         }
 
 
-        
+
         public const string rdpPattern = "\\S=[s|i]:\\S+";
         public const string FullAddressKey = "full address";
         public const string UsernameKey = "username";
         public const string RdpPasswordHashKey = "password 51";
-        public const string AlternateShellKey = "alternate shell";
-        public const string RemoteapplicationnameKey = "remoteapplicationname";
-        public const string RemoteapplicationprogramKey = "remoteapplicationprogram";
+        public List<(string, Token)> RdpKeys = new List<(string, Token)> {
+            { ("alternate shell", Token.AlternateShell) },
+            { ("remoteapplicationname",Token.Remoteapplicationname ) },
+            { ("remoteapplicationprogram", Token.Remoteapplicationprogram) },
+            { ("remoteapplicationcmdline", Token.Remoteapplicationcmdline) }
+        };
 
-       
         public Dictionary<string, string> DefaultArgs = new Dictionary<string, string>();
 
        
@@ -181,9 +183,9 @@ namespace scalus.UrlParser
                 value = HttpUtility.UrlDecode(value);
                 if (name.Equals(UsernameKey))
                 {
-                    if ((value.IndexOf("%25", StringComparison.Ordinal) >= 0) || 
-                        (value.IndexOf("%5c", StringComparison.Ordinal)>= 0) ||
-                            (value.IndexOf("%20", StringComparison.Ordinal) >=0))
+                    if ((value.IndexOf("%25", StringComparison.Ordinal) >= 0) ||
+                        (value.IndexOf("%5c", StringComparison.Ordinal) >= 0) ||
+                            (value.IndexOf("%20", StringComparison.Ordinal) >= 0))
                     {
                         value = HttpUtility.UrlDecode(value);
                     }
@@ -194,7 +196,7 @@ namespace scalus.UrlParser
 
                     //Workaround a bug where 2 slashes were added to the connection URI instead of just 1
                     value = value.Replace("\\\\", "\\");
-                    
+
                     Dictionary[Token.User] = Regex.Replace(value, "^.:", "");
                     GetSafeguardUserValue(Dictionary);
                 }
@@ -204,7 +206,7 @@ namespace scalus.UrlParser
 
                     (string host, string port) = ParseHost(Regex.Replace(hostval, "^.:", ""));
                     Dictionary[Token.Host] = host;
-                    
+
                     if (!string.IsNullOrEmpty(port))
                     {
                         Dictionary[Token.Port] = port;
@@ -213,22 +215,19 @@ namespace scalus.UrlParser
                     {
                         Dictionary[Token.Port] = "3389";
                     }
-                }              
+                }
                 else
                 {
                     value = HttpUtility.UrlDecode(value);
-                }
-                if (Regex.IsMatch(name, AlternateShellKey))
-                {
-                    Dictionary[Token.AlternateShell] = value;
-                }
-                else if (Regex.IsMatch(name, RemoteapplicationnameKey))
-                {
-                    Dictionary[Token.Remoteapplicationname] = value;
-                }
-                else if (Regex.IsMatch(name, RemoteapplicationprogramKey))
-                {
-                    Dictionary[Token.Remoteapplicationprogram] = value;
+
+                    foreach (var one in RdpKeys)
+                    {
+                        if (Regex.IsMatch(name, one.Item1))
+                        {
+                            Dictionary[one.Item2] = value;
+                            break;
+                        }
+                    }
                 }
                 _msArgList1[name] = Tuple.Create(true, type + ":" + value);
             }
@@ -287,12 +286,7 @@ namespace scalus.UrlParser
 
         public override string ReplaceTokens(string line)
         {
-            var newline = line;
-            foreach (var variable in Dictionary)
-            {
-                // TODO: Make this more robust. Edge case escapes don't work.
-                newline = Regex.Replace(newline, $"%{variable.Key}%", variable.Value ?? string.Empty, RegexOptions.IgnoreCase);
-            }
+            var newline = base.ReplaceTokens(line);
             var re = new Regex("(([^:]+):([^:]+):(.*))");
             var match = re.Match(newline);
 

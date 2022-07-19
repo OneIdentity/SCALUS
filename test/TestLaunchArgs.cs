@@ -56,7 +56,13 @@ namespace scalus.Test
                 { Token.GeneratedFile, filename },
                 { Token.TempPath, Path.GetTempPath() },
                 { Token.Home, "homedir" },
-                {Token.AppData, "appdata/scalus"}
+                { Token.AppData, "appdata/scalus"},
+                { Token.AlternateShell, "myshell" },
+                { Token.Remoteapplicationname, "myname" },
+                { Token.Remoteapplicationprogram, "myprogram" },
+                { Token.Account, "myaccount" },
+                { Token.Asset, "myasset" },
+                { Token.Remoteapplicationcmdline, "--cmd \"C:\\Apps\\TestRemoteApp\\TestRemoteApp.exe\" --args \"password={password} asset={asset} user={username}\" --enable-debug" }
             };
         }
 
@@ -85,7 +91,14 @@ namespace scalus.Test
                 $"%{Token.GeneratedFile}%",
                 $"%{Token.TempPath}%",
                 $"%{Token.Home}%",
-                $"%{Token.AppData}%"
+                $"%{Token.AppData}%",
+
+                $"%{ Token.AlternateShell}%",
+                $"%{ Token.Remoteapplicationname}%",
+                $"%{ Token.Remoteapplicationprogram}%",
+                $"%{ Token.Account}%",
+                $"%{ Token.Asset}%",
+                $"%{ Token.Remoteapplicationcmdline }%"
             };
                
             
@@ -127,6 +140,21 @@ namespace scalus.Test
             Assert.Equal("homedir", one.Current);
             Assert.True(one.MoveNext());
             Assert.Equal("appdata/scalus", one.Current);
+
+
+            Assert.True(one.MoveNext());
+            Assert.Equal("myshell", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myname", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myprogram", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myaccount", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("myasset", one.Current);
+            Assert.True(one.MoveNext());
+            Assert.Equal("--cmd \"C:\\Apps\\TestRemoteApp\\TestRemoteApp.exe\" --args \"password={password} asset={asset} user={username}\" --enable-debug", one.Current);
+
             Assert.False(one.MoveNext());
 
             args = new List<string>
@@ -154,7 +182,27 @@ namespace scalus.Test
             Assert.False(one.MoveNext());
             }
         }
+        [Fact]
+        public void TestComplexParse()
+        {
+            var line = $"start %{Token.AlternateShell}% mid1 %{Token.AlternateShell}?shell1:shell2%  %{Token.Host}%  sometext%{Token.Host}?:% mid2 line%{Token.AlternateShell}?shell3:% %{Token.Host}?host1:%    %{Token.Host}?:host2%   %{Token.Host}?host3:host4%   %{Token.AlternateShell}?:shell4%";
+            var exp1 = $"start %{Token.AlternateShell}% mid1 %{Token.AlternateShell}?shell1:shell2%  {host}  sometext mid2 line%{Token.AlternateShell}?shell3:% host1       host3   %{Token.AlternateShell}?:shell4%";
+            var exp2 = $"start  mid1 shell2  {host}  sometext mid2 line host1       host3   shell4";
+            var exp3 = $"start aaaaa mid1 shell1  {host}  sometext mid2 lineshell3 host1       host3   ";
 
+            var newline = BaseParser.ReplaceToken(Token.User.ToString(), "abc", line);
+            Assert.Equal(line, newline);
+
+            newline = BaseParser.ReplaceToken(Token.Host.ToString(), host, line);
+            Assert.Equal(exp1, newline);
+
+            newline = BaseParser.ReplaceToken(Token.AlternateShell.ToString(), "", exp1);
+            Assert.Equal(exp2, newline);
+
+            newline = BaseParser.ReplaceToken(Token.AlternateShell.ToString(), "aaaaa", exp1);
+            Assert.Equal(exp3, newline);
+
+        }
         [Fact]
         public void Test2()
         {
