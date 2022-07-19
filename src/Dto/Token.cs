@@ -76,7 +76,8 @@ namespace scalus.Dto
             {Token.Remoteapplicationname, "The name of the remote application to run in the session."},
             {Token.Remoteapplicationprogram, "The alias or executable name of the remote application to run in the session."},
             {Token.Account, "The account part of a Safeguard URL." },
-            {Token.Asset, "The asset part of a Safeguard URL." }
+            {Token.Asset, "The asset part of a Safeguard URL." },
+            {Token.Remoteapplicationcmdline, "Optional command-line parameters for the remote application" }
         };
     }
 }
