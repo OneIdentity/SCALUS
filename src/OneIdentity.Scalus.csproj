@@ -22,6 +22,18 @@
     <UseWindowsForms>true</UseWindowsForms>
     -->
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Edition>community</Edition>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Edition)'=='community'">
+    <DefineConstants>COMMUNITY_EDITION</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+  </PropertyGroup>
   
   <ItemGroup>
     <Compile Remove="Ui\app\**" />

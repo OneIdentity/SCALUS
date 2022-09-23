@@ -35,6 +35,7 @@ namespace OneIdentity.Scalus
     {
         private static int Main(string[] args)
         {
+            PrintEdition();
             ConfigureLogging();
             CheckConfig();
             try
@@ -84,6 +85,15 @@ namespace OneIdentity.Scalus
             }
         }
 
+        private static void PrintEdition()
+        {
+#if COMMUNITY_EDITION
+            Console.WriteLine("Community Edition");
+#endif
+#if !COMMUNITY_EDITION
+            Console.WriteLine("OneIdentity Supported Edition");
+#endif
+        }
 
         private static void CheckConfig()
         {
