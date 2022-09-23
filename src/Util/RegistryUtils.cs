@@ -1,10 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Win32;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RegistryUtils.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus.Util
+namespace OneIdentity.Scalus.Util
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.Versioning;
+    using Microsoft.Win32;
+
+    [SupportedOSPlatform("windows")]
     public static class RegistryUtils
     {
         private static RegistryKey EnsureWritable(RegistryKey key)
@@ -43,6 +66,7 @@ namespace scalus.Util
                         }
                     }
                 }
+
                 return curKey == null ? null : EnsureWritable(curKey); // Explicitly reopen with write access
             }
             catch (Exception e)
@@ -96,11 +120,12 @@ namespace scalus.Util
                     return false;
                 }
             }
+
             try
             {
                 regKey.DeleteSubKeyTree(parts[parts.Length - 1]);
             }
-            catch(System.ArgumentException ex)
+            catch (System.ArgumentException ex)
             {
                 Serilog.Log.Error($"Error deleting key {path}: {ex.Message}");
                 return false;
@@ -145,7 +170,8 @@ namespace scalus.Util
             {
                 return value as string[];
             }
-            return new[] {value?.ToString()};
+
+            return new[] { value?.ToString() };
         }
 
         public static DateTime? GetStringValueAsDateTime(string path, string key)
@@ -158,6 +184,7 @@ namespace scalus.Util
             {
                 return dateTimeValue;
             }
+
             return null;
         }
 
@@ -217,51 +244,61 @@ namespace scalus.Util
                 path = path.Substring(19);
                 return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             }
+
             if (path.StartsWith("HKLM\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             }
+
             if (path.StartsWith("HKEY_CLASSES_ROOT\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(18);
                 return Registry.ClassesRoot;
             }
+
             if (path.StartsWith("HKCR\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return Registry.ClassesRoot;
             }
+
             if (path.StartsWith("HKEY_CURRENT_USER\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(18);
                 return Registry.CurrentUser;
             }
+
             if (path.StartsWith("HKCU\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return Registry.CurrentUser;
             }
+
             if (path.StartsWith("HKEY_USERS\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(11);
                 return Registry.Users;
             }
+
             if (path.StartsWith("HKU\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(4);
                 return Registry.Users;
             }
+
             if (path.StartsWith("HKEY_CURRENT_CONFIG\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(20);
                 return Registry.CurrentConfig;
             }
+
             if (path.StartsWith("HKCC\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return Registry.CurrentConfig;
             }
+
             return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
         }
 
@@ -271,6 +308,7 @@ namespace scalus.Util
             {
                 throw new ArgumentNullException(name);
             }
+
             return value;
         }
 
@@ -280,6 +318,7 @@ namespace scalus.Util
             {
                 throw new ArgumentNullException(name);
             }
+
             return value;
         }
     }

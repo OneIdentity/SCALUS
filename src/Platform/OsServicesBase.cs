@@ -1,14 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
-using System.Threading.Tasks;
-using Serilog;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="OsServicesBase.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus.Platform
+namespace OneIdentity.Scalus.Platform
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Security.Principal;
+    using System.Threading.Tasks;
+    using Serilog;
+
     public class OsServicesBase : IOsServices
     {
         public object OsServices { get; private set; }
@@ -30,6 +51,7 @@ namespace scalus.Platform
             {
                 return Process.Start("open", url);
             }
+
             Log.Information($"unknown platform {RuntimeInformation.OSDescription}- cant prompt");
             return null;
         }
@@ -40,21 +62,24 @@ namespace scalus.Platform
             {
                 throw new Exception("Missing command");
             }
+
             var startupInfo = new ProcessStartInfo(command)
             {
                 CreateNoWindow = false,
                 UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Normal
+                WindowStyle = ProcessWindowStyle.Normal,
             };
             foreach (var arg in args)
             {
                 startupInfo.ArgumentList.Add(arg.Trim());
             }
+
             Log.Logger.Information($"Running process:{command} with args:{string.Join(' ', args)}");
             var process = Process.Start(startupInfo);
             Log.Logger.Information($"Started process, id:{process?.Id}, exited:{process?.HasExited}");
             return process;
         }
+
         //execute a command, wait for it to end, return the exit code and retrieve the stdout & stderr
         public int Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr)
         {
@@ -64,13 +89,14 @@ namespace scalus.Platform
             {
                 throw new Exception("missing command");
             }
+
             Log.Logger.Information($"Running:{command}, args:{string.Join(',', args)}");
             var startupInfo = new ProcessStartInfo(command)
             {
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardError = true,
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
             };
             if (args != null)
             {
@@ -79,6 +105,7 @@ namespace scalus.Platform
                     startupInfo.ArgumentList.Add(arg);
                 }
             }
+
             var process = Process.Start(startupInfo);
             if (process == null)
             {
@@ -86,7 +113,7 @@ namespace scalus.Platform
             }
 
             process.WaitForExit();
-            stdOut = process.StandardOutput.ReadToEnd() ;
+            stdOut = process.StandardOutput.ReadToEnd();
             stdErr = process.StandardError.ReadToEnd();
             Log.Logger.Information($"Result:{process.ExitCode}, output:{stdOut}, err:{stdErr}");
             return process.ExitCode;
@@ -104,7 +131,8 @@ namespace scalus.Platform
                 }
 
                 return isAdmin;
-            } 
+            }
+
             return geteuid() == 0;
         }
 
@@ -127,15 +155,16 @@ namespace scalus.Platform
                 if (process == null)
                 {
                     Log.Error($"Failed to report warning:{message}");
-                } 
-                else {
+                }
+                else
+                {
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
                         process.WaitForExit();
                     }
                     else
                     {
-                        Task.Delay(10* 1000).Wait();
+                        Task.Delay(10 * 1000).Wait();
                     }
                 }
             }

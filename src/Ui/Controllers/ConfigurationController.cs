@@ -1,24 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using Autofac;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using scalus.Dto;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ConfigurationController.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-namespace scalus.Ui.Controllers
+namespace OneIdentity.Scalus.Ui.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using Autofac;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using OneIdentity.Scalus.Dto;
+
     [Route("api/[controller]")]
     [ApiController]
     [Produces("application/json")]
     public class ConfigurationController : ControllerBase
     {
-        IScalusApiConfiguration Configuration { get; }
-        IRegistration Registration { get; }
-        ILifetimeScope Container { get; }
- 
+        private IScalusApiConfiguration Configuration { get; }
+
+        private IRegistration Registration { get; }
+
+        private ILifetimeScope Container { get; }
+
         public ConfigurationController(IScalusApiConfiguration configuration, IRegistration registration, ILifetimeScope container)
         {
             Configuration = configuration;
@@ -27,7 +48,7 @@ namespace scalus.Ui.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type =typeof(ScalusConfig))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ScalusConfig))]
         public IActionResult Get()
         {
             var config = Configuration.GetConfiguration();
@@ -35,9 +56,10 @@ namespace scalus.Ui.Controllers
             {
                 throw new Exception("Bad configuration file");
             }
+
             return Ok(config);
         }
-        
+
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Post([FromBody] ScalusConfig value)
@@ -47,6 +69,7 @@ namespace scalus.Ui.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
+
             return Ok();
         }
 
@@ -60,6 +83,7 @@ namespace scalus.Ui.Controllers
             {
                 throw new Exception("Bad configuration file");
             }
+
             foreach (var one in config.Protocols)
             {
                 if (Registration.IsRegistered(one.Protocol))
@@ -67,26 +91,29 @@ namespace scalus.Ui.Controllers
                     registeredProtocols.Add(one.Protocol);
                 }
             }
+
             return Ok(registeredProtocols);
         }
 
         [HttpPut, Route("Register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Register([FromBody] ProtocolMapping protocolMapping)
-        { 
+        {
             if (!ProtocolMapping.ValidateProtocol(protocolMapping.Protocol, out string err))
             {
                 Serilog.Log.Error($"Cannot register invalid protocol:{protocolMapping.Protocol}:{err}");
                 return BadRequest();
             }
+
             if (Registration.IsRegistered(protocolMapping.Protocol))
             {
                 return Ok();
             }
+
             if (Registration.Register(new List<string> { protocolMapping.Protocol }, true))
                 return Ok();
             Serilog.Log.Error($"Cannot register {protocolMapping.Protocol} :  registration reported failure");
-            return UnprocessableEntity();         
+            return UnprocessableEntity();
         }
 
         [HttpPut, Route("UnRegister")]
@@ -98,14 +125,16 @@ namespace scalus.Ui.Controllers
                 Serilog.Log.Error($"Cannot register invalid protocol:{protocolMapping.Protocol}:{err}");
                 return BadRequest();
             }
+
             if (!Registration.IsRegistered(protocolMapping.Protocol))
             {
                 return Ok();
             }
+
             if (Registration.UnRegister(new List<string> { protocolMapping.Protocol }))
                 return Ok();
             Serilog.Log.Error($"Protocol: {protocolMapping.Protocol} -deregistration reported failure");
-            return UnprocessableEntity();       
+            return UnprocessableEntity();
         }
 
         [HttpGet, Route("Tokens")]
@@ -115,8 +144,9 @@ namespace scalus.Ui.Controllers
             var tokens = new Dictionary<string, string>();
             foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
             {
-                tokens.Add("%" +one.ToString()! + "%", ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
+                tokens.Add("%" + one.ToString()! + "%", ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
             }
+
             return Ok(tokens);
         }
 

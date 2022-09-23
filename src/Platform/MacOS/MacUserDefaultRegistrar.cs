@@ -1,16 +1,39 @@
-﻿using System;
-using scalus.Platform;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MacUserDefaultRegistrar.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus
+namespace OneIdentity.Scalus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text.RegularExpressions;
+    using OneIdentity.Scalus.Platform;
+
     public class MacOsUserDefaultRegistrar : IProtocolRegistrar
     {
         public bool UseSudo { get; set; }
+
         public bool RootMode { get; set; }
+
         public string Name { get; } = "MacOsUserDefault";
+
         public IOsServices OsServices { get; }
 
         //user preferences are saved in "~Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist";
@@ -19,25 +42,26 @@ namespace scalus
         {
             OsServices = osServices;
         }
-       
-   
+
+
         private bool UpdateConfiguredDefault(string protocol, bool add = true)
         {
             var handler = add ? MacOsExtensions.ScalusHandler : string.Empty;
             var home = Environment.GetEnvironmentVariable("HOME");
-            var res= this.RunCommand( "/bin/sh", 
+            var res = this.RunCommand("/bin/sh",
                 new List<string> {
                     "-c",
-                    $"HOME=\"{home}\";export HOME; python -c \"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')\""}, 
+                    $"HOME=\"{home}\";export HOME; python -c \"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')\"", },
                 out var output);
             if (!res)
             {
                 Serilog.Log.Error($"Failed to update the configured default:{output}");
                 return false;
             }
+
             return true;
 
-           // return this.Refresh();
+            // return this.Refresh();
         }
 
         //get the current configured default 
@@ -53,7 +77,8 @@ namespace scalus
                 Serilog.Log.Warning($"Failed to get the default protocol handler for:{protocol}: {output}");
                 return string.Empty;
             }
-            output = Regex.Replace(output, @"\t|\n|\r", "");
+
+            output = Regex.Replace(output, @"\t|\n|\r", string.Empty);
             Serilog.Log.Information($"Registered command is :{output}.");
             return Regex.IsMatch(output, "none", RegexOptions.IgnoreCase) ? string.Empty : output;
         }
@@ -73,6 +98,7 @@ namespace scalus
             {
                 return true;
             }
+
             return UpdateConfiguredDefault(protocol, false);
         }
 
@@ -80,8 +106,9 @@ namespace scalus
         public bool Register(string protocol)
         {
             return UpdateConfiguredDefault(protocol);
-            
-        }   
+
+        }
+
         public bool ReplaceRegistration(string protocol)
         {
             return Register(protocol);
