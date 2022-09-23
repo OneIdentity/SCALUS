@@ -2,6 +2,15 @@ trigger:
 - master
 - release*
 
+parameters:
+  - name: editon
+    displayName: 'Build Edition'
+    type: string
+    default: 'community'
+    values:
+    - community
+    - oneidentity
+
 variables:
   version: '1.0.0.$(Revision)'
   solution: '**/*.sln'
@@ -26,7 +35,7 @@ jobs:
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
-      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+      msbuildArgs: '/p:Edition="$(edition)" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
