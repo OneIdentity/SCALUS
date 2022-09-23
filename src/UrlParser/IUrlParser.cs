@@ -27,6 +27,19 @@ namespace OneIdentity.Scalus.UrlParser
     using OneIdentity.Scalus.Platform;
     using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
+    public interface IUrlParser : IDisposable
+    {
+        IDictionary<Token, string> Parse(string url);
+
+        void PostExecute(Process process);
+
+        List<string> ReplaceTokens(List<string> args);
+
+        string ReplaceTokens(string arg);
+
+        void PreExecute(IOsServices services);
+    }
+
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
     public class ParserName : Attribute
     {
@@ -41,19 +54,5 @@ namespace OneIdentity.Scalus.UrlParser
         {
             return name;
         }
-    }
-
-
-    public interface IUrlParser : IDisposable
-    {
-        IDictionary<Token, string> Parse(string url);
-
-        void PostExecute(Process process);
-
-        List<string> ReplaceTokens(List<string> args);
-
-        string ReplaceTokens(string arg);
-
-        void PreExecute(IOsServices services);
     }
 }

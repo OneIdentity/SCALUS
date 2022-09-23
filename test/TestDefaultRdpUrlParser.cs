@@ -56,7 +56,7 @@ namespace OneIdentity.Scalus.Test
             }
         }
 
-        private bool check(string line, string name, string val, List<string> names, ref int count, string sep = ":")
+        private static bool check(string line, string name, string val, List<string> names, ref int count, string sep = ":")
         {
             if (Regex.IsMatch(line, $"^{name}{sep}"))
             {

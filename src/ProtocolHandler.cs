@@ -33,14 +33,6 @@ namespace OneIdentity.Scalus
     {
         private bool disposedValue;
 
-        private IUrlParser Parser { get; }
-
-        private string Uri { get; }
-
-        private IOsServices OsServices { get; }
-
-        private ApplicationConfig ApplicationConfig { get; }
-
         public ProtocolHandler(string uri, IUrlParser urlParser, ApplicationConfig applicationConfig, IOsServices osServices)
         {
             Uri = uri;
@@ -49,7 +41,15 @@ namespace OneIdentity.Scalus
             ApplicationConfig = applicationConfig;
         }
 
-        public string PreviewOutput(IDictionary<ParserConfigDefinitions.Token, string> dictionary, string cmd, List<string> args)
+        private IUrlParser Parser { get; }
+
+        private string Uri { get; }
+
+        private IOsServices OsServices { get; }
+
+        private ApplicationConfig ApplicationConfig { get; }
+
+        public static string PreviewOutput(IDictionary<ParserConfigDefinitions.Token, string> dictionary, string cmd, List<string> args)
         {
             var str = new StringBuilder();
 
@@ -88,7 +88,6 @@ namespace OneIdentity.Scalus
         {
             try
             {
-
                 var dictionary = Parser.Parse(Uri);
                 Parser.PreExecute(OsServices);
                 var args = Parser.ReplaceTokens(ApplicationConfig.Args);
@@ -114,7 +113,7 @@ namespace OneIdentity.Scalus
                 if (process == null)
                 {
                     Serilog.Log.Error("Failed to create process for cmd:{cmd}");
-                    throw new Exception($"Failed to create process for cmd:{cmd}");
+                    throw new ProtocolException($"Failed to create process for cmd:{cmd}");
                 }
 
                 Serilog.Log.Debug("Post execute starting.");
@@ -125,10 +124,15 @@ namespace OneIdentity.Scalus
             catch (Exception e)
             {
                 OsServices.OpenText($"Launch failed: {e.Message}");
-
             }
         }
 
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -141,13 +145,6 @@ namespace OneIdentity.Scalus
 
                 disposedValue = true;
             }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

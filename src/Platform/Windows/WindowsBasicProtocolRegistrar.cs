@@ -41,7 +41,11 @@ namespace OneIdentity.Scalus
         {
             var command = GetRegisteredCommand(protocol);
 
-            if (string.IsNullOrEmpty(command)) return false;
+            if (string.IsNullOrEmpty(command))
+            {
+                return false;
+            }
+
             return command.Contains(Constants.GetBinaryName(), StringComparison.OrdinalIgnoreCase);
         }
 
@@ -49,10 +53,16 @@ namespace OneIdentity.Scalus
         {
             var path = GetPathRoot(protocol);
 
-            if (!RegistryUtils.PathExists(path)) return null;
+            if (!RegistryUtils.PathExists(path))
+            {
+                return null;
+            }
 
             var commandPath = path + @"\shell\open\command";
-            if (!RegistryUtils.PathExists(commandPath)) return null;
+            if (!RegistryUtils.PathExists(commandPath))
+            {
+                return null;
+            }
 
             return RegistryUtils.GetStringValue(commandPath, string.Empty);
         }
@@ -85,11 +95,6 @@ namespace OneIdentity.Scalus
             return true;
         }
 
-        private string GetPathRoot(string protocol)
-        {
-            return $"HKEY_CURRENT_USER\\SOFTWARE\\Classes\\{protocol}";
-        }
-
         public bool ReplaceRegistration(string protocol)
         {
             var res = Unregister(protocol);
@@ -101,5 +106,9 @@ namespace OneIdentity.Scalus
             return res;
         }
 
+        private static string GetPathRoot(string protocol)
+        {
+            return $"HKEY_CURRENT_USER\\SOFTWARE\\Classes\\{protocol}";
+        }
     }
 }

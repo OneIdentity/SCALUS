@@ -31,6 +31,5 @@ namespace OneIdentity.Scalus.Info
 
         [Option('t', "tokens", Required = false, HelpText = "Show the list of tokens")]
         public bool Tokens { get; set; }
-
     }
 }

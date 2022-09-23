@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IScalusConfiguration.cs" company="One Identity Inc.">
+// <copyright file="PlatformException.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -19,34 +19,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OneIdentity.Scalus
+namespace OneIdentity.Scalus.Platform
 {
     using System;
-    using System.Collections.Generic;
-    using OneIdentity.Scalus.Dto;
 
-    internal interface IProtocolHandler : IDisposable
+    public class PlatformException : Exception
     {
-        void Run(bool preview = false);
+        public PlatformException(string message)
+            : base(message)
+        {
+        }
     }
-
-    internal interface IScalusConfiguration
-    {
-        IProtocolHandler GetProtocolHandler(string uri);
-
-        ScalusConfig GetConfiguration(string path = null);
-
-        List<string> ValidationErrors { get; }
-    }
-
-    public interface IScalusApiConfiguration
-    {
-        ScalusConfig GetConfiguration();
-
-        List<string> SaveConfiguration(ScalusConfig configuration);
-
-        List<string> ValidationErrors { get; }
-    }
-
-
 }

@@ -30,7 +30,7 @@ namespace OneIdentity.Scalus
     public static class MacOsExtensions
     {
         public static readonly string ScalusHandler = "com.oneidentity.scalus.macos";
-        private static readonly string lsRegisterCmd =
+        private static readonly string LsRegisterCmd =
             "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
 
         public static bool RunCommand(this IProtocolRegistrar registrar, string cmd, List<string> args, out string output)
@@ -67,8 +67,7 @@ namespace OneIdentity.Scalus
         {
             string path;
             var apath = string.Empty;
-            var res = osServices.Execute("/usr/bin/mdfind",
-                new List<string> { $"kMDItemCFBundleIdentifier='{ScalusHandler}'" }, out path, out _);
+            var res = osServices.Execute("/usr/bin/mdfind", new List<string> { $"kMDItemCFBundleIdentifier='{ScalusHandler}'" }, out path, out _);
             if (res == 0)
             {
                 apath = path?.Split('\r', '\n', StringSplitOptions.RemoveEmptyEntries).ToList().FirstOrDefault();
@@ -84,7 +83,9 @@ namespace OneIdentity.Scalus
             }
 
             if (string.IsNullOrEmpty(apath))
+            {
                 apath = Constants.GetBinaryPath();
+            }
 
             Serilog.Log.Warning($"Handler path cannot be determined - running from {apath}");
             //throw new Exception($"Handler path cannot be determined");
@@ -95,7 +96,7 @@ namespace OneIdentity.Scalus
         {
             string output;
             var home = Environment.GetEnvironmentVariable("HOME");
-            var args = new List<string> { "-c", $"HOME=\"{home}\"; export HOME; {lsRegisterCmd} -kill -v -f {registrar.GetAppPath()}" };
+            var args = new List<string> { "-c", $"HOME=\"{home}\"; export HOME; {LsRegisterCmd} -kill -v -f {registrar.GetAppPath()}" };
             var res = registrar.RunCommand("/bin/sh", args, out output);
             if (!res)
             {

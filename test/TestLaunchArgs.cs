@@ -226,18 +226,18 @@ namespace OneIdentity.Scalus.Test
         );
     }
 )";
-            var list = MacOsProtocolRegistrar.ParseList(str);
+            var list = MacOSProtocolRegistrar.ParseList(str);
             Assert.True(list.Count > 0, $"first:{list[0]}, second:{list[1]}");
             Assert.Equal(3, list.Count);
             Assert.Equal("ssh", list[0]);
             Assert.Equal("rdp", list[1]);
             Assert.Equal("telnet", list[2]);
 
-            var newstr = MacOsProtocolRegistrar.ConstructNewValue(list);
+            var newstr = MacOSProtocolRegistrar.ConstructNewValue(list);
 
         }
 
-        private void CheckJson(string json, int expErrors)
+        private static void CheckJson(string json, int expErrors)
         {
             var apiConfig = new ScalusApiConfiguration(json);
             apiConfig.Validate(json, true);

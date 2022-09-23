@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Options.cs" company="One Identity Inc.">
+// <copyright file="ParserException.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -19,14 +19,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OneIdentity.Scalus.Verify
+namespace OneIdentity.Scalus.Util
 {
-    using CommandLine;
+    using System;
+    using System.Transactions;
 
-    [Verb("verify", HelpText = "Run a syntax check on a scalus configuration file")]
-    public class Options : IVerb
+    public class ParserException : Exception
     {
-        [Option('p', "path", Required = false, HelpText = "Path of an alternate scalus configuration file to verify instead")]
-        public string Path { get; set; }
+        public ParserException(string message)
+            : base(message)
+        {
+        }
     }
 }

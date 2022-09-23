@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CommandLineHandler.cs" company="One Identity Inc.">
+// <copyright file="CommandLineHelpException.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -26,6 +26,8 @@ namespace OneIdentity.Scalus
     internal class CommandLineHelpException : InvalidOperationException
     {
         public CommandLineHelpException(string message)
-            : base(message) { }
+            : base(message)
+        {
+        }
     }
 }

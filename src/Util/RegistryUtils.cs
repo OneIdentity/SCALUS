@@ -30,59 +30,6 @@ namespace OneIdentity.Scalus.Util
     [SupportedOSPlatform("windows")]
     public static class RegistryUtils
     {
-        private static RegistryKey EnsureWritable(RegistryKey key)
-        {
-            var keyName = key.Name;
-            return GetPrefix(ref keyName).OpenSubKey(keyName, true);
-        }
-
-        private static RegistryKey EnsurePath(string path)
-        {
-            RegistryKey curKey = null;
-            try
-            {
-                curKey = GetPrefix(ref path);
-                var parts = path.Split('\\');
-
-                foreach (var part in parts)
-                {
-                    var key = curKey;
-                    try
-                    {
-                        curKey = key?.CreateSubKey(part); // Try to create/open read/write
-                    }
-                    catch (UnauthorizedAccessException e)
-                    {
-                        Serilog.Log.Error(e, $"Failed to create registry key [{key}] [{part}]");
-                        curKey = key?.OpenSubKey(part); // Try to open readonly
-                        if (curKey == null)
-                            return null;
-                    }
-                    finally
-                    {
-                        if (curKey == null)
-                        {
-                            Serilog.Log.Warning($"Failed to create registry key [{key}] [{part}]");
-                        }
-                    }
-                }
-
-                return curKey == null ? null : EnsureWritable(curKey); // Explicitly reopen with write access
-            }
-            catch (Exception e)
-            {
-                Serilog.Log.Error(e, $"Failed to create registry key from path:{path}");
-                return null;
-            }
-            finally
-            {
-                if (curKey == null)
-                {
-                    Serilog.Log.Error($"Failed to create registry key from path:{path}");
-                }
-            }
-        }
-
         public static RegistryKey GetKey(string path)
         {
             ValidateNotNullOrWhiteSpace(path, nameof(path));
@@ -95,15 +42,27 @@ namespace OneIdentity.Scalus.Util
         public static void DeleteValue(string path, string name)
         {
             var key = GetKey(path);
-            if (key == null) return;
-            if (key.GetValue(name) == null) return;
+            if (key == null)
+            {
+                return;
+            }
+
+            if (key.GetValue(name) == null)
+            {
+                return;
+            }
+
             key.DeleteValue(name);
         }
 
         public static IEnumerable<string> GetValueNames(string path)
         {
             var key = GetKey(path);
-            if (key == null) return Enumerable.Empty<string>();
+            if (key == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
             return key.GetValueNames();
         }
 
@@ -177,7 +136,10 @@ namespace OneIdentity.Scalus.Util
         public static DateTime? GetStringValueAsDateTime(string path, string key)
         {
             var stringValue = GetStringValue(path, key);
-            if (string.IsNullOrEmpty(stringValue)) return null;
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                return null;
+            }
 
             DateTime dateTimeValue;
             if (DateTime.TryParse(stringValue, out dateTimeValue))
@@ -235,6 +197,61 @@ namespace OneIdentity.Scalus.Util
             }
 
             return true;
+        }
+
+        private static RegistryKey EnsureWritable(RegistryKey key)
+        {
+            var keyName = key.Name;
+            return GetPrefix(ref keyName).OpenSubKey(keyName, true);
+        }
+
+        private static RegistryKey EnsurePath(string path)
+        {
+            RegistryKey curKey = null;
+            try
+            {
+                curKey = GetPrefix(ref path);
+                var parts = path.Split('\\');
+
+                foreach (var part in parts)
+                {
+                    var key = curKey;
+                    try
+                    {
+                        curKey = key?.CreateSubKey(part); // Try to create/open read/write
+                    }
+                    catch (UnauthorizedAccessException e)
+                    {
+                        Serilog.Log.Error(e, $"Failed to create registry key [{key}] [{part}]");
+                        curKey = key?.OpenSubKey(part); // Try to open readonly
+                        if (curKey == null)
+                        {
+                            return null;
+                        }
+                    }
+                    finally
+                    {
+                        if (curKey == null)
+                        {
+                            Serilog.Log.Warning($"Failed to create registry key [{key}] [{part}]");
+                        }
+                    }
+                }
+
+                return curKey == null ? null : EnsureWritable(curKey); // Explicitly reopen with write access
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error(e, $"Failed to create registry key from path:{path}");
+                return null;
+            }
+            finally
+            {
+                if (curKey == null)
+                {
+                    Serilog.Log.Error($"Failed to create registry key from path:{path}");
+                }
+            }
         }
 
         private static RegistryKey GetPrefix(ref string path)

@@ -34,6 +34,7 @@ namespace OneIdentity.Scalus.UrlParser
     using System.Text.RegularExpressions;
     using System.Web;
     using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Util;
     using Serilog;
     using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
@@ -49,64 +50,39 @@ namespace OneIdentity.Scalus.UrlParser
         //                     Name and value strings can be url encoded
         //      type        :  i|s
 
-        //  query values for:    
+        //  query values for:
         //  full address    :  <ipaddress>[:<port>]
         //  username        :  <username>|<safeguardauth>
         //  safeguardauth   :  vaultaddress(=|~)<ipaddress>(%|@)token~<token>[account~<name>%asset~<name>]
         //                     Name and value strings can be url encoded
 
         //If not in this format, it will default to parsing the string as a standard URL
-        public Regex RdpPattern = new Regex("^[^:]+:\\/\\/(([^:=]+)(:|=).:([^&]*))");
-        public Regex RdpPatt = new Regex("&");
 
-        private readonly IDictionary<string, Tuple<bool, string>> msArgList1 = new Dictionary<string, Tuple<bool, string>>();
-
-        private static string GetResource(string name)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resources = assembly.GetManifestResourceNames();
-            var resourceName = assembly.GetManifestResourceNames().Single(x => x.EndsWith(name, StringComparison.OrdinalIgnoreCase));
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                Debug.Assert(stream != null, "stream != null");
-
-                using (var reader = new StreamReader(stream, Encoding.ASCII))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        }
-
-
-
-        public const string rdpPattern = "\\S=[s|i]:\\S+";
+        public const string RdpPatternValue = "\\S=[s|i]:\\S+";
         public const string FullAddressKey = "full address";
         public const string UsernameKey = "username";
         public const string RdpPasswordHashKey = "password 51";
-        public List<(string, Token)> RdpKeys = new List<(string, Token)> {
+
+        private readonly IDictionary<string, Tuple<bool, string>> msArgList1 = new Dictionary<string, Tuple<bool, string>>();
+
+        private List<(string, Token)> rdpKeys = new List<(string, Token)>
+        {
             { ("alternate shell", Token.AlternateShell) },
-            { ("remoteapplicationname", Token.Remoteapplicationname ) },
+            { ("remoteapplicationname", Token.Remoteapplicationname) },
             { ("remoteapplicationprogram", Token.Remoteapplicationprogram) },
             { ("remoteapplicationcmdline", Token.Remoteapplicationcmdline) },
         };
 
-        public Dictionary<string, string> DefaultArgs = new Dictionary<string, string>();
+        private Dictionary<string, string> defaultArgs = new Dictionary<string, string>();
 
+        private Regex rdpPattern = new Regex("^[^:]+:\\/\\/(([^:=]+)(:|=).:([^&]*))");
+        private Regex rdpPatt = new Regex("&");
 
-        private Dictionary<string, string> ParseTemplate(IEnumerable<string> list)
+        public DefaultRdpUrlParser(ParserConfig config)
+            : base(config)
         {
-            var dict = new Dictionary<string, string>();
-            if (list == null || list.Count() == 0)
-                return dict;
-            foreach (var one in list)
-            {
-                var line = one.Split(":");
-                if (line.Length < 3)
-                    continue;
-                dict[line[0]] = line[1] + ":" + line[2];
-            }
-
-            return dict;
+            FileExtension = ".rdp";
+            GetDefaults();
         }
 
         public void GetDefaults()
@@ -114,16 +90,8 @@ namespace OneIdentity.Scalus.UrlParser
             var str = GetResource("Default.rdp");
             var list = str?.Split(Environment.NewLine);
 
-            DefaultArgs = ParseTemplate(list);
+            defaultArgs = ParseTemplate(list);
             return;
-        }
-
-        public DefaultRdpUrlParser(ParserConfig config)
-            : base(config)
-        {
-            FileExtension = ".rdp";
-            GetDefaults();
-
         }
 
         public override IDictionary<Token, string> Parse(string url)
@@ -134,20 +102,22 @@ namespace OneIdentity.Scalus.UrlParser
             Dictionary[Token.RelativeUrl] = StripProtocol(url).TrimEnd('/');
             Dictionary[Token.Port] = "3389";
 
-            var match = RdpPattern.Match(url.TrimEnd('/'));
+            var match = rdpPattern.Match(url.TrimEnd('/'));
             if (!match.Success)
             {
                 if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
-                    throw new Exception($"The RDP parser cannot parse the URL:{url}");
-                Log.Information($"Parsing URL{url} as a default URL");
-                foreach (var (key, value) in DefaultArgs)
                 {
-                    if (key.Equals(FullAddressKey))
+                    throw new ParserException($"The RDP parser cannot parse the URL:{url}");
+                }
+
+                Log.Information($"Parsing URL{url} as a default URL");
+                foreach (var (key, value) in defaultArgs)
+                {
+                    if (key.Equals(FullAddressKey, StringComparison.Ordinal))
                     {
                         msArgList1[key] = Tuple.Create(true, ":s:" + result.GetComponents(UriComponents.Host, UriFormat.Unescaped));
-
                     }
-                    else if (key.Equals(UsernameKey))
+                    else if (key.Equals(UsernameKey, StringComparison.Ordinal))
                     {
                         msArgList1[key] = Tuple.Create(true, ":s:" + result.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped));
                     }
@@ -181,6 +151,47 @@ namespace OneIdentity.Scalus.UrlParser
             return Dictionary;
         }
 
+        public static string RemoveSpecialCharacters(string source)
+        {
+            if (source == null)
+            {
+                return source;
+            }
+
+            var sb = new StringBuilder();
+            foreach (char ch in source)
+            {
+                if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '.' || ch == '_')
+                {
+                    sb.Append(ch);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public override string ReplaceTokens(string line)
+        {
+            var newline = base.ReplaceTokens(line);
+            var re = new Regex("(([^:]+):([^:]+):(.*))");
+            var match = re.Match(newline);
+
+            if (match.Success && !string.IsNullOrEmpty(match.Groups[2].Value) &&
+                !string.IsNullOrEmpty(match.Groups[3].Value) &&
+                string.IsNullOrEmpty(match.Groups[4].Value))
+            {
+                var name = match.Groups[2].Value;
+                var val = match.Groups[3].Value + ":" + match.Groups[4].Value;
+                if (msArgList1.ContainsKey(name) && msArgList1[name].Item1)
+                {
+                    val = msArgList1[name].Item2;
+                    newline = name + ":" + val;
+                }
+            }
+
+            return newline;
+        }
+
         protected override IEnumerable<string> GetDefaultTemplate()
         {
             var list = new List<string>();
@@ -190,6 +201,44 @@ namespace OneIdentity.Scalus.UrlParser
             }
 
             return list;
+        }
+
+        private static string GetResource(string name)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resources = assembly.GetManifestResourceNames();
+            var resourceName = assembly.GetManifestResourceNames().Single(x => x.EndsWith(name, StringComparison.OrdinalIgnoreCase));
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                Debug.Assert(stream != null, "stream != null");
+
+                using (var reader = new StreamReader(stream, Encoding.ASCII))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
+
+        private static Dictionary<string, string> ParseTemplate(IEnumerable<string> list)
+        {
+            var dict = new Dictionary<string, string>();
+            if (list == null || !list.Any())
+            {
+                return dict;
+            }
+
+            foreach (var one in list)
+            {
+                var line = one.Split(":");
+                if (line.Length < 3)
+                {
+                    continue;
+                }
+
+                dict[line[0]] = line[1] + ":" + line[2];
+            }
+
+            return dict;
         }
 
         private void ParseArgs(string clArgs)
@@ -213,11 +262,9 @@ namespace OneIdentity.Scalus.UrlParser
 
                 name = HttpUtility.UrlDecode(name);
                 value = HttpUtility.UrlDecode(value);
-                if (name.Equals(UsernameKey))
+                if (name.Equals(UsernameKey, StringComparison.Ordinal))
                 {
-                    if ((value.IndexOf("%25", StringComparison.Ordinal) >= 0) ||
-                        (value.IndexOf("%5c", StringComparison.Ordinal) >= 0) ||
-                            (value.IndexOf("%20", StringComparison.Ordinal) >= 0))
+                    if (value.Contains("%25") || value.Contains("%5c") || value.Contains("%20"))
                     {
                         value = HttpUtility.UrlDecode(value);
                     }
@@ -252,7 +299,7 @@ namespace OneIdentity.Scalus.UrlParser
                 {
                     value = HttpUtility.UrlDecode(value);
 
-                    foreach (var one in RdpKeys)
+                    foreach (var one in rdpKeys)
                     {
                         if (Regex.IsMatch(name, one.Item1))
                         {
@@ -265,8 +312,7 @@ namespace OneIdentity.Scalus.UrlParser
                 msArgList1[name] = Tuple.Create(true, type + ":" + value);
             }
 
-
-            foreach (var arg in DefaultArgs)
+            foreach (var arg in defaultArgs)
             {
                 if (!msArgList1.ContainsKey(arg.Key))
                 {
@@ -303,44 +349,6 @@ namespace OneIdentity.Scalus.UrlParser
             }
 
             return string.Empty;
-        }
-
-        public static string RemoveSpecialCharacters(string source)
-        {
-            if (source == null) return source;
-
-            var sb = new StringBuilder();
-            foreach (char ch in source)
-            {
-                if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '.' || ch == '_')
-                {
-                    sb.Append(ch);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public override string ReplaceTokens(string line)
-        {
-            var newline = base.ReplaceTokens(line);
-            var re = new Regex("(([^:]+):([^:]+):(.*))");
-            var match = re.Match(newline);
-
-            if (match.Success && !string.IsNullOrEmpty(match.Groups[2].Value) &&
-                !string.IsNullOrEmpty(match.Groups[3].Value) &&
-                string.IsNullOrEmpty(match.Groups[4].Value))
-            {
-                var name = match.Groups[2].Value;
-                var val = match.Groups[3].Value + ":" + match.Groups[4].Value;
-                if (msArgList1.ContainsKey(name) && msArgList1[name].Item1)
-                {
-                    val = msArgList1[name].Item2;
-                    newline = name + ":" + val;
-                }
-            }
-
-            return newline;
         }
     }
 }

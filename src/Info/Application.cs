@@ -32,12 +32,6 @@ namespace OneIdentity.Scalus.Info
 
     internal class Application : IApplication
     {
-        private Options Options { get; }
-
-        private IRegistration Registration { get; }
-
-        private IScalusConfiguration Configuration { get; }
-
         private readonly IOsServices osServices;
 
         public Application(Options options, IRegistration registration, IScalusConfiguration config, IOsServices osServices)
@@ -46,6 +40,62 @@ namespace OneIdentity.Scalus.Info
             Registration = registration;
             Configuration = config;
             this.osServices = osServices;
+        }
+
+        private Options Options { get; }
+
+        private IRegistration Registration { get; }
+
+        private IScalusConfiguration Configuration { get; }
+
+        public int Run()
+        {
+            var example = new ScalusConfig()
+            {
+                Protocols = new List<ProtocolMapping>
+                    {
+                        { new ProtocolMapping() { Protocol = "myprotocol", AppId = "applicationId" } },
+                    },
+                Applications = new List<ApplicationConfig>()
+                    {
+                        new ApplicationConfig()
+                        {
+                            Id = "applicationId",
+                            Name = "applicationName",
+                            Description = "optional desc",
+                            Protocol = "myprotocol",
+                            Platforms = new List<Dto.Platform>
+                                { Dto.Platform.Windows, Dto.Platform.Linux, Dto.Platform.Mac },
+                            Parser = new ParserConfig()
+                            {
+                                ParserId = "url",
+                                UseDefaultTemplate = false,
+                                UseTemplateFile = "/path/tofile",
+                                Options = new List<string> { "waitforexit" },
+                                PostProcessingExec = "path/toplugin",
+                                PostProcessingArgs = new List<string> { "arg1", "arg2" },
+                            },
+                            Exec = "/path/tocommand",
+                            Args = new List<string> { "arg1", "arg2 " },
+                        },
+                    },
+            };
+
+            if (Options.Dto)
+            {
+                ShowDto();
+                return 0;
+            }
+
+            if (Options.Tokens)
+            {
+                ShowTokens();
+                return 0;
+            }
+
+            ShowConfig();
+
+            return 0;
         }
 
         private void ShowConfig()
@@ -78,12 +128,17 @@ namespace OneIdentity.Scalus.Info
             Console.WriteLine("     {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Configured Command");
             Console.WriteLine("     ------------------------------------------------------------------------------------------------");
             if (config == null || config.Protocols == null || config.Protocols.Count == 0)
+            {
                 return;
+            }
 
             foreach (var one in config.Protocols)
             {
                 if (one == null)
+                {
                     continue;
+                }
+
                 Console.Write("     {0,-10} ", one.Protocol);
                 ApplicationConfig appConfig = null;
                 if (config.Applications?.Count > 0)
@@ -100,20 +155,23 @@ namespace OneIdentity.Scalus.Info
                 if (appConfig != null)
                 {
                     Console.Write("{0,-10} {1,-20} ({2} {3})",
-                        Registration.IsRegistered(one.Protocol) ? "yes" : "no", appConfig.Description,
-                        appConfig.Exec, string.Join(' ', appConfig.Args));
+                        Registration.IsRegistered(one.Protocol) ? "yes" : "no",
+                        appConfig.Description,
+                        appConfig.Exec,
+                        string.Join(' ', appConfig.Args));
                 }
                 else
                 {
-                    Console.Write("{0,-10} {1,-20}", Registration.IsRegistered(one.Protocol) ? "yes" : "no",
-                            "Not configured");
+                    Console.Write("{0,-10} {1,-20}",
+                        Registration.IsRegistered(one.Protocol) ? "yes" : "no",
+                        "Not configured");
                 }
 
                 Console.WriteLine();
             }
         }
 
-        private void ShowDto()
+        private static void ShowDto()
         {
             var example = new ScalusConfig()
             {
@@ -164,7 +222,7 @@ namespace OneIdentity.Scalus.Info
             }
         }
 
-        private void ShowTokens()
+        private static void ShowTokens()
         {
             Console.WriteLine(@"
  - SCALUS Tokens:
@@ -176,62 +234,10 @@ namespace OneIdentity.Scalus.Info
             tokenList.Sort();
             foreach (var one in tokenList)
             {
-                Console.WriteLine("   - {0,-10} : {1}", "%" + one + "%",
+                Console.WriteLine("   - {0,-10} : {1}",
+                    "%" + one + "%",
                     ParserConfigDefinitions.TokenDescription[Enum.Parse<ParserConfigDefinitions.Token>(one, true)]);
             }
-
-        }
-
-        public int Run()
-        {
-            var example = new ScalusConfig()
-            {
-                Protocols = new List<ProtocolMapping>
-                    {
-                        { new ProtocolMapping() { Protocol = "myprotocol", AppId = "applicationId" } },
-                    },
-                Applications = new List<ApplicationConfig>()
-                    {
-                        new ApplicationConfig()
-                        {
-                            Id = "applicationId",
-                            Name = "applicationName",
-                            Description = "optional desc",
-                            Protocol = "myprotocol",
-                            Platforms = new List<Dto.Platform>
-                                { Dto.Platform.Windows, Dto.Platform.Linux, Dto.Platform.Mac },
-                            Parser = new ParserConfig()
-                            {
-                                ParserId = "url",
-                                UseDefaultTemplate = false,
-                                UseTemplateFile = "/path/tofile",
-                                Options = new List<string> { "waitforexit" },
-                                PostProcessingExec = "path/toplugin",
-                                PostProcessingArgs = new List<string> { "arg1", "arg2" },
-                            },
-                            Exec = "/path/tocommand",
-                            Args = new List<string> { "arg1", "arg2 " },
-                        },
-                    },
-            };
-
-            if (Options.Dto)
-            {
-                ShowDto();
-                return 0;
-            }
-
-            if (Options.Tokens)
-            {
-                ShowTokens();
-                return 0;
-            }
-
-            ShowConfig();
-
-
-
-            return 0;
         }
     }
 }

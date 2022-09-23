@@ -23,6 +23,11 @@ namespace OneIdentity.Scalus.Platform
 {
     internal class UnsupportedPlatformRegistrar : IProtocolRegistrar
     {
+        public UnsupportedPlatformRegistrar(IUserInteraction userInteraction)
+        {
+            UserInteraction = userInteraction;
+        }
+
         public IOsServices OsServices { get; }
 
         public bool UseSudo { get; set; }
@@ -32,11 +37,6 @@ namespace OneIdentity.Scalus.Platform
         public string Name { get; } = "Unknown";
 
         private IUserInteraction UserInteraction { get; }
-
-        public UnsupportedPlatformRegistrar(IUserInteraction userInteraction)
-        {
-            UserInteraction = userInteraction;
-        }
 
         public string GetRegisteredCommand(string protocol)
         {
@@ -75,6 +75,5 @@ You can register SCALUS manually using this command: {registrationCommand}
 
             return res;
         }
-
     }
 }

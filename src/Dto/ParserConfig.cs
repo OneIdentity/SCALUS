@@ -68,7 +68,10 @@ namespace OneIdentity.Scalus.Dto
                 foreach (var opt in Options)
                 {
                     if (string.IsNullOrEmpty(opt))
+                    {
                         continue;
+                    }
+
                     if (!Enum.TryParse(typeof(ParserConfigDefinitions.ProcessingOptions), opt, true, out object o))
                     {
                         if (Regex.IsMatch(opt, $"{ParserConfigDefinitions.ProcessingOptions.wait}:\\d+"))
