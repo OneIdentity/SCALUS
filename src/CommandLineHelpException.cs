@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Options.cs" company="One Identity Inc.">
+// <copyright file="CommandLineHandler.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -19,17 +19,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OneIdentity.Scalus.Launch
+namespace OneIdentity.Scalus
 {
-    using CommandLine;
+    using System;
 
-    [Verb("launch", HelpText = "Launch an app configured for the specified URL")]
-    public class Options : IVerb
+    internal class CommandLineHelpException : InvalidOperationException
     {
-        [Option('u', "url", Required = true, HelpText = "The URL to launch.")]
-        public string Url { get; set; }
-
-        [Option('p', "preview", Required = false, HelpText = "Show me what will launch, but dont run it. This will also report the token values and show the contents of the generated file, if applicable.")]
-        public bool Preview { get; set; }
+        public CommandLineHelpException(string message)
+            : base(message) { }
     }
 }

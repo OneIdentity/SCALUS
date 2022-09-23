@@ -1,38 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ParserConfig.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus.Dto
+namespace OneIdentity.Scalus.Dto
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using Newtonsoft.Json;
 
     public class ParserConfig
     {
         [JsonRequired]
         public string ParserId { get; set; }
+
         public List<string> Options { get; set; }
+
         public bool UseDefaultTemplate { get; set; }
+
         public string UseTemplateFile { get; set; }
+
         public string PostProcessingExec { get; set; }
+
         public List<string> PostProcessingArgs { get; set; }
 
         public static Dictionary<string, string> DtoPropertyDescription { get; } = new Dictionary<string, string>
         {
-            {nameof(ParserId),$"The predefined parser that will be used to parse the URL. Valid values are {string.Join(',',ProtocolHandlerFactory.GetSupportedParsers())}. The default 'url' parser can be used to parse any standard URL"},
-            {nameof(Options),$"Identifies how scalus handles the running application. Valid values are {string.Join(',', Enum.GetValues(typeof(ParserConfigDefinitions.ProcessingOptions)).Cast<ParserConfigDefinitions.ProcessingOptions>())}. The '{ParserConfigDefinitions.ProcessingOptions.wait}' option waits for default 10 secs, but can be configured, e.g. 'wait:<n>' (wait for n seconds)"},
-            {nameof(UseDefaultTemplate),"Supported for the rdp parser only. A default template is generated in the format used by Microsoft Remote Desktop. This is copied to a temporary file that can be identified using the '%GeneratedFile%' token."},
-            {nameof(UseTemplateFile),"The path to a template file to use for the application. The template will be copied to a temporary file, replacing any tokens in the template. The temporary file can be identified using the '%GeneratedFile%' token. Supported by all parsers. This path can contain any of the supported tokens."},
-            {nameof(PostProcessingExec),"The path to an executable file that will be run to process the %GeneratedFile% before launching the application. This path can contain any of the supported tokens"},
-            {nameof(PostProcessingArgs),"The arguments to pass to the 'PostProcessingExec' executable. These arguments can contain any of the supported tokens"}
+            { nameof(ParserId), $"The predefined parser that will be used to parse the URL. Valid values are {string.Join(',', ProtocolHandlerFactory.GetSupportedParsers())}. The default 'url' parser can be used to parse any standard URL" },
+            { nameof(Options), $"Identifies how scalus handles the running application. Valid values are {string.Join(',', Enum.GetValues(typeof(ParserConfigDefinitions.ProcessingOptions)).Cast<ParserConfigDefinitions.ProcessingOptions>())}. The '{ParserConfigDefinitions.ProcessingOptions.wait}' option waits for default 10 secs, but can be configured, e.g. 'wait:<n>' (wait for n seconds)" },
+            { nameof(UseDefaultTemplate), "Supported for the rdp parser only. A default template is generated in the format used by Microsoft Remote Desktop. This is copied to a temporary file that can be identified using the '%GeneratedFile%' token." },
+            { nameof(UseTemplateFile), "The path to a template file to use for the application. The template will be copied to a temporary file, replacing any tokens in the template. The temporary file can be identified using the '%GeneratedFile%' token. Supported by all parsers. This path can contain any of the supported tokens." },
+            { nameof(PostProcessingExec), "The path to an executable file that will be run to process the %GeneratedFile% before launching the application. This path can contain any of the supported tokens" },
+            { nameof(PostProcessingArgs), "The arguments to pass to the 'PostProcessingExec' executable. These arguments can contain any of the supported tokens" },
         };
 
         public void Validate(List<string> errors)
         {
-            var supported = ProtocolHandlerFactory.GetSupportedParsers(); 
+            var supported = ProtocolHandlerFactory.GetSupportedParsers();
             if (!supported.Contains(ParserId))
             {
-                errors.Add($"Selected parser '{ParserId}' is not in the supported list:{string.Join(',',supported.ToArray())}");
+                errors.Add($"Selected parser '{ParserId}' is not in the supported list:{string.Join(',', supported.ToArray())}");
             }
 
             if (Options?.Count > 0)

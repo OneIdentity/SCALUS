@@ -1,24 +1,50 @@
-﻿using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Serilog;
-using scalus.Platform;
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Application.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus.Ui
+namespace OneIdentity.Scalus.Ui
 {
-    class Application : IApplication, IWebServer
+    using System;
+    using System.Net;
+    using System.Threading;
+    using Autofac;
+    using Autofac.Extensions.DependencyInjection;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Hosting;
+    using OneIdentity.Scalus.Platform;
+    using Serilog;
+
+    internal class Application : IApplication, IWebServer
     {
-        Options Options { get; }
-        Serilog.ILogger Logger { get; }
-        int WebPort { get; }
-        CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
+        private Options Options { get; }
+
+        private Serilog.ILogger Logger { get; }
+
+        private int WebPort { get; }
+
+        private CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
+
         private IHost GenericHost { get; set; }
+
         private IUserInteraction UserInteraction { get; }
+
         private IOsServices OsServices { get; }
 
         public Application(Options options, Serilog.ILogger logger, IUserInteraction userInteraction, IOsServices osServices, ILifetimeScope container)
@@ -34,6 +60,7 @@ namespace scalus.Ui
             {
                 throw new InvalidOperationException("External container was already initialized. Something is wrong with your autofac registrations.");
             }
+
             ExternalContainer = container;
         }
 
@@ -51,6 +78,7 @@ namespace scalus.Ui
                 UserInteraction.Message($"SCALUS is running at http://localhost:{WebPort}. Close the browser window to quit.");
                 GenericHost.WaitForShutdown();
             }
+
             return 0;
         }
 
@@ -63,6 +91,7 @@ namespace scalus.Ui
         {
             var host = Host.CreateDefaultBuilder()
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .UseSerilog(Logger, true)
                 .ConfigureWebHostDefaults(x => ConfigureWebHostBuilder(x));
             return host.Build();
         }
@@ -70,14 +99,14 @@ namespace scalus.Ui
         private IWebHostBuilder ConfigureWebHostBuilder(IWebHostBuilder builder)
         {
             return builder.UseStartup<Startup>()
-                .UseKestrel(options => {
-                    options.Listen(IPAddress.Loopback, WebPort); 
+                .UseKestrel(options =>
+                {
+                    options.Listen(IPAddress.Loopback, WebPort);
                 })
-                .UseContentRoot(Constants.GetBinaryDir())
-                .UseSerilog(Logger, true);
+                .UseContentRoot(Constants.GetBinaryDir());
         }
 
-        
+
 
         private static int GetRandomFreePort()
         {

@@ -1,10 +1,9 @@
-using System    ;
+using System;
 using System.Web;
-using scalus.UrlParser;
+using OneIdentity.Scalus.UrlParser;
 using Xunit;
-using static scalus.Dto.ParserConfigDefinitions;
 
-namespace scalus.Test
+namespace OneIdentity.Scalus.Test
 {
     public class TestDefaultSshUrlParser
     {
@@ -14,7 +13,7 @@ namespace scalus.Test
             //generic user@host
             using (var sut = new DefaultSshUrlParser(new Dto.ParserConfig()))
             {
-                var str="key=value%40whatever%4012.23.43.2@1.2.3.4:33";
+                var str = "key=value%40whatever%4012.23.43.2@1.2.3.4:33";
                 var dictionary = sut.Parse(str);
                 Assert.Equal("ssh", dictionary[Token.Protocol]);
                 Assert.Equal(str, dictionary[Token.OriginalUrl]);
@@ -27,7 +26,7 @@ namespace scalus.Test
             //ssh://user@host
             using (var sut = new DefaultSshUrlParser(new Dto.ParserConfig()))
             {
-                var str="key=value%40whatever%4012.23.43.2@1.2.3.4:33";
+                var str = "key=value%40whatever%4012.23.43.2@1.2.3.4:33";
                 var dictionary = sut.Parse($"ssh://{str}");
 
                 Assert.Equal("ssh", dictionary[Token.Protocol]);
@@ -139,16 +138,17 @@ namespace scalus.Test
         public void Test3()
         {
             var str = "abc";
-            using (var sut = new DefaultSshUrlParser(new Dto.ParserConfig())){
-            Assert.ThrowsAny<Exception>(() => sut.Parse(str));
+            using (var sut = new DefaultSshUrlParser(new Dto.ParserConfig()))
+            {
+                Assert.ThrowsAny<Exception>(() => sut.Parse(str));
 
-            str = "ssh://abc/";
-            var dictionary =sut.Parse(str);
-            Assert.Equal("ssh://abc/", dictionary[Token.OriginalUrl]);
-            Assert.Equal("abc/", dictionary[Token.RelativeUrl]);
-            Assert.Equal("ssh", dictionary[Token.Protocol]);
+                str = "ssh://abc/";
+                var dictionary = sut.Parse(str);
+                Assert.Equal("ssh://abc/", dictionary[Token.OriginalUrl]);
+                Assert.Equal("abc/", dictionary[Token.RelativeUrl]);
+                Assert.Equal("ssh", dictionary[Token.Protocol]);
             }
         }
-        
+
     }
 }

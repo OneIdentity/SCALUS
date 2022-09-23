@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+  "settings": {
+    "documentationRules": {
+      "xmlHeader": true,
+      "companyName": "One Identity Inc.",
+      "copyrightText": "  This software is licensed under the Apache 2.0 open source license.\n  https://github.com/OneIdentity/SCALUS/blob/master/LICENSE\n\n\n  Copyright One Identity LLC.\n  ALL RIGHTS RESERVED.\n\n  ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR\n  WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,\n  EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED\n  TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,\n  FITNESS FOR A PARTICULAR PURPOSE, OR\n  NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE\n  LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE\n  AS A RESULT OF USING, MODIFYING OR DISTRIBUTING\n  THIS SOFTWARE OR ITS DERIVATIVES.",
+      "headerDecoration": "--------------------------------------------------------------------------------------------------------------------"
+    }
+  }
+}

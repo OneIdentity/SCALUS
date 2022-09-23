@@ -1,28 +1,49 @@
-﻿using scalus.Dto;
-using scalus.Platform;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Web;
-using scalus.Util;
-using Serilog;
-using static scalus.Dto.ParserConfigDefinitions;
-using System.Text;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="BaseParser.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus.UrlParser
+namespace OneIdentity.Scalus.UrlParser
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Reactive.Disposables;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using System.Web;
+    using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Platform;
+    using OneIdentity.Scalus.Util;
+    using Serilog;
+
     public abstract class BaseParser : IUrlParser
-    {  
-        private string _fileProcessorExe = null;
-        private List<string> _fileProcessorArgs = null;       
+    {
+        private string fileProcessorExe = null;
+        private List<string> fileProcessorArgs = null;
+
         protected string FileExtension { get; set; } = ".scalus";
+
         protected IDictionary<Token, string> Dictionary { get; set; } = DefaultDictionary();
-        
+
         protected static IDictionary<Token, string> DefaultDictionary()
         {
             var dictionary = new Dictionary<Token, string>();
@@ -33,17 +54,18 @@ namespace scalus.UrlParser
 
             return dictionary;
         }
+
         public Regex SafeguardUserPattern = new Regex(
            @"(account[=|~]([^@%]+)[@|%]asset[=|~]([^@%]+)[@|%]vaultaddress[=|~]([^@%]+)[@|%]token[~|=]([^@%]+)[@|%]([^@%]+)[@|%](.*))", RegexOptions.IgnoreCase);
 
 
         protected ParserConfig Config { get; }
-          
-        
+
+
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-       
-        public BaseParser( ParserConfig config)
+
+        public BaseParser(ParserConfig config)
         {
             Config = config;
         }
@@ -57,20 +79,21 @@ namespace scalus.UrlParser
 
         public virtual void PreExecute(IOsServices services)
         {
-            if (string.IsNullOrEmpty(_fileProcessorExe ))
+            if (string.IsNullOrEmpty(fileProcessorExe))
                 return;
-            Log.Debug($"Starting file preprocessor: '{_fileProcessorExe}' with args: '{string.Join(' ', _fileProcessorArgs)}'");
+            Log.Debug($"Starting file preprocessor: '{fileProcessorExe}' with args: '{string.Join(' ', fileProcessorArgs)}'");
 
-            if (!File.Exists(_fileProcessorExe ))
+            if (!File.Exists(fileProcessorExe))
             {
-                Log.Error($"Selected file preprocessor does not exist:{_fileProcessorExe}");
+                Log.Error($"Selected file preprocessor does not exist:{fileProcessorExe}");
                 return;
             }
+
             string output;
             string err;
-            var res = services.Execute(_fileProcessorExe, _fileProcessorArgs, out output, out err);
+            var res = services.Execute(fileProcessorExe, fileProcessorArgs, out output, out err);
             Log.Information($"File preprocess result:{res}, output:{output}, err:{err}");
-            
+
         }
 
         public virtual void PostExecute(Process process)
@@ -80,8 +103,9 @@ namespace scalus.UrlParser
             {
                 time = 10;
             }
-            else {
-                if(Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforexit.ToString(), StringComparison.OrdinalIgnoreCase)))
+            else
+            {
+                if (Config.Options.Any(x => string.Equals(x, ProcessingOptions.waitforexit.ToString(), StringComparison.OrdinalIgnoreCase)))
                 {
                     Log.Information($"post processing - wait for exit");
                     process.WaitForExit();
@@ -113,6 +137,7 @@ namespace scalus.UrlParser
                     }
                 }
             }
+
             if (time > 0)
             {
                 Log.Information($"post processing - waiting for {time} seconds");
@@ -133,25 +158,6 @@ namespace scalus.UrlParser
 
         protected void SetValue(Match match, int index, Token property, bool decode, string defValue = null)
         {
-            var val = defValue??string.Empty;
-            if (match.Success && match.Groups.Count >= index)
-            {
-                if (!string.IsNullOrEmpty(match.Groups[index].Value))
-                {
-                    val = match.Groups[index].Value;
-                }
-            }
-            if (decode)
-            {
-                val = HttpUtility.UrlDecode(val);
-            }
-            Dictionary[property] = val;
-        }
-        protected static void SetValue(string user, IDictionary<Token, string> dictionary, string pattern, int index, Token property, bool decode, string defValue = null)
-        {
-            var re = new Regex(pattern);
-            var match = re.Match(user);
-            
             var val = defValue ?? string.Empty;
             if (match.Success && match.Groups.Count >= index)
             {
@@ -160,12 +166,37 @@ namespace scalus.UrlParser
                     val = match.Groups[index].Value;
                 }
             }
+
             if (decode)
             {
                 val = HttpUtility.UrlDecode(val);
             }
+
+            Dictionary[property] = val;
+        }
+
+        protected static void SetValue(string user, IDictionary<Token, string> dictionary, string pattern, int index, Token property, bool decode, string defValue = null)
+        {
+            var re = new Regex(pattern);
+            var match = re.Match(user);
+
+            var val = defValue ?? string.Empty;
+            if (match.Success && match.Groups.Count >= index)
+            {
+                if (!string.IsNullOrEmpty(match.Groups[index].Value))
+                {
+                    val = match.Groups[index].Value;
+                }
+            }
+
+            if (decode)
+            {
+                val = HttpUtility.UrlDecode(val);
+            }
+
             dictionary[property] = val;
         }
+
         public static void GetSafeguardUserValue(IDictionary<Token, string> dictionary)
         {
             var user = dictionary[Token.User];
@@ -175,7 +206,7 @@ namespace scalus.UrlParser
 
             SetValue(user, dictionary, "asset[=|~]([^@%]+)", 1, Token.Asset, false);
 
-            
+
             var tokenpattern = "(token[=|~]([^@%]+)[@|%]([^%]+)[@|%]([^%]+))";
             var i = user.IndexOf("token");
             if (i >= 0)
@@ -190,7 +221,7 @@ namespace scalus.UrlParser
                 dictionary[Token.TargetPort] = port;
             }
 
-         }
+        }
 
         private void WriteTempFile(IEnumerable<string> lines, string ext)
         {
@@ -198,7 +229,7 @@ namespace scalus.UrlParser
             {
                 string tempFile;
                 var isSafeguard = Dictionary.ContainsKey(Token.Vault) && !string.IsNullOrEmpty(Dictionary[Token.Vault]);
-                if ( isSafeguard)
+                if (isSafeguard)
                 {
                     var guid = Guid.NewGuid().ToString();
                     var host = Dictionary[Token.TargetHost];
@@ -234,25 +265,28 @@ namespace scalus.UrlParser
                         tempFile = renamed;
                     }
                 }
+
                 Disposables.Add(Disposable.Create(() => File.Delete(tempFile)));
                 var newlines = new List<string>();
                 foreach (var line in lines)
                 {
                     newlines.Add(ReplaceTokens(line));
                 }
+
                 var dir = Path.GetDirectoryName(tempFile);
                 if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
                 }
+
                 File.WriteAllText(tempFile, string.Join(Environment.NewLine, newlines));
                 Dictionary[Token.GeneratedFile] = tempFile;
-                _fileProcessorArgs = new List<string>();
-                _fileProcessorExe = string.Empty;
+                fileProcessorArgs = new List<string>();
+                fileProcessorExe = string.Empty;
                 if (!string.IsNullOrEmpty(Config.PostProcessingExec))
                 {
                     var found = false;
-                    _fileProcessorExe = ReplaceTokens(Config.PostProcessingExec);
+                    fileProcessorExe = ReplaceTokens(Config.PostProcessingExec);
                     foreach (var arg in Config.PostProcessingArgs)
                     {
                         if (arg.Contains($"%{Token.GeneratedFile}%"))
@@ -260,40 +294,43 @@ namespace scalus.UrlParser
                             found = true;
                         }
 
-                        _fileProcessorArgs.Add(ReplaceTokens(arg));
+                        fileProcessorArgs.Add(ReplaceTokens(arg));
                     }
 
                     if (!found)
                     {
-                        _fileProcessorArgs.Add(Dictionary[Token.GeneratedFile]);
+                        fileProcessorArgs.Add(Dictionary[Token.GeneratedFile]);
                     }
                 }
 
                 Log.Information(
-                    $"Preprocessing cmd:{_fileProcessorExe} args:{string.Join(',', _fileProcessorArgs)}");
+                    $"Preprocessing cmd:{fileProcessorExe} args:{string.Join(',', fileProcessorArgs)}");
             }
             catch (Exception e)
             {
                 Log.Error($"Failed to process temp file: {e.Message}");
             }
         }
-    
 
-        protected static (string host,string port) ParseHost(string host)
+
+        protected static (string host, string port) ParseHost(string host)
         {
             var sep = host.LastIndexOf(":", StringComparison.Ordinal);
             if (sep == -1)
             {
                 return (host, null);
             }
-            return (host.Substring(0, sep), host.Substring(sep+1));
+
+            return (host.Substring(0, sep), host.Substring(sep + 1));
         }
+
         protected static string StripProtocol(string url)
         {
             var protocolIndex = url.IndexOf("://", StringComparison.Ordinal);
             if (protocolIndex == -1) return url;
-            return  url.Substring(protocolIndex + 3);
+            return url.Substring(protocolIndex + 3);
         }
+
         protected static string Protocol(string url, string def = null)
         {
             var protocolIndex = url.IndexOf("://", StringComparison.Ordinal);
@@ -302,9 +339,9 @@ namespace scalus.UrlParser
         }
 
         protected abstract IEnumerable<string> GetDefaultTemplate();
-    
+
         public static string ReplaceToken(string tokenKey, string tokenValue, string line)
-        {    
+        {
             var patt = "%" + tokenKey + "%";
             var newline = line;
             newline = Regex.Replace(newline, patt, tokenValue ?? string.Empty, RegexOptions.IgnoreCase);
@@ -320,6 +357,7 @@ namespace scalus.UrlParser
             newline = Regex.Replace(newline, patt, x => x.Groups[2]?.Value);
             return newline;
         }
+
         public virtual string ReplaceTokens(string line)
         {
             var newline = line;
@@ -327,22 +365,26 @@ namespace scalus.UrlParser
             {
                 newline = ReplaceToken(variable.Key.ToString(), variable.Value, newline);
             }
+
             return newline;
         }
+
         public string GetFullPath(string path)
         {
             if (Path.IsPathFullyQualified(path))
             {
                 return path;
             }
+
             var dir = AppDomain.CurrentDomain.BaseDirectory;
             return Path.Combine(dir, path);
         }
+
         protected void ParseConfig()
         {
-            Dictionary[Token.Home]= Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            Dictionary[Token.Home] = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             Dictionary[Token.AppData] = ConfigurationManager.ProdAppPath;
-            Dictionary[Token.TempPath]= Path.GetTempPath();
+            Dictionary[Token.TempPath] = Path.GetTempPath();
             IEnumerable<string> fileLines = null;
             if (Config.UseDefaultTemplate)
             {
@@ -361,13 +403,15 @@ namespace scalus.UrlParser
                     Log.Error($"Application template does not exist:{templatefile}");
                     throw new Exception($"Application template file does not exist: {templatefile}");
                 }
-                
+
                 var ext = Path.GetExtension(templatefile);
                 if (!string.IsNullOrEmpty(ext))
                 {
                     FileExtension = ext;
                 }
-                try {
+
+                try
+                {
                     fileLines = File.ReadAllLines(templatefile);
                 }
                 catch (Exception e)
@@ -375,17 +419,19 @@ namespace scalus.UrlParser
                     Log.Error(e, $"Cannot read template file: {templatefile}");
                 }
             }
+
             if (fileLines != null)
             {
-                WriteTempFile(fileLines, FileExtension);           
+                WriteTempFile(fileLines, FileExtension);
             }
         }
 
         protected void Parse(Uri url)
         {
             Dictionary = new Dictionary<Token, string>();
-            try {
-                Dictionary[Token.OriginalUrl]=url.GetComponents(UriComponents.AbsoluteUri, UriFormat.UriEscaped);
+            try
+            {
+                Dictionary[Token.OriginalUrl] = url.GetComponents(UriComponents.AbsoluteUri, UriFormat.UriEscaped);
                 Dictionary[Token.RelativeUrl] = StripProtocol(Dictionary[Token.OriginalUrl]);
                 Dictionary[Token.Protocol] = url.GetComponents(UriComponents.Scheme, UriFormat.Unescaped);
                 Dictionary[Token.Host] = url.GetComponents(UriComponents.Host, UriFormat.Unescaped);
@@ -401,18 +447,18 @@ namespace scalus.UrlParser
                 Log.Warning($"The string does not appear to be a valid URL: {url} ");
             }
         }
-       
+
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (!disposedValue)
             {
                 if (disposing)
                 {
                     Disposables.Dispose();
                 }
 
-                _disposedValue = true;
+                disposedValue = true;
             }
         }
 
@@ -424,13 +470,15 @@ namespace scalus.UrlParser
                 var newarg = ReplaceTokens(arg.Trim());
                 newargs.Add(newarg);
             }
+
             return newargs;
         }
-        protected virtual IEnumerable<string>  GetTemplateOverrides(IEnumerable<string> templateContents)
+
+        protected virtual IEnumerable<string> GetTemplateOverrides(IEnumerable<string> templateContents)
         {
             return templateContents;
         }
 
-        private bool _disposedValue;
+        private bool disposedValue;
     }
 }
