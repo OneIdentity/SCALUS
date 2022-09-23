@@ -2,10 +2,10 @@
   
   <PropertyGroup>
       <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>scalus</RootNamespace>
-    <AssemblyName>scalus</AssemblyName>
-    <StartupObject>scalus.Program</StartupObject>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>OneIdentity.Scalus</RootNamespace>
+    <AssemblyName>OneIdentity.Scalus</AssemblyName>
+    <StartupObject>OneIdentity.Scalus.Program</StartupObject>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
@@ -29,6 +29,10 @@
     <EmbeddedResource Remove="Ui\app\**" />
     <None Remove="Ui\app\**" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Content Remove="stylecop.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Resources\Default.rdp" />
@@ -39,6 +43,10 @@
     <None Remove="Ui\Web\polyfills.js" />
     <None Remove="Ui\Web\runtime.js" />
     <None Remove="Ui\Web\styles.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,16 +78,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="6.0.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.0.2" />
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
-    <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
-    <PackageReference Include="System.Reactive" Version="4.4.1" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.4.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Serilog" Version="2.12.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

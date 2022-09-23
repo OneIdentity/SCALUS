@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Options.cs" company="One Identity Inc.">
+// <copyright file="GlobalSuppressions.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -19,17 +19,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OneIdentity.Scalus.Launch
-{
-    using CommandLine;
+using System.Diagnostics.CodeAnalysis;
 
-    [Verb("launch", HelpText = "Launch an app configured for the specified URL")]
-    public class Options : IVerb
-    {
-        [Option('u', "url", Required = true, HelpText = "The URL to launch.")]
-        public string Url { get; set; }
-
-        [Option('p', "preview", Required = false, HelpText = "Show me what will launch, but dont run it. This will also report the token values and show the contents of the generated file, if applicable.")]
-        public bool Preview { get; set; }
-    }
-}
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1602:Enumeration items should be documented", Justification = "Enum values are usually obvious", Scope = "type", Target = "~T:OneIdentity.Scalus.Dto.Platform")]
+[assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "This isn't JavaScript", Scope = "member", Target = "~N:OneIdentity.Scalus")]

@@ -1,12 +1,38 @@
-﻿namespace scalus.Platform
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="UnsupportedPlatformRegistrar.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace OneIdentity.Scalus.Platform
 {
-    class UnsupportedPlatformRegistrar : IProtocolRegistrar
+    internal class UnsupportedPlatformRegistrar : IProtocolRegistrar
     {
         public IOsServices OsServices { get; }
+
         public bool UseSudo { get; set; }
+
         public bool RootMode { get; set; }
+
         public string Name { get; } = "Unknown";
-        IUserInteraction UserInteraction { get; }
+
+        private IUserInteraction UserInteraction { get; }
+
         public UnsupportedPlatformRegistrar(IUserInteraction userInteraction)
         {
             UserInteraction = userInteraction;
@@ -41,11 +67,12 @@ You can register SCALUS manually using this command: {registrationCommand}
 
         public bool ReplaceRegistration(string protocol)
         {
-            var res =Unregister(protocol);
+            var res = Unregister(protocol);
             if (res)
             {
                 res = Register(protocol);
             }
+
             return res;
         }
 

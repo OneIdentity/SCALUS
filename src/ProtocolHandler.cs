@@ -1,22 +1,46 @@
-﻿using scalus.Dto;
-using scalus.Platform;
-using scalus.UrlParser;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Security.Policy;
-using System.Text;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ProtocolHandler.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus
+namespace OneIdentity.Scalus
 {
-    class ProtocolHandler : IProtocolHandler
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Platform;
+    using OneIdentity.Scalus.UrlParser;
+
+    internal class ProtocolHandler : IProtocolHandler
     {
         private bool disposedValue;
 
-        IUrlParser Parser { get; }
-        string Uri { get; }
-        IOsServices OsServices { get; }
-        ApplicationConfig ApplicationConfig { get; }
+        private IUrlParser Parser { get; }
+
+        private string Uri { get; }
+
+        private IOsServices OsServices { get; }
+
+        private ApplicationConfig ApplicationConfig { get; }
+
         public ProtocolHandler(string uri, IUrlParser urlParser, ApplicationConfig applicationConfig, IOsServices osServices)
         {
             Uri = uri;
@@ -28,13 +52,13 @@ namespace scalus
         public string PreviewOutput(IDictionary<ParserConfigDefinitions.Token, string> dictionary, string cmd, List<string> args)
         {
             var str = new StringBuilder();
- 
+
             str.Append(@" 
  - Application:
    ----------
 ");
-            str.Append (string.Format(  "   - {0,-16} : {1}{2}", "Application", cmd, Environment.NewLine));
-            str.Append (string.Format(  "   - {0,-16} : {1}{2}", "Arguments", string.Join(',', args), Environment.NewLine));
+            str.Append(string.Format("   - {0,-16} : {1}{2}", "Application", cmd, Environment.NewLine));
+            str.Append(string.Format("   - {0,-16} : {1}{2}", "Arguments", string.Join(',', args), Environment.NewLine));
 
             str.Append(@" 
  - Dictionary:
@@ -44,6 +68,7 @@ namespace scalus
             {
                 str.Append(string.Format("   - {0,-16} : {1}{2}", key, val, Environment.NewLine));
             }
+
             if (dictionary.ContainsKey(ParserConfigDefinitions.Token.GeneratedFile))
             {
                 var fname = dictionary[ParserConfigDefinitions.Token.GeneratedFile];
@@ -58,12 +83,14 @@ namespace scalus
 
             return str.ToString();
         }
+
         public void Run(bool preview = false)
         {
-            try {
-                
+            try
+            {
+
                 var dictionary = Parser.Parse(Uri);
-                Parser.PreExecute(OsServices);           
+                Parser.PreExecute(OsServices);
                 var args = Parser.ReplaceTokens(ApplicationConfig.Args);
 
                 var cmd = Parser.ReplaceTokens(ApplicationConfig.Exec.Trim());
@@ -82,25 +109,27 @@ namespace scalus
                     Console.WriteLine(PreviewOutput(dictionary, cmd, args));
                     return;
                 }
+
                 var process = OsServices.Execute(cmd, args);
                 if (process == null)
                 {
                     Serilog.Log.Error("Failed to create process for cmd:{cmd}");
                     throw new Exception($"Failed to create process for cmd:{cmd}");
                 }
+
                 Serilog.Log.Debug("Post execute starting.");
-                
+
                 Parser.PostExecute(process);
                 Serilog.Log.Debug("Post execute complete.");
             }
             catch (Exception e)
             {
-                 OsServices.OpenText($"Launch failed: {e.Message}");
+                OsServices.OpenText($"Launch failed: {e.Message}");
 
             }
         }
 
-    
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -109,6 +138,7 @@ namespace scalus
                 {
                     Parser.Dispose();
                 }
+
                 disposedValue = true;
             }
         }

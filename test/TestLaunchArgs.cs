@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using Xunit;
-using scalus.UrlParser;
-using scalus.Dto;
-using scalus.Platform;
-using static scalus.Dto.ParserConfigDefinitions;
+using OneIdentity.Scalus.UrlParser;
+using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
-namespace scalus.Test
+namespace OneIdentity.Scalus.Test
 {
 
     public class TestLaunchArgs
@@ -22,24 +16,24 @@ namespace scalus.Test
         private string path = "thisisapath";
         private string query = "a small query";
         private string fragment = "fragmented";
-        private string vault ="myvaultaddress";
+        private string vault = "myvaultaddress";
         private string token = "some token";
         private string targetuser = "enduser";
         private string targethost = "targethost";
         private string targetport = "333";
         private string fulluser;
-        private string  url;
+        private string url;
         private string filename = Path.GetTempPath() + "tmpfile.rdp";
 
-        private IDictionary<Token,string> SetupData()
+        private IDictionary<Token, string> SetupData()
         {
             fulluser = $"vaultaddress={vault}@token={token}@{targetuser}@{targethost}";
             url = $"{prot}://{fulluser}@{host}";
 
 
-            return new Dictionary<Token,string>()
+            return new Dictionary<Token, string>()
             {
-                { Token.Protocol, prot }, 
+                { Token.Protocol, prot },
                 { Token.User, fulluser },
                 { Token.Host, host },
                 { Token.Port, port },
@@ -69,12 +63,12 @@ namespace scalus.Test
         [Fact]
         public void Test1()
         {
-            using( var parser = new DefaultSshUrlParser(new Dto.ParserConfig(), SetupData()))
+            using (var parser = new DefaultSshUrlParser(new Dto.ParserConfig(), SetupData()))
             {
-            var args = new List<string>()
+                var args = new List<string>()
             {
                 $"%{Token.Protocol}%",
-                $"%{Token.User}%", 
+                $"%{Token.User}%",
                 $"%{Token.Host}%",
                 $"%{Token.Port}%",
                 $"%{Token.Path}%",
@@ -100,64 +94,64 @@ namespace scalus.Test
                 $"%{ Token.Asset}%",
                 $"%{ Token.Remoteapplicationcmdline }%"
             };
-               
-            
-            var newargs = parser.ReplaceTokens(args);
-            var one = newargs.GetEnumerator();
-            Assert.True(one.MoveNext());
-            Assert.Equal(prot, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(fulluser, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(host, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(port, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(path, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(query, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(fragment, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(vault, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(token, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(targetuser, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(targethost, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(targetport, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(url, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal($"{fulluser}@{host}" , one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(filename, one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal(Path.GetTempPath(), one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("homedir", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("appdata/scalus", one.Current);
 
 
-            Assert.True(one.MoveNext());
-            Assert.Equal("myshell", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("myname", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("myprogram", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("myaccount", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("myasset", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("--cmd \"C:\\Apps\\TestRemoteApp\\TestRemoteApp.exe\" --args \"password={password} asset={asset} user={username}\" --enable-debug", one.Current);
+                var newargs = parser.ReplaceTokens(args);
+                var one = newargs.GetEnumerator();
+                Assert.True(one.MoveNext());
+                Assert.Equal(prot, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(fulluser, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(host, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(port, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(path, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(query, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(fragment, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(vault, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(token, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(targetuser, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(targethost, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(targetport, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(url, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal($"{fulluser}@{host}", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(filename, one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal(Path.GetTempPath(), one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("homedir", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("appdata/scalus", one.Current);
 
-            Assert.False(one.MoveNext());
 
-            args = new List<string>
+                Assert.True(one.MoveNext());
+                Assert.Equal("myshell", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("myname", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("myprogram", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("myaccount", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("myasset", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("--cmd \"C:\\Apps\\TestRemoteApp\\TestRemoteApp.exe\" --args \"password={password} asset={asset} user={username}\" --enable-debug", one.Current);
+
+                Assert.False(one.MoveNext());
+
+                args = new List<string>
             {
                 "%protocol",
                 "user",
@@ -166,20 +160,20 @@ namespace scalus.Test
                 "%host%hide"
 
             };
-            newargs = parser.ReplaceTokens(args);
-            one = newargs.GetEnumerator();
-            Assert.True(one.MoveNext());
-            Assert.Equal("%protocol", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("user", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("host%", one.Current);
-            Assert.True(one.MoveNext());
-            Assert.Equal("thisismyhost%", one.Current);
+                newargs = parser.ReplaceTokens(args);
+                one = newargs.GetEnumerator();
+                Assert.True(one.MoveNext());
+                Assert.Equal("%protocol", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("user", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("host%", one.Current);
+                Assert.True(one.MoveNext());
+                Assert.Equal("thisismyhost%", one.Current);
 
-            Assert.True(one.MoveNext());
-            Assert.Equal("thisismyhosthide", one.Current);
-            Assert.False(one.MoveNext());
+                Assert.True(one.MoveNext());
+                Assert.Equal("thisismyhosthide", one.Current);
+                Assert.False(one.MoveNext());
             }
         }
         [Fact]
@@ -207,7 +201,7 @@ namespace scalus.Test
         public void Test2()
         {
             var list = ProtocolHandlerFactory.GetSupportedParsers();
-            Assert.True(list.Count >0);
+            Assert.True(list.Count > 0);
             Assert.Contains("ssh", list);
             Assert.Contains("rdp", list);
             Assert.Contains("url", list);
@@ -247,7 +241,7 @@ namespace scalus.Test
         {
             var apiConfig = new ScalusApiConfiguration(json);
             apiConfig.Validate(json, true);
-            Assert.Equal( expErrors, apiConfig.ValidationErrors.Count);
+            Assert.Equal(expErrors, apiConfig.ValidationErrors.Count);
         }
 
         [Fact]
@@ -379,7 +373,7 @@ namespace scalus.Test
             CheckJson(json, 1);
         }
 
-         [Fact]
+        [Fact]
         public void TestJson1()
         {
             var json = "{'Protocols':[{'Protocol':'one$'}]}";
@@ -396,18 +390,18 @@ namespace scalus.Test
             CheckJson(json, 0);
             json = "{'Protocols':[{'Protocol':'one111'}]}";
             CheckJson(json, 0);
-   
-           
+
+
 
 
         }
 
         [Fact]
         public void TestInstalledJson()
-        {            
+        {
             var root = Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName, "scripts");
-            foreach(var dir in new string[] { "Win", "Linux", "Osx"})
-            { 
+            foreach (var dir in new string[] { "Win", "Linux", "Osx" })
+            {
                 var path = Path.Combine(root, Path.Combine(dir, "scalus.json"));
                 Assert.True(File.Exists(path));
                 var json = File.ReadAllText(path);
