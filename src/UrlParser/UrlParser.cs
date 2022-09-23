@@ -24,6 +24,7 @@ namespace OneIdentity.Scalus.UrlParser
     using System;
     using System.Collections.Generic;
     using OneIdentity.Scalus.Dto;
+    using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
     [ParserName("url")]
     internal class UrlParser : BaseParser

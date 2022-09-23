@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>scalus</RootNamespace>
     <AssemblyName>scalus</AssemblyName>
-    <StartupObject>scalus.Program</StartupObject>
+    <StartupObject>OneIdentity.Scalus.Program</StartupObject>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>

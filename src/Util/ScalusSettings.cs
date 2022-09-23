@@ -65,23 +65,23 @@ namespace OneIdentity.Scalus.Util
             }
         }
 
-        private static string ProdAppPath;
+        private static string prodAppPath;
 
         public static string ProdAppPath
         {
             get
             {
-                if (!string.IsNullOrEmpty(ProdAppPath))
-                    return ProdAppPath;
+                if (!string.IsNullOrEmpty(prodAppPath))
+                    return prodAppPath;
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    ProdAppPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), ProdName);
-                    if (!Directory.Exists(ProdAppPath))
+                    prodAppPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), ProdName);
+                    if (!Directory.Exists(prodAppPath))
                     {
-                        Directory.CreateDirectory(ProdAppPath);
+                        Directory.CreateDirectory(prodAppPath);
                     }
 
-                    return ProdAppPath;
+                    return prodAppPath;
                 }
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -89,24 +89,24 @@ namespace OneIdentity.Scalus.Util
                     var path =
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create), "Library");
 
-                    ProdAppPath = $"{path}/Application Support/{ProdName}";
-                    if (!Directory.Exists(ProdAppPath))
+                    prodAppPath = $"{path}/Application Support/{ProdName}";
+                    if (!Directory.Exists(prodAppPath))
                     {
-                        Directory.CreateDirectory(ProdAppPath);
+                        Directory.CreateDirectory(prodAppPath);
                     }
 
-                    return ProdAppPath;
+                    return prodAppPath;
                 }
 
-                ProdAppPath = Path.Combine(
+                prodAppPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create),
                     $".{ProdName}");
-                if (!Directory.Exists(ProdAppPath))
+                if (!Directory.Exists(prodAppPath))
                 {
-                    Directory.CreateDirectory(ProdAppPath);
+                    Directory.CreateDirectory(prodAppPath);
                 }
 
-                return ProdAppPath;
+                return prodAppPath;
             }
         }
 
@@ -117,7 +117,7 @@ namespace OneIdentity.Scalus.Util
                 return path;
             }
 
-            var appDir = ProdAppPath;
+            var appDir = prodAppPath;
 
             var fqpath = Path.Combine(appDir, path);
             var dir = Path.GetDirectoryName(fqpath);

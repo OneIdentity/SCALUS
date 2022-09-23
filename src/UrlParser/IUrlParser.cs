@@ -25,6 +25,7 @@ namespace OneIdentity.Scalus.UrlParser
     using System.Collections.Generic;
     using System.Diagnostics;
     using OneIdentity.Scalus.Platform;
+    using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
     public class ParserName : Attribute

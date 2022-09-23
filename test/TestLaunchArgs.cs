@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 using OneIdentity.Scalus.UrlParser;
+using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
 namespace OneIdentity.Scalus.Test
 {

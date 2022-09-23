@@ -1,7 +1,8 @@
+using OneIdentity.Scalus.UrlParser;
 using System;
 using System.Web;
-using OneIdentity.Scalus.UrlParser;
 using Xunit;
+using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
 namespace OneIdentity.Scalus.Test
 {

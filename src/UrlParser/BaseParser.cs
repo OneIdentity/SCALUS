@@ -34,6 +34,7 @@ namespace OneIdentity.Scalus.UrlParser
     using OneIdentity.Scalus.Platform;
     using OneIdentity.Scalus.Util;
     using Serilog;
+    using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
     public abstract class BaseParser : IUrlParser
     {

@@ -27,8 +27,8 @@ namespace OneIdentity.Scalus.Launch
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<scalus.Launch.Options>().AsSelf().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<scalus.Launch.Application>().Named<IApplication>("launch").SingleInstance();
+            builder.RegisterType<Options>().AsSelf().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<Application>().Named<IApplication>("launch").SingleInstance();
         }
     }
 }

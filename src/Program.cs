@@ -30,7 +30,6 @@ using Serilog;
 using Serilog.Core;
 
 [assembly: InternalsVisibleTo("scalus.Test")]
-
 namespace OneIdentity.Scalus
 {
     internal class Program

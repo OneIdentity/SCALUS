@@ -1,10 +1,12 @@
 using System;
-using OneIdentity.Scalus.UrlParser;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
 using System.Runtime.InteropServices;
+using OneIdentity.Scalus.UrlParser;
+using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
+using OneIdentity.Scalus.Dto;
 
 namespace OneIdentity.Scalus.Test
 {
@@ -16,7 +18,7 @@ namespace OneIdentity.Scalus.Test
         {
             //Rdp string
             //full+address=s:host&username=s:safeguarduserstring
-            using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig()))
+            using (var sut = new DefaultRdpUrlParser(new ParserConfig()))
             {
                 var prot = "rdp";
                 var host = "10.5.32.168";

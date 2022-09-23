@@ -23,11 +23,12 @@ namespace OneIdentity.Scalus.UrlParser
 {
     using System.Collections.Generic;
     using OneIdentity.Scalus.Dto;
+    using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
     [ParserName("telnet")]
     internal class DefaultTelnetUrlParser : DefaultSshUrlParser
     {
-        //Identical to the ssh parser
+        // Identical to the ssh parser
         public DefaultTelnetUrlParser(ParserConfig config)
             : base(config)
         {
@@ -38,7 +39,9 @@ namespace OneIdentity.Scalus.UrlParser
             : this(config)
         {
             if (dictionary != null)
+            {
                 Dictionary = dictionary;
+            }
         }
     }
 }

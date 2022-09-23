@@ -35,6 +35,7 @@ namespace OneIdentity.Scalus.UrlParser
     using System.Web;
     using OneIdentity.Scalus.Dto;
     using Serilog;
+    using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
     [ParserName("rdp")]
     internal class DefaultRdpUrlParser : BaseParser
