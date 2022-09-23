@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Options.cs" company="One Identity Inc.">
+// <copyright file="RegistrarException.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -19,14 +19,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OneIdentity.Scalus.Verify
+namespace OneIdentity.Scalus
 {
-    using CommandLine;
+    using System;
 
-    [Verb("verify", HelpText = "Run a syntax check on a scalus configuration file")]
-    public class Options : IVerb
+    public class RegistrarException : Exception
     {
-        [Option('p', "path", Required = false, HelpText = "Path of an alternate scalus configuration file to verify instead")]
-        public string Path { get; set; }
+        public RegistrarException(string message)
+            : base(message)
+        {
+        }
     }
 }

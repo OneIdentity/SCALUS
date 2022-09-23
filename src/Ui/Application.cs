@@ -33,20 +33,6 @@ namespace OneIdentity.Scalus.Ui
 
     internal class Application : IApplication, IWebServer
     {
-        private Options Options { get; }
-
-        private Serilog.ILogger Logger { get; }
-
-        private int WebPort { get; }
-
-        private CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
-
-        private IHost GenericHost { get; set; }
-
-        private IUserInteraction UserInteraction { get; }
-
-        private IOsServices OsServices { get; }
-
         public Application(Options options, Serilog.ILogger logger, IUserInteraction userInteraction, IOsServices osServices, ILifetimeScope container)
         {
             Options = options;
@@ -63,6 +49,22 @@ namespace OneIdentity.Scalus.Ui
 
             ExternalContainer = container;
         }
+
+        private Options Options { get; }
+
+        private Serilog.ILogger Logger { get; }
+
+        private int WebPort { get; }
+
+        private CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
+
+        private IHost GenericHost { get; set; }
+
+        private IUserInteraction UserInteraction { get; }
+
+        private IOsServices OsServices { get; }
+
+        private static ILifetimeScope ExternalContainer { get; set; }
 
         public int Run()
         {
@@ -87,6 +89,19 @@ namespace OneIdentity.Scalus.Ui
             GenericHost.StopAsync();
         }
 
+        // HAXX: This is a hack because we have two different autofac containers.
+        // One container is for the CLI, but when we switch to UI/webserver mode
+        // we are using the Asp.Net Core container. Maybe there's a way to use the
+        // existing container, but I haven't figured it out yet. So here' I'm just
+        // injecting the one instance we need right now into the Asp.Net autofac
+        // container.
+        internal static void RegisterExternalInstances(ContainerBuilder builder)
+        {
+            builder.RegisterInstance(ExternalContainer.ResolveNamed<IApplication>("ui")).As<IWebServer>().ExternallyOwned();
+            builder.RegisterInstance(ExternalContainer.Resolve<IRegistration>()).ExternallyOwned();
+            builder.RegisterInstance(ExternalContainer.ResolveNamed<IApplication>("info")).Named<IApplication>("InfoApplication").ExternallyOwned();
+        }
+
         private IHost CreateHost()
         {
             var host = Host.CreateDefaultBuilder()
@@ -106,8 +121,6 @@ namespace OneIdentity.Scalus.Ui
                 .UseContentRoot(Constants.GetBinaryDir());
         }
 
-
-
         private static int GetRandomFreePort()
         {
 #if DEBUG
@@ -124,21 +137,6 @@ namespace OneIdentity.Scalus.Ui
                 listener.Stop();
             }
 #endif
-        }
-
-        // HAXX: This is a hack because we have two different autofac containers. 
-        // One container is for the CLI, but when we switch to UI/webserver mode
-        // we are using the Asp.Net Core container. Maybe there's a way to use the
-        // existing container, but I haven't figured it out yet. So here' I'm just
-        // injecting the one instance we need right now into the Asp.Net autofac 
-        // container.
-        private static ILifetimeScope ExternalContainer { get; set; } = null;
-
-        internal static void RegisterExternalInstances(ContainerBuilder builder)
-        {
-            builder.RegisterInstance(ExternalContainer.ResolveNamed<IApplication>("ui")).As<IWebServer>().ExternallyOwned();
-            builder.RegisterInstance(ExternalContainer.Resolve<IRegistration>()).ExternallyOwned();
-            builder.RegisterInstance(ExternalContainer.ResolveNamed<IApplication>("info")).Named<IApplication>("InfoApplication").ExternallyOwned();
         }
     }
 }

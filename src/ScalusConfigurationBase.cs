@@ -31,7 +31,15 @@ namespace OneIdentity.Scalus
 
     internal class ScalusConfigurationBase
     {
-        private ScalusConfig scalusConfig = null;
+        private ScalusConfig scalusConfig;
+
+        protected ScalusConfigurationBase()
+        {
+        }
+
+        public List<string> ValidationErrors { get; protected set; } = new List<string>();
+
+        protected string configFile { get; } = ConfigurationManager.ScalusJson;
 
         protected ScalusConfig Config
         {
@@ -51,42 +59,9 @@ namespace OneIdentity.Scalus
             }
         }
 
-        public List<string> ValidationErrors { get; protected set; } = new List<string>();
-
-        protected string configFile = ConfigurationManager.ScalusJson;
-
-        protected ScalusConfigurationBase()
-        {
-        }
-
-
         public ScalusConfig GetConfiguration()
         {
             return Config;
-        }
-
-        protected ScalusConfig Load(string path)
-        {
-            ValidationErrors = new List<string>();
-            var config = new ScalusConfig();
-
-            if (!File.Exists(path))
-            {
-                ValidationErrors.Add($"Missing config file:{path}");
-            }
-            else
-            {
-                var configJson = File.ReadAllText(path);
-                (_, config) = Validate(configJson);
-            }
-
-            if (ValidationErrors.Count > 0)
-            {
-                Serilog.Log.Error($"**** Validation of {configFile} failed");
-                Serilog.Log.Error($"*** Validation errors: {string.Join(", ", ValidationErrors)}");
-            }
-
-            return config;
         }
 
         public (bool, ScalusConfig) Validate(string json, bool strict = false)
@@ -120,5 +95,28 @@ namespace OneIdentity.Scalus
             return (ValidationErrors.Count == 0, config);
         }
 
+        protected ScalusConfig Load(string path)
+        {
+            ValidationErrors = new List<string>();
+            var config = new ScalusConfig();
+
+            if (!File.Exists(path))
+            {
+                ValidationErrors.Add($"Missing config file:{path}");
+            }
+            else
+            {
+                var configJson = File.ReadAllText(path);
+                (_, config) = Validate(configJson);
+            }
+
+            if (ValidationErrors.Count > 0)
+            {
+                Serilog.Log.Error($"**** Validation of {configFile} failed");
+                Serilog.Log.Error($"*** Validation errors: {string.Join(", ", ValidationErrors)}");
+            }
+
+            return config;
+        }
     }
 }

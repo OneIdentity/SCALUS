@@ -27,20 +27,18 @@ namespace OneIdentity.Scalus
 
     internal class Registration : IRegistration
     {
-        private IEnumerable<IProtocolRegistrar> Registrars { get; }
-
-        private IUserInteraction UserInteraction { get; }
-
-        private IOsServices OsServices { get; }
-
-        public Registration(IEnumerable<IProtocolRegistrar> registrars, IUserInteraction userInteraction,
-            IOsServices osServices
-        )
+        public Registration(IEnumerable<IProtocolRegistrar> registrars, IUserInteraction userInteraction, IOsServices osServices)
         {
             Registrars = registrars;
             UserInteraction = userInteraction;
             OsServices = osServices;
         }
+
+        private IEnumerable<IProtocolRegistrar> Registrars { get; }
+
+        private IUserInteraction UserInteraction { get; }
+
+        private IOsServices OsServices { get; }
 
         public bool IsRegistered(string protocol, bool useSudo = false)
         {
@@ -55,14 +53,15 @@ namespace OneIdentity.Scalus
             foreach (var registrar in Registrars)
             {
                 if (useSudo)
+                {
                     registrar.UseSudo = true;
+                }
 
                 registered = registered && registrar.IsScalusRegistered(protocol);
             }
 
             return registered;
         }
-
 
         public bool Register(IEnumerable<string> protocols, bool force, bool rootMode = false, bool useSudo = false)
         {
@@ -81,9 +80,15 @@ namespace OneIdentity.Scalus
                 foreach (var registrar in Registrars)
                 {
                     if (rootMode)
+                    {
                         registrar.RootMode = true;
+                    }
+
                     if (useSudo)
+                    {
                         registrar.UseSudo = true;
+                    }
+
                     if (registrar.IsScalusRegistered(protocol))
                     {
                         UserInteraction.Message($"{protocol}: {registrar.Name}: nothing to do (scalus is already registered)...");
@@ -141,9 +146,14 @@ namespace OneIdentity.Scalus
                 foreach (var registrar in Registrars)
                 {
                     if (rootMode)
+                    {
                         registrar.RootMode = true;
+                    }
+
                     if (useSudo)
+                    {
                         registrar.UseSudo = true;
+                    }
 
                     if (registrar.IsScalusRegistered(protocol))
                     {

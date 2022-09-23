@@ -36,7 +36,6 @@ namespace OneIdentity.Scalus.Util
         }
     }
 
-
     //class GuiUserInteraction : IUserInteraction
     //{
     //    public void Error(string error)

@@ -34,9 +34,6 @@ namespace OneIdentity.Scalus.Platform
     {
         public object OsServices { get; private set; }
 
-        [DllImport("libc")]
-        public static extern uint geteuid();
-
         public Process OpenDefault(string url)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -60,7 +57,7 @@ namespace OneIdentity.Scalus.Platform
         {
             if (string.IsNullOrEmpty(command))
             {
-                throw new Exception("Missing command");
+                throw new PlatformException("Missing command");
             }
 
             var startupInfo = new ProcessStartInfo(command)
@@ -87,7 +84,7 @@ namespace OneIdentity.Scalus.Platform
             stdErr = string.Empty;
             if (string.IsNullOrEmpty(command))
             {
-                throw new Exception("missing command");
+                throw new PlatformException("missing command");
             }
 
             Log.Logger.Information($"Running:{command}, args:{string.Join(',', args)}");
@@ -109,7 +106,7 @@ namespace OneIdentity.Scalus.Platform
             var process = Process.Start(startupInfo);
             if (process == null)
             {
-                throw new Exception($"Failed to run:{command}");
+                throw new PlatformException($"Failed to run:{command}");
             }
 
             process.WaitForExit();
@@ -134,14 +131,6 @@ namespace OneIdentity.Scalus.Platform
             }
 
             return geteuid() == 0;
-        }
-
-        private string GetTempFile(string ext)
-        {
-            var tempFile = Path.GetTempFileName();
-            string renamed = Path.ChangeExtension(tempFile, ext);
-            File.Move(tempFile, renamed);
-            return renamed;
         }
 
         public void OpenText(string message)
@@ -177,5 +166,16 @@ namespace OneIdentity.Scalus.Platform
                 File.Delete(tempFile);
             }
         }
+
+        private static string GetTempFile(string ext)
+        {
+            var tempFile = Path.GetTempFileName();
+            string renamed = Path.ChangeExtension(tempFile, ext);
+            File.Move(tempFile, renamed);
+            return renamed;
+        }
+
+        [DllImport("libc")]
+        private static extern uint geteuid();
     }
 }

@@ -29,8 +29,31 @@ namespace OneIdentity.Scalus
     using System.Text.RegularExpressions;
     using OneIdentity.Scalus.Platform;
 
-    public class MacOsProtocolRegistrar : IProtocolRegistrar
+    public class MacOSProtocolRegistrar : IProtocolRegistrar
     {
+        private readonly string appPath;
+        private readonly string appInfo;
+        private readonly string appInfoPlist;
+
+        private List<string> handledUrlList;
+
+#if LocalOnly
+#else
+        private List<string> registeredProtocols = new List<string> { "rdp", "ssh", "telnet" };
+
+#endif
+        public MacOSProtocolRegistrar(IOsServices osServices)
+        {
+            OsServices = osServices;
+            appPath = this.GetAppPath();
+            appInfo = $"{appPath}/Contents/Info";
+            appInfoPlist = $"{appInfo}.plist";
+#if LocalOnly
+#else
+            handledUrlList = registeredProtocols;
+#endif
+        }
+
         public bool UseSudo { get; set; }
 
         public bool RootMode { get; set; }
@@ -39,31 +62,8 @@ namespace OneIdentity.Scalus
 
         public IOsServices OsServices { get; }
 
-        private readonly string appPath;
-        private readonly string appInfo;
-        private readonly string appInfoPlist;
-
-        private List<string> handledUrlList;
-#if LocalOnly
-#else
-        private List<string> RegisteredProtocols = new List<string> { "rdp", "ssh", "telnet" };
-
-#endif
-        public MacOsProtocolRegistrar(IOsServices osServices)
-        {
-            OsServices = osServices;
-            appPath = this.GetAppPath();
-            appInfo = $"{appPath}/Contents/Info";
-            appInfoPlist = $"{appInfo}.plist";
-#if LocalOnly
-#else
-            handledUrlList = RegisteredProtocols;
-#endif
-        }
-
         public string GetRegisteredCommand(string protocol)
         {
-
             var list = GetCurrentRegistrations();
             if (list.Contains(protocol))
             {
@@ -73,11 +73,10 @@ namespace OneIdentity.Scalus
             return string.Empty;
         }
 
-
         public bool IsScalusRegistered(string protocol)
         {
             var handler = GetRegisteredCommand(protocol);
-            return (!string.IsNullOrEmpty(handler));
+            return !string.IsNullOrEmpty(handler);
         }
 
         public bool Unregister(string protocol)
@@ -109,23 +108,53 @@ namespace OneIdentity.Scalus
             return UpdateRegistration(list, true);
         }
 
-
         public bool ReplaceRegistration(string protocol)
         {
             return Register(protocol);
         }
 
+        public static string ConstructNewValue(List<string> list)
+        {
+            var newvalue = new StringBuilder(
+                $"'<array><dict><key>CFBundleURLName</key><string>{MacOsExtensions.ScalusHandler}</string><key>CFBundleURLSchemes</key><array>");
+            foreach (var prot in list)
+            {
+                newvalue.Append($"<string>{prot}</string>");
+            }
+
+            newvalue.Append("</array> </dict> </array>'");
+            return newvalue.ToString();
+        }
+
+        public static List<string> ParseList(string str)
+        {
+            var list = new List<string>();
+            var stripped = Regex.Replace(str, "[\\n\\r(]", string.Empty, RegexOptions.Singleline);
+            var match = Regex.Match(stripped,
+                $"CFBundleURLSchemes\\s*=\\s*([^)]+)",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (match.Success)
+            {
+                var schemes = match.Groups[1].Value;
+                schemes = Regex.Replace(schemes, "\\s+", string.Empty);
+                list = schemes.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
+            }
+
+            return list;
+        }
+
         //check which URLs the application Info.plist file handles
         private List<string> GetCurrentRegistrations()
         {
-
             if (handledUrlList != null)
+            {
                 return handledUrlList;
+            }
 
             string output;
             if (!File.Exists(appInfoPlist) && !UseSudo)
             {
-                throw new Exception($"scalus application file :{appInfoPlist} does not exist or is inaccessible");
+                throw new RegistrarException($"scalus application file :{appInfoPlist} does not exist or is inaccessible");
             }
 
             var cmd = "defaults";
@@ -168,63 +197,9 @@ namespace OneIdentity.Scalus
             }
             return this.Refresh(add);
 #else
-            Serilog.Log.Warning($"This registrar does not support adding or removing protocols. The following protocols are registered:{string.Join(',', RegisteredProtocols)}");
+            Serilog.Log.Warning($"This registrar does not support adding or removing protocols. The following protocols are registered:{string.Join(',', registeredProtocols)}");
             return false;
 #endif
-        }
-
-        public static string ConstructNewValue(List<string> list)
-        {
-            var newvalue = new StringBuilder(
-                $"'<array><dict><key>CFBundleURLName</key><string>{MacOsExtensions.ScalusHandler}</string><key>CFBundleURLSchemes</key><array>");
-            foreach (var prot in list)
-            {
-                newvalue.Append($"<string>{prot}</string>");
-            }
-
-            newvalue.Append("</array> </dict> </array>'");
-            return newvalue.ToString();
-        }
-
-        public static List<string> ParseList(string str)
-        {
-            var list = new List<string>();
-            var stripped = Regex.Replace(str, "[\\n\\r(]", string.Empty, RegexOptions.Singleline);
-            var match = Regex.Match(stripped,
-                $"CFBundleURLSchemes\\s*=\\s*([^)]+)",
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (match.Success)
-            {
-                var schemes = match.Groups[1].Value;
-                schemes = Regex.Replace(schemes, "\\s+", string.Empty);
-                list = schemes.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
-            }
-
-            return list;
-        }
-
-        private bool WriteNewDefaults(string path, string key, string value)
-        {
-            var cmd = "/bin/sh";
-            var args = new List<string>();
-            if (UseSudo)
-            {
-                //try using sudo
-                cmd = "sudo";
-                args.Add("/bin/sh");
-
-            }
-
-            args.AddRange(new List<string> { $"-c", $"defaults write {path} {key} {value}" });
-            string output;
-            var res = this.RunCommand(cmd, args, out output);
-
-            if (!res)
-            {
-                Serilog.Log.Warning($"Failed to update {key} value in {path}:{output}");
-            }
-
-            return res;
         }
     }
 }

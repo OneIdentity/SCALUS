@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Token.cs" company="One Identity Inc.">
+// <copyright file="ParserConfigDefinitions.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -25,7 +25,6 @@ namespace OneIdentity.Scalus.Dto
 
     public class ParserConfigDefinitions
     {
-
         //The set of tokens supported by the parsers. A parser is not required to support all tokens
         public enum Token
         {
@@ -56,7 +55,6 @@ namespace OneIdentity.Scalus.Dto
             Asset = 23,
             Remoteapplicationcmdline = 24,
         }
-;
 
         //processing options supported
         public enum ProcessingOptions
@@ -66,7 +64,6 @@ namespace OneIdentity.Scalus.Dto
             //wait for a specified number of seconds by using e.g. "wait:60"
             wait = 2,
         }
-
 
         public static Dictionary<Token, string> TokenDescription { get; } = new Dictionary<Token, string>
         {

@@ -23,15 +23,15 @@ namespace OneIdentity.Scalus.Unregister
 {
     internal class Application : IApplication
     {
-        private Options Options { get; }
-
-        private IRegistration Registration { get; }
-
         public Application(Options options, IRegistration registration)
         {
             Options = options;
             Registration = registration;
         }
+
+        private Options Options { get; }
+
+        private IRegistration Registration { get; }
 
         public int Run()
         {

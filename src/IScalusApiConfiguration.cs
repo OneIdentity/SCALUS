@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Options.cs" company="One Identity Inc.">
+// <copyright file="IScalusApiConfiguration.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -19,14 +19,32 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OneIdentity.Scalus.Verify
+namespace OneIdentity.Scalus
 {
-    using CommandLine;
+    using System;
+    using System.Collections.Generic;
+    using OneIdentity.Scalus.Dto;
 
-    [Verb("verify", HelpText = "Run a syntax check on a scalus configuration file")]
-    public class Options : IVerb
+    public interface IScalusApiConfiguration
     {
-        [Option('p', "path", Required = false, HelpText = "Path of an alternate scalus configuration file to verify instead")]
-        public string Path { get; set; }
+        List<string> ValidationErrors { get; }
+
+        ScalusConfig GetConfiguration();
+
+        List<string> SaveConfiguration(ScalusConfig configuration);
+    }
+
+    internal interface IScalusConfiguration
+    {
+        List<string> ValidationErrors { get; }
+
+        IProtocolHandler GetProtocolHandler(string uri);
+
+        ScalusConfig GetConfiguration(string path = null);
+    }
+
+    internal interface IProtocolHandler : IDisposable
+    {
+        void Run(bool preview = false);
     }
 }

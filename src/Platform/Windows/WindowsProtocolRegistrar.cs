@@ -29,16 +29,8 @@ namespace OneIdentity.Scalus
 
     [SupportedOSPlatform("windows")]
 
-    internal class ProtocolRegistrar : IProtocolRegistrar
+    internal class WindowsProtocolRegistrar : IProtocolRegistrar
     {
-        public IOsServices OsServices { get; }
-
-        public bool UseSudo { get; set; }
-
-        public bool RootMode { get; set; }
-
-        public string Name { get; } = "WindowsURLRegistry";
-
         private static readonly string AppName = "SCALUS Protocol Handler";
         private static readonly string Clsid = "scalus.URLHandler.1";
         private static readonly string AppId = "SCALUS";
@@ -46,6 +38,13 @@ namespace OneIdentity.Scalus
         private static readonly string CapabilitiesFragment = @"\Capabilities";
         private static readonly string CapabilitiesUrlAssociationsFragment = @$"{CapabilitiesFragment}\UrlAssociations";
 
+        public IOsServices OsServices { get; }
+
+        public bool UseSudo { get; set; }
+
+        public bool RootMode { get; set; }
+
+        public string Name { get; } = "WindowsURLRegistry";
 
         public bool IsScalusRegistered(string protocol)
         {
@@ -99,7 +98,10 @@ namespace OneIdentity.Scalus
             RegistryUtils.DeleteValue(urlAssociationsPath, protocol);
 
             // If there are more registrations, just return
-            if (RegistryUtils.GetValueNames(urlAssociationsPath).Any()) return true;
+            if (RegistryUtils.GetValueNames(urlAssociationsPath).Any())
+            {
+                return true;
+            }
 
             RegistryUtils.DeleteValue(GetAppAssociationToastsPath(), $"{Clsid}_{protocol}");
             RegistryUtils.DeleteValue(GetRegisteredApplicationsPath(), AppName);
@@ -116,44 +118,6 @@ namespace OneIdentity.Scalus
             return true;
         }
 
-        private bool RegisterClassId(string registrationCommand)
-        {
-            var path = GetClassRegistrationPath();
-            if (RegistryUtils.GetKey(path) != null) return true;
-
-            return RegistryUtils.SetValue(path, string.Empty, AppName) &&
-                   RegistryUtils.SetValue(path, "URL Protocol", string.Empty) &&
-                   RegistryUtils.SetValue(path + "\\shell\\open\\command", string.Empty, registrationCommand);
-        }
-
-        private bool RegisterCapabilities(string protocol)
-        {
-            var path = GetAppPath();
-            return RegistryUtils.SetValue(path + CapabilitiesFragment, "ApplicationDescription", AppName)
-                && RegistryUtils.SetValue(path + CapabilitiesFragment, "ApplicationName", AppId)
-                && RegistryUtils.SetValue(path + CapabilitiesUrlAssociationsFragment, protocol, Clsid);
-        }
-
-        private string GetClassRegistrationPath()
-        {
-            return $"HKEY_CURRENT_USER\\SOFTWARE\\Classes\\{Clsid}";
-        }
-
-        private string GetAppPath()
-        {
-            return $"HKEY_CURRENT_USER\\SOFTWARE\\{AppId}";
-        }
-
-        private string GetRegisteredApplicationsPath()
-        {
-            return @"HKEY_CURRENT_USER\SOFTWARE\RegisteredApplications";
-        }
-
-        private string GetAppAssociationToastsPath()
-        {
-            return @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts";
-        }
-
         public bool ReplaceRegistration(string protocol)
         {
             var res = Unregister(protocol);
@@ -165,5 +129,45 @@ namespace OneIdentity.Scalus
             return res;
         }
 
+        private static bool RegisterClassId(string registrationCommand)
+        {
+            var path = GetClassRegistrationPath();
+            if (RegistryUtils.GetKey(path) != null)
+            {
+                return true;
+            }
+
+            return RegistryUtils.SetValue(path, string.Empty, AppName) &&
+                   RegistryUtils.SetValue(path, "URL Protocol", string.Empty) &&
+                   RegistryUtils.SetValue(path + "\\shell\\open\\command", string.Empty, registrationCommand);
+        }
+
+        private static bool RegisterCapabilities(string protocol)
+        {
+            var path = GetAppPath();
+            return RegistryUtils.SetValue(path + CapabilitiesFragment, "ApplicationDescription", AppName)
+                && RegistryUtils.SetValue(path + CapabilitiesFragment, "ApplicationName", AppId)
+                && RegistryUtils.SetValue(path + CapabilitiesUrlAssociationsFragment, protocol, Clsid);
+        }
+
+        private static string GetClassRegistrationPath()
+        {
+            return $"HKEY_CURRENT_USER\\SOFTWARE\\Classes\\{Clsid}";
+        }
+
+        private static string GetAppPath()
+        {
+            return $"HKEY_CURRENT_USER\\SOFTWARE\\{AppId}";
+        }
+
+        private static string GetRegisteredApplicationsPath()
+        {
+            return @"HKEY_CURRENT_USER\SOFTWARE\RegisteredApplications";
+        }
+
+        private static string GetAppAssociationToastsPath()
+        {
+            return @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts";
+        }
     }
 }

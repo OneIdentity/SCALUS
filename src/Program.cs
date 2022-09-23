@@ -19,19 +19,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Autofac;
-using CommandLine;
-using OneIdentity.Scalus.Util;
-using Serilog;
-using Serilog.Core;
-
-[assembly: InternalsVisibleTo("OneIdentity.Scalus.Test")]
 namespace OneIdentity.Scalus
 {
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+    using Autofac;
+    using CommandLine;
+    using OneIdentity.Scalus.Util;
+    using Serilog;
+    using Serilog.Core;
+
     internal class Program
     {
         private static int Main(string[] args)
@@ -45,7 +44,7 @@ namespace OneIdentity.Scalus
                 using var container = Ioc.RegisterApplication(Log.Logger);
                 using var lifetimeScope = container.BeginLifetimeScope();
 
-                // Resolve the command line parser and 
+                // Resolve the command line parser and
                 // resolve a corresponding application instance
                 var parser = lifetimeScope.Resolve<ICommandLineParser>();
                 var application = parser.Build(args, x =>
@@ -56,7 +55,10 @@ namespace OneIdentity.Scalus
                 });
 
                 // If application is null, then they ran help or version commands, just return
-                if (application == null) return 0;
+                if (application == null)
+                {
+                    return 0;
+                }
 
                 // Run application
                 return application.Run();

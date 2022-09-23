@@ -31,13 +31,12 @@ namespace OneIdentity.Scalus
 
     internal class ProtocolHandlerFactory : IProtocolHandlerFactory
     {
-
-        private IOsServices OsServices { get; }
-
         public ProtocolHandlerFactory(IOsServices osServices)
         {
             OsServices = osServices;
         }
+
+        private IOsServices OsServices { get; }
 
         public static List<string> GetSupportedParsers()
         {
@@ -56,15 +55,14 @@ namespace OneIdentity.Scalus
 
         public IProtocolHandler Create(string uri, ApplicationConfig config)
         {
-
             var tlist = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
                 .Where(x => typeof(IUrlParser).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
                .ToList();
 
             foreach (var t in tlist)
             {
-                if ((t.GetCustomAttribute(typeof(ParserName))) is ParserName c &&
-                    (c.GetName().Equals(config.Parser.ParserId)))
+                if (t.GetCustomAttribute(typeof(ParserName)) is ParserName c &&
+                    c.GetName().Equals(config.Parser.ParserId, StringComparison.Ordinal))
                 {
                     Serilog.Log.Information($"Found parser:{t.Name}");
                     return new ProtocolHandler(uri, (IUrlParser)Activator.CreateInstance(t, config.Parser), config, OsServices);

@@ -29,12 +29,6 @@ namespace OneIdentity.Scalus.Launch
 
     internal class Application : IApplication
     {
-        private Launch.Options Options { get; }
-
-        private IScalusConfiguration Config { get; }
-
-        private IOsServices OsServices { get; }
-
         public Application(Launch.Options options, IOsServices osServices, IScalusConfiguration config)
         {
             this.Options = options;
@@ -42,9 +36,14 @@ namespace OneIdentity.Scalus.Launch
             OsServices = osServices;
         }
 
+        private Launch.Options Options { get; }
+
+        private IScalusConfiguration Config { get; }
+
+        private IOsServices OsServices { get; }
+
         public int Run()
         {
-
             Serilog.Log.Debug($"Dispatching URL: {Options.Url}");
 
             try
@@ -99,17 +98,25 @@ Check the configuration for this URL protocol.";
             Serilog.Log.Error(msg, ex);
         }
 
-        private string GetProtocol(string url)
+        private static string GetProtocol(string url)
         {
             var protocolSeparatorIndex = url.IndexOf("://");
-            if (protocolSeparatorIndex == -1) return string.Empty;
+            if (protocolSeparatorIndex == -1)
+            {
+                return string.Empty;
+            }
+
             return url.Substring(0, protocolSeparatorIndex);
         }
 
-        private ApplicationConfig GetApplicationForProtocol(ScalusConfig config, string protocol)
+        private static ApplicationConfig GetApplicationForProtocol(ScalusConfig config, string protocol)
         {
             var application = config.Protocols.FirstOrDefault(x => x.Protocol == protocol);
-            if (application == null) return null;
+            if (application == null)
+            {
+                return null;
+            }
+
             return config.Applications.FirstOrDefault(x => x.Id == application.AppId);
         }
     }

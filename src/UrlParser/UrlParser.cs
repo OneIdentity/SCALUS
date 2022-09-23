@@ -24,6 +24,7 @@ namespace OneIdentity.Scalus.UrlParser
     using System;
     using System.Collections.Generic;
     using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Util;
     using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
     [ParserName("url")]
@@ -41,7 +42,9 @@ namespace OneIdentity.Scalus.UrlParser
             : this(config)
         {
             if (dictionary != null)
+            {
                 Dictionary = dictionary;
+            }
         }
 
         public override IDictionary<Token, string> Parse(string url)
@@ -66,8 +69,7 @@ namespace OneIdentity.Scalus.UrlParser
         protected override IEnumerable<string> GetDefaultTemplate()
         {
             Serilog.Log.Error("No default template is supported for this parser type");
-            throw new Exception("No default template is defined for this parser type");
+            throw new ParserException("No default template is defined for this parser type");
         }
-
     }
 }

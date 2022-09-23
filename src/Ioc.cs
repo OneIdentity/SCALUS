@@ -80,21 +80,19 @@ namespace OneIdentity.Scalus
             if (OperatingSystem.IsWindows())
             {
                 builder.RegisterType<WindowsBasicProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
-                builder.RegisterType<ProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+                builder.RegisterType<WindowsProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
             }
         }
 
         private static void RegisterLinuxComponents(this ContainerBuilder builder)
         {
             builder.RegisterType<UnixProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
-
         }
 
         private static void RegisterOsxComponents(this ContainerBuilder builder)
         {
-            builder.RegisterType<MacOsProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<MacOsUserDefaultRegistrar>().AsImplementedInterfaces().SingleInstance();
-
+            builder.RegisterType<MacOSProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<MacOSUserDefaultRegistrar>().AsImplementedInterfaces().SingleInstance();
         }
     }
 }

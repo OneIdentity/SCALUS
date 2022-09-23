@@ -26,12 +26,15 @@ namespace OneIdentity.Scalus.UrlParser
     using System.Text.RegularExpressions;
     using System.Web;
     using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Util;
     using Serilog;
     using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
 
     [ParserName("ssh")]
     internal class DefaultSshUrlParser : BaseParser
     {
+        private Regex scpPattern = new Regex("(([^:]+)://)?((.+)@([^:]+)(:(\\d+))?)", RegexOptions.IgnoreCase);
+
         //This class parses a string in the format:
         //  - <protocol>://<user>@<host>[:<port>]
         //  where:
@@ -48,10 +51,10 @@ namespace OneIdentity.Scalus.UrlParser
             : this(config)
         {
             if (dictionary != null)
+            {
                 Dictionary = dictionary;
+            }
         }
-
-        public Regex ScpPattern = new Regex("(([^:]+)://)?((.+)@([^:]+)(:(\\d+))?)", RegexOptions.IgnoreCase);
 
         public override IDictionary<Token, string> Parse(string url)
         {
@@ -60,13 +63,13 @@ namespace OneIdentity.Scalus.UrlParser
             Dictionary[Token.Protocol] = Protocol(url) ?? "ssh";
             Dictionary[Token.RelativeUrl] = StripProtocol(url);
             url = url.TrimEnd('/');
-            var match = ScpPattern.Match(url);
+            var match = scpPattern.Match(url);
             if (!match.Success)
             {
                 if (url.Contains("%40"))
                 {
                     var decoded = HttpUtility.UrlDecode(url);
-                    match = ScpPattern.Match(decoded);
+                    match = scpPattern.Match(decoded);
                 }
             }
 
@@ -74,7 +77,7 @@ namespace OneIdentity.Scalus.UrlParser
             {
                 if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
                 {
-                    throw new Exception($"The SSH parser cannot parse URL:{url}");
+                    throw new ParserException($"The SSH parser cannot parse URL:{url}");
                 }
 
                 Parse(result);

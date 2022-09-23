@@ -34,18 +34,18 @@ namespace OneIdentity.Scalus.Ui.Controllers
     [Produces("application/json")]
     public class ConfigurationController : ControllerBase
     {
-        private IScalusApiConfiguration Configuration { get; }
-
-        private IRegistration Registration { get; }
-
-        private ILifetimeScope Container { get; }
-
         public ConfigurationController(IScalusApiConfiguration configuration, IRegistration registration, ILifetimeScope container)
         {
             Configuration = configuration;
             Registration = registration;
             Container = container;
         }
+
+        private IScalusApiConfiguration Configuration { get; }
+
+        private IRegistration Registration { get; }
+
+        private ILifetimeScope Container { get; }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ScalusConfig))]
@@ -54,7 +54,7 @@ namespace OneIdentity.Scalus.Ui.Controllers
             var config = Configuration.GetConfiguration();
             if (Configuration.ValidationErrors?.Count > 0)
             {
-                throw new Exception("Bad configuration file");
+                throw new ConfigurationException("Bad configuration file");
             }
 
             return Ok(config);
@@ -73,7 +73,8 @@ namespace OneIdentity.Scalus.Ui.Controllers
             return Ok();
         }
 
-        [HttpGet, Route("Registrations")]
+        [HttpGet]
+        [Route("Registrations")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
         public IActionResult Registrations()
         {
@@ -81,7 +82,7 @@ namespace OneIdentity.Scalus.Ui.Controllers
             var config = Configuration.GetConfiguration();
             if (config.Protocols == null || config.Applications == null)
             {
-                throw new Exception("Bad configuration file");
+                throw new ConfigurationException("Bad configuration file");
             }
 
             foreach (var one in config.Protocols)
@@ -95,7 +96,8 @@ namespace OneIdentity.Scalus.Ui.Controllers
             return Ok(registeredProtocols);
         }
 
-        [HttpPut, Route("Register")]
+        [HttpPut]
+        [Route("Register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Register([FromBody] ProtocolMapping protocolMapping)
         {
@@ -111,12 +113,16 @@ namespace OneIdentity.Scalus.Ui.Controllers
             }
 
             if (Registration.Register(new List<string> { protocolMapping.Protocol }, true))
+            {
                 return Ok();
+            }
+
             Serilog.Log.Error($"Cannot register {protocolMapping.Protocol} :  registration reported failure");
             return UnprocessableEntity();
         }
 
-        [HttpPut, Route("UnRegister")]
+        [HttpPut]
+        [Route("UnRegister")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult UnRegister([FromBody] ProtocolMapping protocolMapping)
         {
@@ -132,25 +138,30 @@ namespace OneIdentity.Scalus.Ui.Controllers
             }
 
             if (Registration.UnRegister(new List<string> { protocolMapping.Protocol }))
+            {
                 return Ok();
+            }
+
             Serilog.Log.Error($"Protocol: {protocolMapping.Protocol} -deregistration reported failure");
             return UnprocessableEntity();
         }
 
-        [HttpGet, Route("Tokens")]
+        [HttpGet]
+        [Route("Tokens")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
         public IActionResult Tokens()
         {
             var tokens = new Dictionary<string, string>();
             foreach (var one in Enum.GetValues(typeof(ParserConfigDefinitions.Token)))
             {
-                tokens.Add("%" + one.ToString()! + "%", ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
+                tokens.Add("%" + one.ToString() ! + "%", ParserConfigDefinitions.TokenDescription[(ParserConfigDefinitions.Token)one]);
             }
 
             return Ok(tokens);
         }
 
-        [HttpGet, Route("ApplicationDescriptions")]
+        [HttpGet]
+        [Route("ApplicationDescriptions")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
         public IActionResult ApplicationDescriptions()
         {
@@ -158,7 +169,8 @@ namespace OneIdentity.Scalus.Ui.Controllers
             return Ok(descriptions);
         }
 
-        [HttpGet, Route("Info")]
+        [HttpGet]
+        [Route("Info")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public IActionResult Info()
         {
@@ -170,7 +182,8 @@ namespace OneIdentity.Scalus.Ui.Controllers
             return Ok(info);
         }
 
-        [HttpPut, Route("Validate")]
+        [HttpPut]
+        [Route("Validate")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string[]))]
         public IActionResult Validate([FromBody] ScalusConfig config)
         {

@@ -27,12 +27,25 @@ namespace OneIdentity.Scalus.Dto
 
     public class ProtocolMapping
     {
+        private static readonly Dictionary<string, string> DtoPropertyDescriptionValue = new Dictionary<string, string>
+        {
+            { nameof(Protocol), "The protocol string that will be registered for scalus" },
+            { nameof(AppId), "The unique id of the application that will be used to launch a URL for this protocol" },
+        };
+
+        [JsonRequired]
+        public string Protocol { get; set; }
+
+        public string AppId { get; set; }
+
+        public static Dictionary<string, string> DtoPropertyDescription => DtoPropertyDescriptionValue;
+
         public static bool ValidateProtocol(string val, out string err)
         {
             err = null;
             if (string.IsNullOrEmpty(val))
             {
-                err = ("Protocol name must be configured");
+                err = "Protocol name must be configured";
                 return false;
             }
 
@@ -41,22 +54,9 @@ namespace OneIdentity.Scalus.Dto
                 return true;
             }
 
-            err = ($"Protocol name contains invalid chars:{val}");
+            err = $"Protocol name contains invalid chars:{val}";
             return false;
         }
-
-        [JsonRequired]
-        public string Protocol { get; set; }
-
-        public string AppId { get; set; }
-
-        private static readonly Dictionary<string, string> DtoPropertyDescriptionValue = new Dictionary<string, string>
-        {
-            { nameof(Protocol), "The protocol string that will be registered for scalus" },
-            { nameof(AppId), "The unique id of the application that will be used to launch a URL for this protocol" },
-        };
-
-        public static Dictionary<string, string> DtoPropertyDescription => DtoPropertyDescriptionValue;
 
         public void Validate(List<string> errors)
         {

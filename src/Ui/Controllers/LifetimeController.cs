@@ -28,13 +28,13 @@ namespace OneIdentity.Scalus.Ui.Web.Controllers
     [ApiController]
     public class LifetimeController : ControllerBase
     {
-        private IWebServer WebServer { get; }
-
         public LifetimeController(IWebServer app)
         {
             Serilog.Log.Debug("LifetimeController created.");
             WebServer = app;
         }
+
+        private IWebServer WebServer { get; }
 
         // GET api/<LifetimeController>
         [HttpGet]
@@ -44,7 +44,6 @@ namespace OneIdentity.Scalus.Ui.Web.Controllers
             Serilog.Log.Debug("Server status requested.");
             return Ok("WebServer is running.");
         }
-
 
         // POST api/<LifetimeController>
         [HttpPost]

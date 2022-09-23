@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Options.cs" company="One Identity Inc.">
+// <copyright file="VerifyResult.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -21,12 +21,14 @@
 
 namespace OneIdentity.Scalus.Verify
 {
-    using CommandLine;
+    using System.Collections.Generic;
 
-    [Verb("verify", HelpText = "Run a syntax check on a scalus configuration file")]
-    public class Options : IVerb
+    public class VerifyResult
     {
-        [Option('p', "path", Required = false, HelpText = "Path of an alternate scalus configuration file to verify instead")]
         public string Path { get; set; }
+
+        public bool Result { get; set; }
+
+        public List<string> Errors { get; set; }
     }
 }

@@ -69,7 +69,7 @@ namespace OneIdentity.Scalus
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                var str = Process.GetCurrentProcess().MainModule.FileName;
+                var str = Environment.ProcessPath;
                 return str;
             }
 

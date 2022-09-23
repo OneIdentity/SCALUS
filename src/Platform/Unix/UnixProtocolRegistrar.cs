@@ -32,26 +32,31 @@ namespace OneIdentity.Scalus
 
     public class UnixProtocolRegistrar : IProtocolRegistrar
     {
+        private const string XdgConfigPath = ".config";
+        private const string XdgSettings = "/usr/bin/xdg-settings";
+        private const string XdgMime = "/usr/bin/xdg-mime";
+        private const string UpdateDesktopDatabase = "/usr/bin/update-desktop-database";
+        private const string ScalusDesktop = "scalus.desktop";
+        private const string AppRelPath = ".local/share/applications";
+        private const string MimeType = "MimeType";
+        private const string SchemeHandler = "x-scheme-handler.";
+        private const string Desktop = ".desktop";
+
+        private string preferredConfigPath;
+        private string appDataPath;
+
+        public UnixProtocolRegistrar(IOsServices osServices)
+        {
+            OsServices = osServices;
+        }
+
         public bool UseSudo { get; set; }
 
         public bool RootMode { get; set; }
 
         public string Name { get; } = "Linux";
 
-        private const string XdgConfigPath = ".config";
-        private const string XdgSettings = "/usr/bin/xdg-settings";
-        private const string XdgMime = "/usr/bin/xdg-mime";
-        private const string UpdateDesktopDatabase = "/usr/bin/update-desktop-database";
-
         public IOsServices OsServices { get; }
-
-        private string preferredConfigPath;
-        private const string ScalusDesktop = "scalus.desktop";
-        private const string AppRelPath = ".local/share/applications";
-        private string appDataPath;
-        private const string MimeType = "MimeType";
-        private const string SchemeHandler = "x-scheme-handler.";
-        private const string Desktop = ".desktop";
 
         public string AppDataPath
         {
@@ -78,47 +83,6 @@ namespace OneIdentity.Scalus
                 return preferredConfigPath;
             }
         }
-
-        private string GetPreferredConfigPath()
-        {
-            string filepath;
-            var args = new List<string> { "-c", $"XDG_UTILS_DEBUG_LEVEL=2 {XdgSettings} get default-url-scheme-handler" };
-            var exitCode = OsServices.Execute("sh", args, out var stdOut, out _);
-            if (exitCode == 0)
-            {
-                var lines = stdOut.Split("\n");
-                if (lines.Any())
-                {
-                    var path = lines[0];
-                    var match = Regex.Match(path, "\\s*Checking\\s*(\\S+)", RegexOptions.IgnoreCase);
-                    if (match.Success)
-                    {
-                        filepath = match.Groups[1].Value;
-                        if (Path.IsPathFullyQualified(filepath))
-                        {
-                            Serilog.Log.Information($"preferred config Path is {filepath}");
-                            return filepath;
-                        }
-                    }
-                }
-            }
-
-            filepath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), XdgConfigPath);
-            if (!File.Exists(filepath))
-            {
-                filepath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), AppRelPath);
-            }
-
-            Serilog.Log.Information($"using default config path:{filepath}");
-            return filepath;
-        }
-
-
-        public UnixProtocolRegistrar(IOsServices osServices)
-        {
-            OsServices = osServices;
-        }
-
 
         public List<string> GetRegisteredProtocolsFromScalusDesktop()
         {
@@ -169,8 +133,7 @@ namespace OneIdentity.Scalus
                 var lines = File.ReadAllLines(PreferredConfigPath);
                 foreach (var line in lines)
                 {
-                    var match = Regex.Match(line, $"^\\s*{SchemeHandler}{protocol}\\s*=\\s*(\\S*){Desktop}",
-                        RegexOptions.IgnoreCase);
+                    var match = Regex.Match(line, $"^\\s*{SchemeHandler}{protocol}\\s*=\\s*(\\S*){Desktop}", RegexOptions.IgnoreCase);
                     if (match.Success)
                     {
                         handler = match.Groups[1].Value;
@@ -205,7 +168,6 @@ namespace OneIdentity.Scalus
             return string.Empty;
         }
 
-
         public bool IsScalusRegistered(string protocol)
         {
             var mimeList = GetRegisteredProtocolsFromScalusDesktop();
@@ -220,71 +182,11 @@ namespace OneIdentity.Scalus
                 var exitCode = OsServices.Execute(XdgSettings, args, out string stdOut, out string stdErr);
                 if (exitCode == 0)
                 {
-                    return (stdOut);
+                    return stdOut;
                 }
             }
 
             return GetDefaultHandlerForProtocol(protocol);
-        }
-
-
-        private void UpdateDefaultHandler(string protocol)
-        {
-            if (File.Exists(XdgMime))
-            {
-                var args = new List<string> { "default", ScalusDesktop, $"{SchemeHandler}{protocol}" };
-                var exitCode = OsServices.Execute(XdgMime, args, out string stdOut, out string stdErr);
-                if (exitCode != 0)
-                {
-                    Serilog.Log.Warning($"Failed to run {XdgMime}, stdout:{stdOut}, stderr:{stdErr}");
-                }
-
-                return;
-            }
-
-            Serilog.Log.Warning($"Cmd:{XdgMime} was not found: cannot update default handler");
-        }
-
-        private void UpdateDesktopDb()
-        {
-            if (File.Exists(UpdateDesktopDatabase))
-            {
-                var exitCode = OsServices.Execute(UpdateDesktopDatabase, new List<string> { AppDataPath }, out string stdOut, out string stdErr);
-                if (exitCode != 0)
-                {
-                    Serilog.Log.Warning($"Failed to run {UpdateDesktopDatabase}: Stdoutput: {stdOut}, StdErr:{stdErr}");
-                }
-
-                return;
-            }
-
-            Serilog.Log.Warning($"Cmd:{UpdateDesktopDatabase} was not found, cannot update the desktop database");
-        }
-
-        private void WriteScalusDesktopFile(List<string> protocolList)
-        {
-            var version = (Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString()) ?? string.Empty;
-            var registrationCommand = Constants.GetLaunchCommand("%u");
-            var mimeTypes = new StringBuilder("MimeType=");
-            foreach (var one in protocolList)
-            {
-                mimeTypes.Append($"x-scheme-handler/{one};");
-            }
-
-            var lines = new List<string> {
-                "[Desktop Entry]",
-                $"Version={version}",
-                "Type=Application",
-                "Terminal=false",
-                $"Exec={registrationCommand}",
-                "Name=scalus",
-                "Comment=Session URL Launch Utility",
-                "Categories=Application;Network",
-                mimeTypes.ToString(),
-            };
-            var path = Path.Combine(AppDataPath, ScalusDesktop);
-            File.WriteAllLines(path, lines);
-
         }
 
         public bool Register(string protocol)
@@ -361,6 +263,99 @@ namespace OneIdentity.Scalus
             }
 
             return res;
+        }
+
+        private string GetPreferredConfigPath()
+        {
+            string filepath;
+            var args = new List<string> { "-c", $"XDG_UTILS_DEBUG_LEVEL=2 {XdgSettings} get default-url-scheme-handler" };
+            var exitCode = OsServices.Execute("sh", args, out var stdOut, out _);
+            if (exitCode == 0)
+            {
+                var lines = stdOut.Split("\n");
+                if (lines.Any())
+                {
+                    var path = lines[0];
+                    var match = Regex.Match(path, "\\s*Checking\\s*(\\S+)", RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        filepath = match.Groups[1].Value;
+                        if (Path.IsPathFullyQualified(filepath))
+                        {
+                            Serilog.Log.Information($"preferred config Path is {filepath}");
+                            return filepath;
+                        }
+                    }
+                }
+            }
+
+            filepath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), XdgConfigPath);
+            if (!File.Exists(filepath))
+            {
+                filepath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), AppRelPath);
+            }
+
+            Serilog.Log.Information($"using default config path:{filepath}");
+            return filepath;
+        }
+
+        private void UpdateDefaultHandler(string protocol)
+        {
+            if (File.Exists(XdgMime))
+            {
+                var args = new List<string> { "default", ScalusDesktop, $"{SchemeHandler}{protocol}" };
+                var exitCode = OsServices.Execute(XdgMime, args, out string stdOut, out string stdErr);
+                if (exitCode != 0)
+                {
+                    Serilog.Log.Warning($"Failed to run {XdgMime}, stdout:{stdOut}, stderr:{stdErr}");
+                }
+
+                return;
+            }
+
+            Serilog.Log.Warning($"Cmd:{XdgMime} was not found: cannot update default handler");
+        }
+
+        private void UpdateDesktopDb()
+        {
+            if (File.Exists(UpdateDesktopDatabase))
+            {
+                var exitCode = OsServices.Execute(UpdateDesktopDatabase, new List<string> { AppDataPath }, out string stdOut, out string stdErr);
+                if (exitCode != 0)
+                {
+                    Serilog.Log.Warning($"Failed to run {UpdateDesktopDatabase}: Stdoutput: {stdOut}, StdErr:{stdErr}");
+                }
+
+                return;
+            }
+
+            Serilog.Log.Warning($"Cmd:{UpdateDesktopDatabase} was not found, cannot update the desktop database");
+        }
+
+        private void WriteScalusDesktopFile(List<string> protocolList)
+        {
+            var version = Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? string.Empty;
+            var registrationCommand = Constants.GetLaunchCommand("%u");
+            var mimeTypes = new StringBuilder("MimeType=");
+            foreach (var one in protocolList)
+            {
+                mimeTypes.Append($"x-scheme-handler/{one};");
+            }
+
+            var lines = new List<string>
+            {
+                "[Desktop Entry]",
+                $"Version={version}",
+                "Type=Application",
+                "Terminal=false",
+                $"Exec={registrationCommand}",
+                "Name=scalus",
+                "Comment=Session URL Launch Utility",
+                "Categories=Application;Network",
+                mimeTypes.ToString(),
+            };
+            var path = Path.Combine(AppDataPath, ScalusDesktop);
+            File.WriteAllLines(path, lines);
         }
     }
 }

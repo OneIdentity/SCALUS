@@ -31,7 +31,9 @@ namespace OneIdentity.Scalus
     internal class ScalusApiConfiguration : ScalusConfigurationBase, IScalusApiConfiguration
     {
         public ScalusApiConfiguration()
-            : base() { }
+            : base()
+        {
+        }
 
         public ScalusApiConfiguration(string json)
         {
@@ -60,7 +62,6 @@ namespace OneIdentity.Scalus
 
             return ValidationErrors;
         }
-
 
         private bool ValidateAndSave(ScalusConfig configuration, bool save = true)
         {
@@ -92,6 +93,5 @@ namespace OneIdentity.Scalus
 
             return false;
         }
-
     }
 }

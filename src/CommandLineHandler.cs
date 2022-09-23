@@ -30,12 +30,12 @@ namespace OneIdentity.Scalus
 
     internal class CommandLineHandler : ICommandLineParser
     {
-        private IEnumerable<IVerb> Verbs { get; }
-
         public CommandLineHandler(IEnumerable<IVerb> verbs)
         {
             Verbs = verbs;
         }
+
+        private IEnumerable<IVerb> Verbs { get; }
 
         public IApplication Build(string[] args, Func<object, IApplication> appResolver)
         {
@@ -63,7 +63,7 @@ namespace OneIdentity.Scalus
             var header = "Session Client Application Launch Uri System (SCALUS)";
             var copyright = "Copyright (c) 2021 One Identity LLC";
 
-            // Handle version 
+            // Handle version
             if (errs.IsVersion())
             {
                 Console.WriteLine($"{header}\r\n{copyright}\r\nVersion: {Assembly.GetEntryAssembly()?.GetName()?.Version}\r\n");
@@ -74,7 +74,8 @@ namespace OneIdentity.Scalus
             if (errs.IsHelp())
             {
                 string command = parserResult.TypeInfo.Current?.GetCustomAttribute<VerbAttribute>()?.Name;
-                Console.WriteLine(HelpText.AutoBuild(parserResult, h =>
+                Console.WriteLine(HelpText.AutoBuild(parserResult,
+                h =>
                 {
                     h.AddDashesToOption = true;
                     h.AdditionalNewLineAfterOption = false;
@@ -88,12 +89,15 @@ namespace OneIdentity.Scalus
                     }
 
                     return h;
-                }, e => e, true));
+                },
+                e => e,
+                true));
                 return;
             }
 
             // Handle errors
-            var helpText = HelpText.AutoBuild(parserResult, h =>
+            var helpText = HelpText.AutoBuild(parserResult,
+            h =>
             {
                 h.AddDashesToOption = true;
                 h.AdditionalNewLineAfterOption = false;
@@ -102,7 +106,9 @@ namespace OneIdentity.Scalus
                 h.AutoHelp = false;
                 h.AutoVersion = false;
                 return HelpText.DefaultParsingErrorsHandler(parserResult, h);
-            }, e => e, true);
+            },
+            e => e,
+            true);
             throw new CommandLineHelpException(helpText);
         }
     }
