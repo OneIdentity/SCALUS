@@ -3,8 +3,8 @@
   <PropertyGroup>
       <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>scalus</RootNamespace>
-    <AssemblyName>scalus</AssemblyName>
+    <RootNamespace>OneIdentity.Scalus</RootNamespace>
+    <AssemblyName>OneIdentity.Scalus</AssemblyName>
     <StartupObject>OneIdentity.Scalus.Program</StartupObject>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>

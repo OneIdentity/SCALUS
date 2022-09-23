@@ -29,7 +29,7 @@ using OneIdentity.Scalus.Util;
 using Serilog;
 using Serilog.Core;
 
-[assembly: InternalsVisibleTo("scalus.Test")]
+[assembly: InternalsVisibleTo("OneIdentity.Scalus.Test")]
 namespace OneIdentity.Scalus
 {
     internal class Program
