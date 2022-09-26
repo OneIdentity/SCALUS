@@ -2,7 +2,7 @@ if(test-path dist)
 {
     rm -force -recurse dist
 }
-ng build --prod
+ng build --configuration production
 
 if(test-path dist/app)
 {

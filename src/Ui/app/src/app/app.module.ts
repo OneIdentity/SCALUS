@@ -18,6 +18,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from "@angular/forms";
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
 import { ScalusApplicationsTokensDialogComponent } from './applications/tokens/scalus-applications-tokens-dialog.component';
+import { EuiMaterialModule } from '@elemental-ui/core';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { ScalusApplicationsTokensDialogComponent } from './applications/tokens/s
     MatTooltipModule,
     MatTableModule,
     MatDialogModule,
-    FormsModule
+    FormsModule,
+    EuiMaterialModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
