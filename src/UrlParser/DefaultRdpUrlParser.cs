@@ -41,7 +41,7 @@ namespace OneIdentity.Scalus.UrlParser
     [ParserName("rdp")]
     internal class DefaultRdpUrlParser : BaseParser
     {
-        //This class parses an RDP string of the form
+        // This class parses an RDP string of the form
         // <protocol>://<expression>[&<expression>]...
         // where :
         //      protocol    :  rdp
@@ -50,13 +50,13 @@ namespace OneIdentity.Scalus.UrlParser
         //                     Name and value strings can be url encoded
         //      type        :  i|s
 
-        //  query values for:
+        // query values for:
         //  full address    :  <ipaddress>[:<port>]
         //  username        :  <username>|<safeguardauth>
         //  safeguardauth   :  vaultaddress(=|~)<ipaddress>(%|@)token~<token>[account~<name>%asset~<name>]
         //                     Name and value strings can be url encoded
 
-        //If not in this format, it will default to parsing the string as a standard URL
+        // If not in this format, it will default to parsing the string as a standard URL
 
         public const string RdpPatternValue = "\\S=[s|i]:\\S+";
         public const string FullAddressKey = "full address";
@@ -136,7 +136,7 @@ namespace OneIdentity.Scalus.UrlParser
                 ParseConfig();
             }
 
-            //tokens required are username and host
+            // tokens required are username and host
 
             if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
             {
@@ -273,7 +273,7 @@ namespace OneIdentity.Scalus.UrlParser
                         value = value.Replace("%3a", ":");
                     }
 
-                    //Workaround a bug where 2 slashes were added to the connection URI instead of just 1
+                    // Workaround a bug where 2 slashes were added to the connection URI instead of just 1
                     value = value.Replace("\\\\", "\\");
 
                     Dictionary[Token.User] = Regex.Replace(value, "^.:", string.Empty);
@@ -322,7 +322,7 @@ namespace OneIdentity.Scalus.UrlParser
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                //Add hashed password so that the user isn't prompted to enter a password
+                // Add hashed password so that the user isn't prompted to enter a password
                 var passwordHash = GenerateRdpPasswordHash();
                 msArgList1[RdpPasswordHashKey] = Tuple.Create(false, "b:" + passwordHash);
             }

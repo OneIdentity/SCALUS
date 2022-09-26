@@ -76,7 +76,7 @@ namespace OneIdentity.Scalus
 
         private static void RegisterWindowsComponents(this ContainerBuilder builder)
         {
-            //builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance();
+            // builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance();
             if (OperatingSystem.IsWindows())
             {
                 builder.RegisterType<WindowsBasicProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();

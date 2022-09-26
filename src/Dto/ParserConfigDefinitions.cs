@@ -25,7 +25,7 @@ namespace OneIdentity.Scalus.Dto
 
     public class ParserConfigDefinitions
     {
-        //The set of tokens supported by the parsers. A parser is not required to support all tokens
+        // The set of tokens supported by the parsers. A parser is not required to support all tokens
         public enum Token
         {
             Protocol = 1,
@@ -56,12 +56,12 @@ namespace OneIdentity.Scalus.Dto
             Remoteapplicationcmdline = 24,
         }
 
-        //processing options supported
+        // processing options supported
         public enum ProcessingOptions
         {
             waitforinputidle = 0,
             waitforexit = 1,
-            //wait for a specified number of seconds by using e.g. "wait:60"
+            // wait for a specified number of seconds by using e.g. "wait:60"
             wait = 2,
         }
 

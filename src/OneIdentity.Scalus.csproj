@@ -4,7 +4,7 @@
       <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>OneIdentity.Scalus</RootNamespace>
-    <AssemblyName>OneIdentity.Scalus</AssemblyName>
+    <AssemblyName>scalus</AssemblyName>
     <StartupObject>OneIdentity.Scalus.Program</StartupObject>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
@@ -125,6 +125,12 @@
     <None Update="Platform\MacOS\MacOSProtocolRegistrar - Copy.cs.hide">
       <DependentUpon>MacOSProtocolRegistrar.cs.hide</DependentUpon>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>OneIdentity.Scalus.Test</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

@@ -422,8 +422,9 @@ namespace OneIdentity.Scalus.UrlParser
                         host = Regex.Replace(host, "[.]", "~");
                         user = user.Replace('\\', '~');
 
-                        tempFile = Path.Combine(Path.GetTempPath(),
-                        $"Scalus-{host}_{user}_{guid}{ext}");
+                        tempFile = Path.Combine(
+                            Path.GetTempPath(),
+                            $"Scalus-{host}_{user}_{guid}{ext}");
                     }
                     else
                     {

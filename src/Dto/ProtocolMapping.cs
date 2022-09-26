@@ -33,12 +33,12 @@ namespace OneIdentity.Scalus.Dto
             { nameof(AppId), "The unique id of the application that will be used to launch a URL for this protocol" },
         };
 
+        public static Dictionary<string, string> DtoPropertyDescription => DtoPropertyDescriptionValue;
+
         [JsonRequired]
         public string Protocol { get; set; }
 
         public string AppId { get; set; }
-
-        public static Dictionary<string, string> DtoPropertyDescription => DtoPropertyDescriptionValue;
 
         public static bool ValidateProtocol(string val, out string err)
         {

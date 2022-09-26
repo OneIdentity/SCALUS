@@ -90,15 +90,15 @@ namespace OneIdentity.Scalus.Ui
             };
             fileServerOptions.DefaultFilesOptions.DefaultFileNames = new[] { "index.html" };
 
-            //Use default content-type mappings
+            // Use default content-type mappings
             fileServerOptions.StaticFileOptions.ContentTypeProvider = new FileExtensionContentTypeProvider();
 
-            //If a Content-Type mapping doesn't exist, serve the file anyway
+            // If a Content-Type mapping doesn't exist, serve the file anyway
             fileServerOptions.StaticFileOptions.ServeUnknownFileTypes = true;
             app.UseFileServer(fileServerOptions);
 
             // Disable HTTPs for now
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>

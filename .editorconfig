@@ -1,7 +1,117 @@
-﻿[*.cs]
+﻿# NOTE: Requires **VS2019 16.3** or later
 
-# SA1600: Elements should be documented
+# StyleCopRules
+# Description: StyleCopRules custom ruleset
+
+# Code files
+[*.{cs,vb}]
+
+
+# Default severity for analyzer diagnostics - Requires **VS2019 16.5** or later
+dotnet_analyzer_diagnostic.severity = error
+
+# SA0001: XmlCommentAnalysisDisabled
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1101: PrefixLocalCallsWithThis
+dotnet_diagnostic.SA1101.severity = none
+
+# SA1600: ElementsMustBeDocumented
 dotnet_diagnostic.SA1600.severity = none
 
-# SA1101: Prefix local calls with this
-dotnet_diagnostic.SA1101.severity = none
+# SA1609 : PropertyDocumentationMustHaveValue
+dotnet_diagnostic.SA1609.severity = none
+
+# SA1629: DocumentationTextMustEndWithAPeriod
+dotnet_diagnostic.SA1629.severity = none
+
+# SA1639 : FileHeaderMustHaveSummary
+dotnet_diagnostic.SA1639.severity = none
+
+# SX1309 : FieldNamesMustBeginWithUnderscore
+dotnet_diagnostic.SX1309.severity = none
+
+# SX1309S : StaticFieldNamesMustBeginWithUnderscore
+dotnet_diagnostic.SX1309S.severity = none
+
+# Default severity for analyzer diagnostics with category 'Style'
+dotnet_analyzer_diagnostic.category-Style.severity = none
+
+# IDE0046: Convert to conditional expression
+dotnet_diagnostic.IDE0046.severity = none
+
+# IDE0065: Misplaced using directive
+csharp_using_directive_placement = inside_namespace:error
+
+# IDE0058: Expression value is never used
+dotnet_diagnostic.IDE0058.severity = none
+
+# IDE0008: Use explicit type
+dotnet_diagnostic.IDE0008.severity = none
+
+# SA1512: Single-line comments should not be followed by blank line
+dotnet_diagnostic.SA1512.severity = suggestion
+
+# SA1300: Element should begin with upper-case letter
+dotnet_diagnostic.SA1300.severity = none
+
+# IDE0010: Add missing cases
+dotnet_diagnostic.IDE0010.severity = none
+
+# IDE0055: Fix formatting
+dotnet_diagnostic.IDE0055.severity = none
+
+# IDE0061: Use block body for local functions
+dotnet_diagnostic.IDE0061.severity = none
+
+# CA1725: Parameter names should match base declaration
+dotnet_diagnostic.CA1725.severity = none
+
+# SA1116: Split parameters should start on line after declaration
+dotnet_diagnostic.SA1116.severity = none
+
+# IDE0022: Use block body for methods
+dotnet_diagnostic.IDE0022.severity = none
+
+# IDE0060: Remove unused parameter
+dotnet_diagnostic.IDE0060.severity = none
+
+# SA1515: Single-line comment should be preceded by blank line
+dotnet_diagnostic.SA1515.severity = none
+
+# SA1005: Single line comments should begin with single space
+dotnet_diagnostic.SA1005.severity = none
+
+# SA1402: File may only contain a single type
+dotnet_diagnostic.SA1402.severity = none
+
+# CA1305: Specify IFormatProvider
+dotnet_diagnostic.CA1305.severity = none
+
+# SA1204: Static elements should appear before instance elements
+dotnet_diagnostic.SA1204.severity = none
+
+# SA1310: Field names should not contain underscore
+dotnet_diagnostic.SA1310.severity = none
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1711: Identifiers should not have incorrect suffix
+dotnet_diagnostic.CA1711.severity = none
+
+# IDE0052: Remove unread private members
+dotnet_diagnostic.IDE0052.severity = warning
+
+# CA1310: Specify StringComparison for correctness
+dotnet_diagnostic.CA1310.severity = none
+
+# IDE0057: Use range operator
+dotnet_diagnostic.IDE0057.severity = none
+
+# SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1602.severity = none
+
+# Default severity for analyzer diagnostics with category 'Naming'
+dotnet_analyzer_diagnostic.category-Naming.severity = none
+

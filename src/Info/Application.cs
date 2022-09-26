@@ -154,7 +154,8 @@ namespace OneIdentity.Scalus.Info
 
                 if (appConfig != null)
                 {
-                    Console.Write("{0,-10} {1,-20} ({2} {3})",
+                    Console.Write(
+                        "{0,-10} {1,-20} ({2} {3})",
                         Registration.IsRegistered(one.Protocol) ? "yes" : "no",
                         appConfig.Description,
                         appConfig.Exec,
@@ -162,7 +163,8 @@ namespace OneIdentity.Scalus.Info
                 }
                 else
                 {
-                    Console.Write("{0,-10} {1,-20}",
+                    Console.Write(
+                        "{0,-10} {1,-20}",
                         Registration.IsRegistered(one.Protocol) ? "yes" : "no",
                         "Not configured");
                 }
@@ -234,7 +236,8 @@ namespace OneIdentity.Scalus.Info
             tokenList.Sort();
             foreach (var one in tokenList)
             {
-                Console.WriteLine("   - {0,-10} : {1}",
+                Console.WriteLine(
+                    "   - {0,-10} : {1}",
                     "%" + one + "%",
                     ParserConfigDefinitions.TokenDescription[Enum.Parse<ParserConfigDefinitions.Token>(one, true)]);
             }

@@ -35,12 +35,12 @@ namespace OneIdentity.Scalus.UrlParser
     {
         private Regex scpPattern = new Regex("(([^:]+)://)?((.+)@([^:]+)(:(\\d+))?)", RegexOptions.IgnoreCase);
 
-        //This class parses a string in the format:
+        // This class parses a string in the format:
         //  - <protocol>://<user>@<host>[:<port>]
         //  where:
         //      protocol: ssh
         //      user    : Username - this can contain a Safeguard auth string
-        //If this doesnt match, it defaults to parsing the string as a standard URL.
+        // If this doesnt match, it defaults to parsing the string as a standard URL.
         public DefaultSshUrlParser(ParserConfig config)
             : base(config)
         {

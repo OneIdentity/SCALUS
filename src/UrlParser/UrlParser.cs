@@ -30,7 +30,7 @@ namespace OneIdentity.Scalus.UrlParser
     [ParserName("url")]
     internal class UrlParser : BaseParser
     {
-        //This class parses a standard URL into components:
+        // This class parses a standard URL into components:
 
         public UrlParser(ParserConfig config)
             : base(config)

@@ -88,7 +88,7 @@ namespace OneIdentity.Scalus
             }
 
             Serilog.Log.Warning($"Handler path cannot be determined - running from {apath}");
-            //throw new Exception($"Handler path cannot be determined");
+            // throw new Exception($"Handler path cannot be determined");
             return apath;
         }
 

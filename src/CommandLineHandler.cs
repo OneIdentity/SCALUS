@@ -74,24 +74,25 @@ namespace OneIdentity.Scalus
             if (errs.IsHelp())
             {
                 string command = parserResult.TypeInfo.Current?.GetCustomAttribute<VerbAttribute>()?.Name;
-                Console.WriteLine(HelpText.AutoBuild(parserResult,
-                h =>
-                {
-                    h.AddDashesToOption = true;
-                    h.AdditionalNewLineAfterOption = false;
-                    h.Heading = header;
-                    h.Copyright = copyright;
-
-                    if (!string.IsNullOrEmpty(command))
+                Console.WriteLine(HelpText.AutoBuild(
+                    parserResult,
+                    h =>
                     {
-                        h.AddPreOptionsLine($"\r\n{command} options:");
-                        h.AutoVersion = false;
-                    }
+                        h.AddDashesToOption = true;
+                        h.AdditionalNewLineAfterOption = false;
+                        h.Heading = header;
+                        h.Copyright = copyright;
 
-                    return h;
-                },
-                e => e,
-                true));
+                        if (!string.IsNullOrEmpty(command))
+                        {
+                            h.AddPreOptionsLine($"\r\n{command} options:");
+                            h.AutoVersion = false;
+                        }
+
+                        return h;
+                    },
+                    e => e,
+                    true));
                 return;
             }
 

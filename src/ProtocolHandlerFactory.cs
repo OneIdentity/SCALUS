@@ -69,7 +69,7 @@ namespace OneIdentity.Scalus
                 }
             }
 
-            //default to url handler
+            // default to url handler
             Serilog.Log.Information($"No specific parser found for:{config.Parser.ParserId}, defaulting to urlParser");
             return new ProtocolHandler(uri, new UrlParser.UrlParser(config.Parser), config, OsServices);
         }

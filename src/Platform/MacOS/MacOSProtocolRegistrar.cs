@@ -143,7 +143,7 @@ namespace OneIdentity.Scalus
             return list;
         }
 
-        //check which URLs the application Info.plist file handles
+        // check which URLs the application Info.plist file handles
         private List<string> GetCurrentRegistrations()
         {
             if (handledUrlList != null)
@@ -178,7 +178,7 @@ namespace OneIdentity.Scalus
             return handledUrlList;
         }
 
-        //update application Info.plist (can only do this if testing locally)
+        // update application Info.plist (can only do this if testing locally)
         private bool UpdateRegistration(List<string> newlist, bool add)
         {
 #if LocalOnly

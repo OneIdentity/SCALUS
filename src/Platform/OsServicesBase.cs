@@ -77,7 +77,7 @@ namespace OneIdentity.Scalus.Platform
             return process;
         }
 
-        //execute a command, wait for it to end, return the exit code and retrieve the stdout & stderr
+        // execute a command, wait for it to end, return the exit code and retrieve the stdout & stderr
         public int Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr)
         {
             stdOut = string.Empty;

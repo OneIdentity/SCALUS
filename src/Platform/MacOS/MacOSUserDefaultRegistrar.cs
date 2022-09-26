@@ -41,9 +41,9 @@ namespace OneIdentity.Scalus
 
         public IOsServices OsServices { get; }
 
-        //user preferences are saved in "~Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist";
+        // user preferences are saved in "~Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist";
 
-        //get the current configured default
+        // get the current configured default
         public string GetRegisteredCommand(string protocol)
         {
             var home = Environment.GetEnvironmentVariable("HOME");
@@ -67,7 +67,7 @@ namespace OneIdentity.Scalus
             var handler = GetRegisteredCommand(protocol);
             var res = Regex.IsMatch(handler, MacOsExtensions.ScalusHandler, RegexOptions.IgnoreCase);
             Serilog.Log.Information($"{protocol} reporting as default handler:{res}");
-            //is it really registered or just cached?
+            // is it really registered or just cached?
             return res;
         }
 

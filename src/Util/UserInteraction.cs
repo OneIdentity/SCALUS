@@ -36,16 +36,16 @@ namespace OneIdentity.Scalus.Util
         }
     }
 
-    //class GuiUserInteraction : IUserInteraction
-    //{
+    // class GuiUserInteraction : IUserInteraction
+    // {
     //    public void Error(string error)
     //    {
     //        System.Windows.Forms.MessageBox.Show(error);
     //    }
 
-    //    public void Message(string message)
+    // public void Message(string message)
     //    {
     //        System.Windows.Forms.MessageBox.Show(message);
     //    }
-    //}
+    // }
 }

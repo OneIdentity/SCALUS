@@ -221,7 +221,7 @@ namespace OneIdentity.Scalus.Util
                 return path;
             }
 
-            var appDir = prodAppPath;
+            var appDir = ProdAppPath;
 
             var fqpath = Path.Combine(appDir, path);
             var dir = Path.GetDirectoryName(fqpath);
