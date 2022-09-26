@@ -1,14 +1,14 @@
 using System;
-using scalus.Dto;
-using scalus.UrlParser;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
-using static scalus.Dto.ParserConfigDefinitions;
 using System.Runtime.InteropServices;
+using OneIdentity.Scalus.UrlParser;
+using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
+using OneIdentity.Scalus.Dto;
 
-namespace scalus.Test
+namespace OneIdentity.Scalus.Test
 {
     public class TestDefaultRdpUrlParser
     {
@@ -18,7 +18,7 @@ namespace scalus.Test
         {
             //Rdp string
             //full+address=s:host&username=s:safeguarduserstring
-            using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig()))
+            using (var sut = new DefaultRdpUrlParser(new ParserConfig()))
             {
                 var prot = "rdp";
                 var host = "10.5.32.168";
@@ -56,7 +56,7 @@ namespace scalus.Test
             }
         }
 
-        private bool check(string line, string name, string val, List<string> names, ref int count, string sep = ":")
+        private static bool check(string line, string name, string val, List<string> names, ref int count, string sep = ":")
         {
             if (Regex.IsMatch(line, $"^{name}{sep}"))
             {
@@ -102,12 +102,12 @@ namespace scalus.Test
                     if (check(one, "full address", "s:myhostname:3333", names, ref count)) continue;
                     if (check(one, "username", "s:my test user" + Regex.Escape("\\") + "ishere", names, ref count)) continue;
                     if (check(one, "alternate shell", $"s:{altshell}", names, ref count)) continue;
-                    if (check(one, "remoteapplicationprogram", $"s:{rempgm}", names, ref count))continue;
+                    if (check(one, "remoteapplicationprogram", $"s:{rempgm}", names, ref count)) continue;
                     if (check(one, "remoteapplicationname", $"s:{remname}", names, ref count)) continue;
                     if (check(one, "password 51", $"b:\\S+", names, ref count)) continue;
                 }
                 var exp = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) ? 8 : 7;
-                Assert.True(exp==count, "Matched names: " + string.Join(",", names));
+                Assert.True(exp == count, "Matched names: " + string.Join(",", names));
             }
         }
 
@@ -123,7 +123,7 @@ namespace scalus.Test
                 "screen mode id:i:1111",
                 "shell working directory:s:C:/dir1 dir2",
                 $"full address:s:%{Token.Host}%:%{Token.Port}%",
-                $"username:s:%{Token.User}%",             
+                $"username:s:%{Token.User}%",
                 $"singlemoninwindowedmode:i:0",
                 $"alternate shell:s:testanothershellOn %Host%",
                 $"remoteapplicationprogram:s:",
@@ -180,12 +180,12 @@ namespace scalus.Test
         public void TestRdpTemplate2()
         {
             var template = Path.GetTempFileName();
-            
+
             //generic template - not ms rdp
             var lines = new List<string>
             {
                 $"MyAddress=%{Token.Host}%:%{Token.Port}%",
-                $"User=%{Token.User}%",  
+                $"User=%{Token.User}%",
                 $"Shell=%{Token.AlternateShell}%_%{Token.Host}%",
                 $"Name=%{Token.Remoteapplicationname}%_%{Token.Host}%",
                 $"Exe=%{Token.Remoteapplicationprogram}%_%{Token.Host}%"
@@ -223,7 +223,7 @@ namespace scalus.Test
                     if (check(one, "Shell", $"{altshell}_myhostname", names, ref count, "=")) continue;
                     if (check(one, "Exe", $"{rempgm}_myhostname", names, ref count, "=")) continue;
                     if (check(one, "Name", $"{remname}_myhostname", names, ref count, "=")) continue;
-                                 
+
                 }
                 Assert.Equal(5, count);
                 Assert.Equal(count, fileLines.Length);
@@ -319,7 +319,7 @@ namespace scalus.Test
             Assert.Equal(targethost, dict[Token.TargetHost]);
 
         }
-        
+
         [Fact]
         public void TestSafeguardUrl()
         {

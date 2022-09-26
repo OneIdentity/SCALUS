@@ -1,64 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Win32;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RegistryUtils.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus.Util
+namespace OneIdentity.Scalus.Util
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.Versioning;
+    using Microsoft.Win32;
+
+    [SupportedOSPlatform("windows")]
     public static class RegistryUtils
     {
-        private static RegistryKey EnsureWritable(RegistryKey key)
-        {
-            var keyName = key.Name;
-            return GetPrefix(ref keyName).OpenSubKey(keyName, true);
-        }
-
-        private static RegistryKey EnsurePath(string path)
-        {
-            RegistryKey curKey = null;
-            try
-            {
-                curKey = GetPrefix(ref path);
-                var parts = path.Split('\\');
-
-                foreach (var part in parts)
-                {
-                    var key = curKey;
-                    try
-                    {
-                        curKey = key?.CreateSubKey(part); // Try to create/open read/write
-                    }
-                    catch (UnauthorizedAccessException e)
-                    {
-                        Serilog.Log.Error(e, $"Failed to create registry key [{key}] [{part}]");
-                        curKey = key?.OpenSubKey(part); // Try to open readonly
-                        if (curKey == null)
-                            return null;
-                    }
-                    finally
-                    {
-                        if (curKey == null)
-                        {
-                            Serilog.Log.Warning($"Failed to create registry key [{key}] [{part}]");
-                        }
-                    }
-                }
-                return curKey == null ? null : EnsureWritable(curKey); // Explicitly reopen with write access
-            }
-            catch (Exception e)
-            {
-                Serilog.Log.Error(e, $"Failed to create registry key from path:{path}");
-                return null;
-            }
-            finally
-            {
-                if (curKey == null)
-                {
-                    Serilog.Log.Error($"Failed to create registry key from path:{path}");
-                }
-            }
-        }
-
         public static RegistryKey GetKey(string path)
         {
             ValidateNotNullOrWhiteSpace(path, nameof(path));
@@ -71,15 +42,27 @@ namespace scalus.Util
         public static void DeleteValue(string path, string name)
         {
             var key = GetKey(path);
-            if (key == null) return;
-            if (key.GetValue(name) == null) return;
+            if (key == null)
+            {
+                return;
+            }
+
+            if (key.GetValue(name) == null)
+            {
+                return;
+            }
+
             key.DeleteValue(name);
         }
 
         public static IEnumerable<string> GetValueNames(string path)
         {
             var key = GetKey(path);
-            if (key == null) return Enumerable.Empty<string>();
+            if (key == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
             return key.GetValueNames();
         }
 
@@ -96,11 +79,12 @@ namespace scalus.Util
                     return false;
                 }
             }
+
             try
             {
                 regKey.DeleteSubKeyTree(parts[parts.Length - 1]);
             }
-            catch(System.ArgumentException ex)
+            catch (System.ArgumentException ex)
             {
                 Serilog.Log.Error($"Error deleting key {path}: {ex.Message}");
                 return false;
@@ -145,19 +129,24 @@ namespace scalus.Util
             {
                 return value as string[];
             }
-            return new[] {value?.ToString()};
+
+            return new[] { value?.ToString() };
         }
 
         public static DateTime? GetStringValueAsDateTime(string path, string key)
         {
             var stringValue = GetStringValue(path, key);
-            if (string.IsNullOrEmpty(stringValue)) return null;
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                return null;
+            }
 
             DateTime dateTimeValue;
             if (DateTime.TryParse(stringValue, out dateTimeValue))
             {
                 return dateTimeValue;
             }
+
             return null;
         }
 
@@ -210,6 +199,61 @@ namespace scalus.Util
             return true;
         }
 
+        private static RegistryKey EnsureWritable(RegistryKey key)
+        {
+            var keyName = key.Name;
+            return GetPrefix(ref keyName).OpenSubKey(keyName, true);
+        }
+
+        private static RegistryKey EnsurePath(string path)
+        {
+            RegistryKey curKey = null;
+            try
+            {
+                curKey = GetPrefix(ref path);
+                var parts = path.Split('\\');
+
+                foreach (var part in parts)
+                {
+                    var key = curKey;
+                    try
+                    {
+                        curKey = key?.CreateSubKey(part); // Try to create/open read/write
+                    }
+                    catch (UnauthorizedAccessException e)
+                    {
+                        Serilog.Log.Error(e, $"Failed to create registry key [{key}] [{part}]");
+                        curKey = key?.OpenSubKey(part); // Try to open readonly
+                        if (curKey == null)
+                        {
+                            return null;
+                        }
+                    }
+                    finally
+                    {
+                        if (curKey == null)
+                        {
+                            Serilog.Log.Warning($"Failed to create registry key [{key}] [{part}]");
+                        }
+                    }
+                }
+
+                return curKey == null ? null : EnsureWritable(curKey); // Explicitly reopen with write access
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error(e, $"Failed to create registry key from path:{path}");
+                return null;
+            }
+            finally
+            {
+                if (curKey == null)
+                {
+                    Serilog.Log.Error($"Failed to create registry key from path:{path}");
+                }
+            }
+        }
+
         private static RegistryKey GetPrefix(ref string path)
         {
             if (path.StartsWith("HKEY_LOCAL_MACHINE\\", StringComparison.OrdinalIgnoreCase))
@@ -217,51 +261,61 @@ namespace scalus.Util
                 path = path.Substring(19);
                 return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             }
+
             if (path.StartsWith("HKLM\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             }
+
             if (path.StartsWith("HKEY_CLASSES_ROOT\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(18);
                 return Registry.ClassesRoot;
             }
+
             if (path.StartsWith("HKCR\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return Registry.ClassesRoot;
             }
+
             if (path.StartsWith("HKEY_CURRENT_USER\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(18);
                 return Registry.CurrentUser;
             }
+
             if (path.StartsWith("HKCU\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return Registry.CurrentUser;
             }
+
             if (path.StartsWith("HKEY_USERS\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(11);
                 return Registry.Users;
             }
+
             if (path.StartsWith("HKU\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(4);
                 return Registry.Users;
             }
+
             if (path.StartsWith("HKEY_CURRENT_CONFIG\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(20);
                 return Registry.CurrentConfig;
             }
+
             if (path.StartsWith("HKCC\\", StringComparison.OrdinalIgnoreCase))
             {
                 path = path.Substring(5);
                 return Registry.CurrentConfig;
             }
+
             return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
         }
 
@@ -271,6 +325,7 @@ namespace scalus.Util
             {
                 throw new ArgumentNullException(name);
             }
+
             return value;
         }
 
@@ -280,6 +335,7 @@ namespace scalus.Util
             {
                 throw new ArgumentNullException(name);
             }
+
             return value;
         }
     }

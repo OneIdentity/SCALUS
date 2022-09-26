@@ -1,11 +1,33 @@
-﻿using Autofac;
-using scalus.Platform;
-using scalus.Util;
-using System.Reflection;
-using System.Runtime.InteropServices;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Ioc.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus
+namespace OneIdentity.Scalus
 {
+    using System;
+    using System.Reflection;
+    using System.Runtime.InteropServices;
+    using Autofac;
+    using OneIdentity.Scalus.Platform;
+    using OneIdentity.Scalus.Util;
+
     public static class Ioc
     {
         public static IContainer RegisterApplication(Serilog.ILogger logger)
@@ -54,21 +76,23 @@ namespace scalus
 
         private static void RegisterWindowsComponents(this ContainerBuilder builder)
         {
-            //builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<WindowsBasicProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<ProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            // builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance();
+            if (OperatingSystem.IsWindows())
+            {
+                builder.RegisterType<WindowsBasicProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+                builder.RegisterType<WindowsProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            }
         }
 
         private static void RegisterLinuxComponents(this ContainerBuilder builder)
         {
             builder.RegisterType<UnixProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
-
         }
+
         private static void RegisterOsxComponents(this ContainerBuilder builder)
         {
-            builder.RegisterType<MacOsProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<MacOsUserDefaultRegistrar>().AsImplementedInterfaces().SingleInstance();
-
+            builder.RegisterType<MacOSProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<MacOSUserDefaultRegistrar>().AsImplementedInterfaces().SingleInstance();
         }
     }
 }

@@ -1,21 +1,41 @@
-﻿using Autofac;
-using CommandLine;
-using Serilog;
-using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using scalus.Util;
-using Serilog.Core;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Program.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-[assembly:InternalsVisibleTo("scalus.Test")]
-
-namespace scalus
+namespace OneIdentity.Scalus
 {
-    class Program
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+    using Autofac;
+    using CommandLine;
+    using OneIdentity.Scalus.Util;
+    using Serilog;
+    using Serilog.Core;
+
+    internal class Program
     {
-        static int Main(string[] args)
+        private static int Main(string[] args)
         {
+            PrintEdition();
             ConfigureLogging();
             CheckConfig();
             try
@@ -23,8 +43,8 @@ namespace scalus
                 // Register components with autofac
                 using var container = Ioc.RegisterApplication(Log.Logger);
                 using var lifetimeScope = container.BeginLifetimeScope();
-                
-                // Resolve the command line parser and 
+
+                // Resolve the command line parser and
                 // resolve a corresponding application instance
                 var parser = lifetimeScope.Resolve<ICommandLineParser>();
                 var application = parser.Build(args, x =>
@@ -35,20 +55,24 @@ namespace scalus
                 });
 
                 // If application is null, then they ran help or version commands, just return
-                if (application == null) return 0;
+                if (application == null)
+                {
+                    return 0;
+                }
 
                 // Run application
                 return application.Run();
             }
-            catch(CommandLineHelpException ex)
+            catch (CommandLineHelpException ex)
             {
                 // Command line usage
                 Console.WriteLine(ex.Message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleUnexpectedError(ex);
             }
+
             return 1;
         }
 
@@ -64,8 +88,17 @@ namespace scalus
             }
         }
 
+        private static void PrintEdition()
+        {
+#if COMMUNITY_EDITION
+            Console.WriteLine("Community Edition");
+#endif
+#if !COMMUNITY_EDITION
+            Console.WriteLine("OneIdentity Supported Edition");
+#endif
+        }
 
-        static void CheckConfig()
+        private static void CheckConfig()
         {
             Log.Logger.Information($"CheckConfig");
             if (File.Exists(ConfigurationManager.ScalusJson))
@@ -75,21 +108,22 @@ namespace scalus
             }
 
             var defpath = ConfigurationManager.ScalusJsonDefault;
-            if (!File.Exists(defpath)) 
-            { 
+            if (!File.Exists(defpath))
+            {
                 Log.Logger.Warning($"Config file not found:{ConfigurationManager.ScalusJson} and installed default file not found:{defpath}");
                 return;
             }
-            
+
             try
             {
                 var dir = Path.GetDirectoryName(ConfigurationManager.ScalusJson);
-                if (!Directory.Exists(dir)) 
-                { 
+                if (!Directory.Exists(dir))
+                {
                     Directory.CreateDirectory(dir);
                 }
+
                 Log.Logger.Information($"Initializing config file:{ConfigurationManager.ScalusJson} from the installed file:{defpath}");
-                File.WriteAllText(ConfigurationManager.ScalusJson,  File.ReadAllText(defpath));
+                File.WriteAllText(ConfigurationManager.ScalusJson, File.ReadAllText(defpath));
 
                 var egs = ConfigurationManager.ExamplePath;
                 if (Directory.Exists(egs))
@@ -100,16 +134,18 @@ namespace scalus
                         var to = Path.Combine(ConfigurationManager.ProdAppPath, Path.GetFileName(one));
                         if (File.Exists(one) && !File.Exists(to))
                         {
-                            File.WriteAllText(to,File.ReadAllText(one));
+                            File.WriteAllText(to, File.ReadAllText(one));
                         }
                     }
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Log.Logger.Information($"Failed to initialize config file:{ConfigurationManager.ScalusJson} from installed file:{defpath}: {e.Message}");
             }
         }
-        static void ConfigureLogging()
+
+        private static void ConfigureLogging()
         {
             var logFilePath = ConfigurationManager.LogFile;
             var config = new LoggerConfiguration();
@@ -118,10 +154,12 @@ namespace scalus
             {
                 config.MinimumLevel.ControlledBy(new LoggingLevelSwitch(ConfigurationManager.MinLogLevel.Value));
             }
+
             if (ConfigurationManager.LogToConsole)
             {
                 config.WriteTo.Console();
             }
+
             Log.Logger = config.CreateLogger();
         }
     }

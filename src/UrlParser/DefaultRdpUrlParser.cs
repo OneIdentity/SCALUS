@@ -1,24 +1,47 @@
-﻿using scalus.Dto;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
-using Serilog;
-using static scalus.Dto.ParserConfigDefinitions;
-using System.Reflection;
-using System.Linq;
-using System.Diagnostics;
-using System.IO;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DefaultRdpUrlParser.cs" company="One Identity Inc.">
+//   This software is licensed under the Apache 2.0 open source license.
+//   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
+//
+//
+//   Copyright One Identity LLC.
+//   ALL RIGHTS RESERVED.
+//
+//   ONE IDENTITY LLC. MAKES NO REPRESENTATIONS OR
+//   WARRANTIES ABOUT THE SUITABILITY OF THE SOFTWARE,
+//   EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+//   TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE, OR
+//   NON-INFRINGEMENT.  ONE IDENTITY LLC. SHALL NOT BE
+//   LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE
+//   AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+//   THIS SOFTWARE OR ITS DERIVATIVES.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace scalus.UrlParser
+namespace OneIdentity.Scalus.UrlParser
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Runtime.InteropServices;
+    using System.Runtime.Versioning;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Web;
+    using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Util;
+    using Serilog;
+    using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
+
     [ParserName("rdp")]
     internal class DefaultRdpUrlParser : BaseParser
     {
-        //This class parses an RDP string of the form
+        // This class parses an RDP string of the form
         // <protocol>://<expression>[&<expression>]...
         // where :
         //      protocol    :  rdp
@@ -27,17 +50,158 @@ namespace scalus.UrlParser
         //                     Name and value strings can be url encoded
         //      type        :  i|s
 
-        //  query values for:    
+        // query values for:
         //  full address    :  <ipaddress>[:<port>]
         //  username        :  <username>|<safeguardauth>
         //  safeguardauth   :  vaultaddress(=|~)<ipaddress>(%|@)token~<token>[account~<name>%asset~<name>]
         //                     Name and value strings can be url encoded
 
-        //If not in this format, it will default to parsing the string as a standard URL
-        public Regex RdpPattern = new Regex("^[^:]+:\\/\\/(([^:=]+)(:|=).:([^&]*))");
-        public Regex RdpPatt = new Regex("&");
+        // If not in this format, it will default to parsing the string as a standard URL
 
-        private readonly IDictionary<string, Tuple<bool, string>> _msArgList1 = new Dictionary<string, Tuple<bool, string>>();
+        public const string RdpPatternValue = "\\S=[s|i]:\\S+";
+        public const string FullAddressKey = "full address";
+        public const string UsernameKey = "username";
+        public const string RdpPasswordHashKey = "password 51";
+
+        private readonly IDictionary<string, Tuple<bool, string>> msArgList1 = new Dictionary<string, Tuple<bool, string>>();
+
+        private List<(string, Token)> rdpKeys = new List<(string, Token)>
+        {
+            { ("alternate shell", Token.AlternateShell) },
+            { ("remoteapplicationname", Token.Remoteapplicationname) },
+            { ("remoteapplicationprogram", Token.Remoteapplicationprogram) },
+            { ("remoteapplicationcmdline", Token.Remoteapplicationcmdline) },
+        };
+
+        private Dictionary<string, string> defaultArgs = new Dictionary<string, string>();
+
+        private Regex rdpPattern = new Regex("^[^:]+:\\/\\/(([^:=]+)(:|=).:([^&]*))");
+        private Regex rdpPatt = new Regex("&");
+
+        public DefaultRdpUrlParser(ParserConfig config)
+            : base(config)
+        {
+            FileExtension = ".rdp";
+            GetDefaults();
+        }
+
+        public void GetDefaults()
+        {
+            var str = GetResource("Default.rdp");
+            var list = str?.Split(Environment.NewLine);
+
+            defaultArgs = ParseTemplate(list);
+            return;
+        }
+
+        public override IDictionary<Token, string> Parse(string url)
+        {
+            Dictionary = DefaultDictionary();
+            Dictionary[Token.OriginalUrl] = url;
+            Dictionary[Token.Protocol] = Protocol(url) ?? "rdp";
+            Dictionary[Token.RelativeUrl] = StripProtocol(url).TrimEnd('/');
+            Dictionary[Token.Port] = "3389";
+
+            var match = rdpPattern.Match(url.TrimEnd('/'));
+            if (!match.Success)
+            {
+                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
+                {
+                    throw new ParserException($"The RDP parser cannot parse the URL:{url}");
+                }
+
+                Log.Information($"Parsing URL{url} as a default URL");
+                foreach (var (key, value) in defaultArgs)
+                {
+                    if (key.Equals(FullAddressKey, StringComparison.Ordinal))
+                    {
+                        msArgList1[key] = Tuple.Create(true, ":s:" + result.GetComponents(UriComponents.Host, UriFormat.Unescaped));
+                    }
+                    else if (key.Equals(UsernameKey, StringComparison.Ordinal))
+                    {
+                        msArgList1[key] = Tuple.Create(true, ":s:" + result.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped));
+                    }
+                    else
+                    {
+                        msArgList1[key] = Tuple.Create(true, value);
+                    }
+                }
+
+                Parse(result);
+            }
+            else
+            {
+                Log.Information($"Parsing URL{url} as an rdp URL");
+                ParseArgs(Dictionary[Token.RelativeUrl]);
+                ParseConfig();
+            }
+
+            // tokens required are username and host
+
+            if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
+            {
+                Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
+            }
+
+            if (!Dictionary.ContainsKey(Token.Host) || string.IsNullOrEmpty(Dictionary[Token.Host]))
+            {
+                Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
+            }
+
+            return Dictionary;
+        }
+
+        public static string RemoveSpecialCharacters(string source)
+        {
+            if (source == null)
+            {
+                return source;
+            }
+
+            var sb = new StringBuilder();
+            foreach (char ch in source)
+            {
+                if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '.' || ch == '_')
+                {
+                    sb.Append(ch);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public override string ReplaceTokens(string line)
+        {
+            var newline = base.ReplaceTokens(line);
+            var re = new Regex("(([^:]+):([^:]+):(.*))");
+            var match = re.Match(newline);
+
+            if (match.Success && !string.IsNullOrEmpty(match.Groups[2].Value) &&
+                !string.IsNullOrEmpty(match.Groups[3].Value) &&
+                string.IsNullOrEmpty(match.Groups[4].Value))
+            {
+                var name = match.Groups[2].Value;
+                var val = match.Groups[3].Value + ":" + match.Groups[4].Value;
+                if (msArgList1.ContainsKey(name) && msArgList1[name].Item1)
+                {
+                    val = msArgList1[name].Item2;
+                    newline = name + ":" + val;
+                }
+            }
+
+            return newline;
+        }
+
+        protected override IEnumerable<string> GetDefaultTemplate()
+        {
+            var list = new List<string>();
+            foreach (var one in msArgList1)
+            {
+                list.Add(one.Key + ":" + one.Value.Item2);
+            }
+
+            return list;
+        }
 
         private static string GetResource(string name)
         {
@@ -55,112 +219,28 @@ namespace scalus.UrlParser
             }
         }
 
-
-
-        public const string rdpPattern = "\\S=[s|i]:\\S+";
-        public const string FullAddressKey = "full address";
-        public const string UsernameKey = "username";
-        public const string RdpPasswordHashKey = "password 51";
-        public List<(string, Token)> RdpKeys = new List<(string, Token)> {
-            { ("alternate shell", Token.AlternateShell) },
-            { ("remoteapplicationname",Token.Remoteapplicationname ) },
-            { ("remoteapplicationprogram", Token.Remoteapplicationprogram) },
-            { ("remoteapplicationcmdline", Token.Remoteapplicationcmdline) }
-        };
-
-        public Dictionary<string, string> DefaultArgs = new Dictionary<string, string>();
-
-       
-        private Dictionary<string,string> ParseTemplate(IEnumerable<string> list)
+        private static Dictionary<string, string> ParseTemplate(IEnumerable<string> list)
         {
             var dict = new Dictionary<string, string>();
-            if (list == null || list.Count()== 0)
+            if (list == null || !list.Any())
+            {
                 return dict;
+            }
+
             foreach (var one in list)
-            {                
+            {
                 var line = one.Split(":");
                 if (line.Length < 3)
+                {
                     continue;
+                }
+
                 dict[line[0]] = line[1] + ":" + line[2];
             }
+
             return dict;
         }
 
-        public void GetDefaults()
-        {
-            var str = GetResource("Default.rdp");
-            var list =str?.Split(Environment.NewLine);
-
-            DefaultArgs = ParseTemplate(list);
-            return;
-        }
-
-        public DefaultRdpUrlParser(ParserConfig config) : base(config)
-        {            
-            FileExtension = ".rdp";
-            GetDefaults();
-            
-        }
-
-        public override  IDictionary<Token,string> Parse(string url)
-        {
-            Dictionary = DefaultDictionary();
-            Dictionary[Token.OriginalUrl] = url; 
-            Dictionary[Token.Protocol] = Protocol(url)??"rdp";
-            Dictionary[Token.RelativeUrl] = StripProtocol(url).TrimEnd('/');            
-            Dictionary[Token.Port] = "3389";
-            
-            var match = RdpPattern.Match(url.TrimEnd('/'));
-            if (!match.Success)
-            {
-                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
-                    throw new Exception($"The RDP parser cannot parse the URL:{url}");
-                Log.Information($"Parsing URL{url} as a default URL");
-                foreach (var (key, value) in DefaultArgs)
-                {
-                    if (key.Equals(FullAddressKey))
-                    {
-                        _msArgList1[key] = Tuple.Create(true, ":s:"+ result.GetComponents(UriComponents.Host, UriFormat.Unescaped));
-
-                    }
-                    else if (key.Equals(UsernameKey))
-                    {
-                        _msArgList1[key] = Tuple.Create(true, ":s:"+ result.GetComponents(UriComponents.UserInfo, UriFormat.Unescaped));
-                    }
-                    else {
-                        _msArgList1[key] = Tuple.Create(true, value);
-                    }
-                }
-                Parse(result);
-            }
-            else
-            {
-                Log.Information($"Parsing URL{url} as an rdp URL");
-                ParseArgs(Dictionary[Token.RelativeUrl]);
-                ParseConfig();
-            }
-            //tokens required are username and host
-
-            if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
-            {
-                Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
-            }
-            if (!Dictionary.ContainsKey(Token.Host) || string.IsNullOrEmpty(Dictionary[Token.Host]))
-            {
-                Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
-            }
-            return Dictionary;           
-        }
-        protected override IEnumerable<string> GetDefaultTemplate()
-        {
-            var list = new List<string>();
-            foreach(var one in _msArgList1)
-            {
-                list.Add(one.Key + ":" + one.Value.Item2);
-            }
-            return list;
-        }
-        
         private void ParseArgs(string clArgs)
         {
             var re = new Regex("(([^=:]+)[=|:](s|i):(.*))");
@@ -172,6 +252,7 @@ namespace scalus.UrlParser
                 {
                     continue;
                 }
+
                 string name;
                 string type;
                 string value;
@@ -181,11 +262,9 @@ namespace scalus.UrlParser
 
                 name = HttpUtility.UrlDecode(name);
                 value = HttpUtility.UrlDecode(value);
-                if (name.Equals(UsernameKey))
+                if (name.Equals(UsernameKey, StringComparison.Ordinal))
                 {
-                    if ((value.IndexOf("%25", StringComparison.Ordinal) >= 0) ||
-                        (value.IndexOf("%5c", StringComparison.Ordinal) >= 0) ||
-                            (value.IndexOf("%20", StringComparison.Ordinal) >= 0))
+                    if (value.Contains("%25") || value.Contains("%5c") || value.Contains("%20"))
                     {
                         value = HttpUtility.UrlDecode(value);
                     }
@@ -194,17 +273,17 @@ namespace scalus.UrlParser
                         value = value.Replace("%3a", ":");
                     }
 
-                    //Workaround a bug where 2 slashes were added to the connection URI instead of just 1
+                    // Workaround a bug where 2 slashes were added to the connection URI instead of just 1
                     value = value.Replace("\\\\", "\\");
 
-                    Dictionary[Token.User] = Regex.Replace(value, "^.:", "");
+                    Dictionary[Token.User] = Regex.Replace(value, "^.:", string.Empty);
                     GetSafeguardUserValue(Dictionary);
                 }
                 else if (Regex.IsMatch(name, FullAddressKey))
                 {
                     var hostval = value;
 
-                    (string host, string port) = ParseHost(Regex.Replace(hostval, "^.:", ""));
+                    (string host, string port) = ParseHost(Regex.Replace(hostval, "^.:", string.Empty));
                     Dictionary[Token.Host] = host;
 
                     if (!string.IsNullOrEmpty(port))
@@ -220,7 +299,7 @@ namespace scalus.UrlParser
                 {
                     value = HttpUtility.UrlDecode(value);
 
-                    foreach (var one in RdpKeys)
+                    foreach (var one in rdpKeys)
                     {
                         if (Regex.IsMatch(name, one.Item1))
                         {
@@ -229,26 +308,27 @@ namespace scalus.UrlParser
                         }
                     }
                 }
-                _msArgList1[name] = Tuple.Create(true, type + ":" + value);
-            }
-             
 
-            foreach (var arg in DefaultArgs)
+                msArgList1[name] = Tuple.Create(true, type + ":" + value);
+            }
+
+            foreach (var arg in defaultArgs)
             {
-                if (!_msArgList1.ContainsKey(arg.Key))
+                if (!msArgList1.ContainsKey(arg.Key))
                 {
-                    _msArgList1[arg.Key] = Tuple.Create(false, arg.Value);
+                    msArgList1[arg.Key] = Tuple.Create(false, arg.Value);
                 }
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                //Add hashed password so that the user isn't prompted to enter a password
+                // Add hashed password so that the user isn't prompted to enter a password
                 var passwordHash = GenerateRdpPasswordHash();
-                _msArgList1[RdpPasswordHashKey] = Tuple.Create(false, "b:" + passwordHash);
+                msArgList1[RdpPasswordHashKey] = Tuple.Create(false, "b:" + passwordHash);
             }
         }
-    
+
+        [SupportedOSPlatform("windows")]
         private static string GenerateRdpPasswordHash()
         {
             try
@@ -260,49 +340,15 @@ namespace scalus.UrlParser
                 {
                     hex.AppendFormat("{0:x2}", b);
                 }
+
                 return hex.ToString();
             }
             catch (Exception ex)
             {
-                Log.Warning( $"Could not generate RDP password hash: {ex}");
+                Log.Warning($"Could not generate RDP password hash: {ex}");
             }
-            return "";
-        }
 
-        public static string RemoveSpecialCharacters(string source)
-        {
-            if (source == null) return source;
-
-            var sb = new StringBuilder();
-            foreach (char ch in source)
-            {
-                if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '.' || ch == '_')
-                {
-                    sb.Append(ch);
-                }
-            }
-            return sb.ToString();
-        }
-
-        public override string ReplaceTokens(string line)
-        {
-            var newline = base.ReplaceTokens(line);
-            var re = new Regex("(([^:]+):([^:]+):(.*))");
-            var match = re.Match(newline);
-
-            if (match.Success && !string.IsNullOrEmpty(match.Groups[2].Value) &&
-                !string.IsNullOrEmpty(match.Groups[3].Value) &&
-                string.IsNullOrEmpty(match.Groups[4].Value))
-            {
-                var name = match.Groups[2].Value;
-                var val = match.Groups[3].Value + ":" + match.Groups[4].Value;
-                if (_msArgList1.ContainsKey(name) && _msArgList1[name].Item1)
-                {
-                    val = _msArgList1[name].Item2;
-                    newline = name + ":" + val;
-                }
-            }
-            return newline;         
+            return string.Empty;
         }
     }
 }
