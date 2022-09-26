@@ -92,8 +92,7 @@ namespace OneIdentity.Scalus
         {
 #if COMMUNITY_EDITION
             Console.WriteLine("Community Edition");
-#endif
-#if !COMMUNITY_EDITION
+#else
             Console.WriteLine("OneIdentity Supported Edition");
 #endif
         }
