@@ -50,6 +50,12 @@ namespace OneIdentity.Scalus
                     scalusConfig = Load(configFile);
                 }
 
+#if COMMUNITY_EDITION
+                scalusConfig.Edition = Edition.Community;
+#else
+                scalusConfig.Edition = Edition.Supported;
+#endif
+
                 return scalusConfig;
             }
 

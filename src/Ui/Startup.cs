@@ -31,6 +31,7 @@ namespace OneIdentity.Scalus.Ui
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.FileProviders;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json.Converters;
 
     public class Startup
     {
@@ -55,7 +56,11 @@ namespace OneIdentity.Scalus.Ui
             // won't get called. Don't create a ContainerBuilder
             // for Autofac here, and don't call builder.Populate() - that
             // happens in the AutofacServiceProviderFactory for you.
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(opts =>
+                {
+                    opts.SerializerSettings.Converters.Add(new StringEnumConverter());
+                });
         }
 
         // ConfigureContainer is where you can register things directly

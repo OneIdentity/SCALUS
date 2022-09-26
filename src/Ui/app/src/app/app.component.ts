@@ -48,6 +48,7 @@ export class AppComponent implements OnInit {
       this.tokens = x[3];
 
       this.state = 'loaded';
+      console.log(`Loaded SCALUS ${this.config.edition} edition`);
     }, error => {
       this.showError("Failed to load configuration");
     });

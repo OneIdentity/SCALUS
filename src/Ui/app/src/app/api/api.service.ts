@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+export enum Edition {
+  Community = 0,
+  Supported = 1
+}
 
 export interface ScalusConfig {
   protocols: ProtocolMapping[];
   applications: ApplicationConfig[];
+  edition: Edition;
 }
 
 export interface ProtocolMapping {

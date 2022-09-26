@@ -24,18 +24,23 @@ namespace OneIdentity.Scalus.Dto
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Security.Permissions;
+    using CommandLine;
+    using Microsoft.Extensions.Configuration;
 
     public class ScalusConfig
     {
         private static Dictionary<string, string> dtoPropertyDescription = new Dictionary<string, string>
         {
-            { nameof(Protocols), "The list of protocols configured for scalus" },
+            { nameof(Protocols), "The list of protocols configured for SCALUS" },
             { nameof(Applications), "The list of applications available to use" },
         };
 
         public List<ProtocolMapping> Protocols { get; set; }
 
         public List<ApplicationConfig> Applications { get; set; }
+
+        public Edition Edition { get; set; }
 
         public static Dictionary<string, string> DtoPropertyDescription => dtoPropertyDescription.Append(ProtocolMapping.DtoPropertyDescription).Append(ApplicationConfig.DtoPropertyDescription);
 
@@ -101,7 +106,7 @@ namespace OneIdentity.Scalus.Dto
 
             if (errors.Count > 0)
             {
-                Serilog.Log.Error($"**** Failed to validate scalus configuration");
+                Serilog.Log.Error($"**** Failed to validate SCALUS configuration");
                 Serilog.Log.Error($"*** Validation errors: {string.Join(", ", errors)}");
             }
         }
