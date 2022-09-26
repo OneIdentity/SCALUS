@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay, Platform } from './api/api.service';
+import { ApiService, ScalusConfig, ApplicationConfig, ProtocolMapping, ProtocolMappingDisplay, Platform, Edition } from './api/api.service';
 import { ScalusApplicationsComponent } from './applications/scalus-applications.component';
 import { ErrorDialogComponent } from './error/error-dialog.component';
 import { ScalusHelpDialogComponent } from './help/scalus-help-dialog.component';
@@ -17,6 +17,9 @@ export class AppComponent implements OnInit {
 
   title = 'SCALUS';
   state = 'loading';
+
+  cmmunityEdition = true;
+  edition = 'Community Edition';
 
   protocolName: string = '';
 
@@ -56,6 +59,12 @@ export class AppComponent implements OnInit {
 
   loadConfig(config:ScalusConfig, registrations:Array<string>)
   {
+    if (config.edition == Edition.Supported)
+    {
+      this.cmmunityEdition = false;
+      this.edition = "Professional Edition";
+    }
+
     this.config = config;
     this.registrations = registrations;
 
