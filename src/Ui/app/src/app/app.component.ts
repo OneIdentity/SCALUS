@@ -59,7 +59,7 @@ export class AppComponent implements OnInit {
 
   loadConfig(config:ScalusConfig, registrations:Array<string>)
   {
-    if (config.edition == Edition.Supported)
+    if (Edition[config.edition] === Edition.Supported)
     {
       this.communityEdition = false;
       this.edition = "Professional Edition";
@@ -103,7 +103,7 @@ export class AppComponent implements OnInit {
     var canAdd = false;
     var platform = this.getOsPlatform();
     app.platforms.forEach(p => {
-      if (p === platform)
+      if (Platform[p] === platform)
       {
         canAdd = true;
       }

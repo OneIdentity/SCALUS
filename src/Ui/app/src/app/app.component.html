@@ -1,7 +1,7 @@
 <div class="container">
 
   <div class="header">
-    <mat-toolbar [class]="cmmunityEdition ? 'community': 'professional'">
+    <mat-toolbar [class]="communityEdition ? 'community': 'professional'">
       SCALUS {{edition}}
     </mat-toolbar>
   </div>
@@ -32,7 +32,7 @@
           </div>
           <div class="row">
             <div style="flex-grow: 1;">{{getSelectedDescription(p.mapping.appId)}}</div>
-            <mat-icon aria-hidden="false" style="flex-grow: 0; justify-content: bottom; cursor: pointer;" 
+            <mat-icon aria-hidden="false" style="flex-grow: 0; cursor: pointer; padding-right: 20px;" 
               matTooltip="Delete {{p.id}} Protocol" (click)="deleteProtocol(p.id)">delete</mat-icon>
           </div>
         </mat-card-content>
