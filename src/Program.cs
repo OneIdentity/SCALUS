@@ -24,25 +24,41 @@ namespace OneIdentity.Scalus
     using System;
     using System.IO;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
     using Autofac;
     using CommandLine;
+    using OneIdentity.Scalus.Platform;
     using OneIdentity.Scalus.Util;
     using Serilog;
-    using Serilog.Core;
 
     internal class Program
     {
         private static int Main(string[] args)
         {
-            PrintEdition();
+#if WPF
+            System.Windows.SplashScreen splash = null;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                splash = new System.Windows.SplashScreen("scalus.png");
+                splash.Show(false, true);
+            }
+#endif
+
+#if COMMUNITY_EDITION
+            Console.WriteLine("Community Edition");
+#else
+            Console.WriteLine("OneIdentity Supported Edition");
+#endif
+
             ConfigureLogging();
             CheckConfig();
+            IOsServices services = null;
             try
             {
                 // Register components with autofac
-                using var container = Ioc.RegisterApplication(Log.Logger);
+                using var container = Ioc.RegisterApplication(Serilog.Log.Logger);
                 using var lifetimeScope = container.BeginLifetimeScope();
+                services = lifetimeScope.Resolve<IOsServices>();
 
                 // Resolve the command line parser and
                 // resolve a corresponding application instance
@@ -61,16 +77,32 @@ namespace OneIdentity.Scalus
                 }
 
                 // Run application
+#if WPF
+                splash.Close(TimeSpan.Zero);
+#endif
                 return application.Run();
             }
             catch (CommandLineHelpException ex)
             {
                 // Command line usage
-                Console.WriteLine(ex.Message);
+                if (services != null)
+                {
+                    services.ShowMessage(ex.Message);
+                }
+                else
+                {
+                    Serilog.Log.Error(ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 HandleUnexpectedError(ex);
+            }
+            finally
+            {
+#if WPF
+                splash.Close(TimeSpan.Zero);
+#endif
             }
 
             return 1;
@@ -88,29 +120,19 @@ namespace OneIdentity.Scalus
             }
         }
 
-        private static void PrintEdition()
-        {
-#if COMMUNITY_EDITION
-            Console.WriteLine("Community Edition");
-#endif
-#if !COMMUNITY_EDITION
-            Console.WriteLine("OneIdentity Supported Edition");
-#endif
-        }
-
         private static void CheckConfig()
         {
-            Log.Logger.Information($"CheckConfig");
+            Serilog.Log.Logger.Information($"CheckConfig");
             if (File.Exists(ConfigurationManager.ScalusJson))
             {
-                Log.Logger.Information($"ok");
+                Serilog.Log.Logger.Information($"ok");
                 return;
             }
 
             var defpath = ConfigurationManager.ScalusJsonDefault;
             if (!File.Exists(defpath))
             {
-                Log.Logger.Warning($"Config file not found:{ConfigurationManager.ScalusJson} and installed default file not found:{defpath}");
+                Serilog.Log.Logger.Warning($"Config file not found:{ConfigurationManager.ScalusJson} and installed default file not found:{defpath}");
                 return;
             }
 
@@ -122,7 +144,7 @@ namespace OneIdentity.Scalus
                     Directory.CreateDirectory(dir);
                 }
 
-                Log.Logger.Information($"Initializing config file:{ConfigurationManager.ScalusJson} from the installed file:{defpath}");
+                Serilog.Log.Logger.Information($"Initializing config file:{ConfigurationManager.ScalusJson} from the installed file:{defpath}");
                 File.WriteAllText(ConfigurationManager.ScalusJson, File.ReadAllText(defpath));
 
                 var egs = ConfigurationManager.ExamplePath;
@@ -141,18 +163,18 @@ namespace OneIdentity.Scalus
             }
             catch (Exception e)
             {
-                Log.Logger.Information($"Failed to initialize config file:{ConfigurationManager.ScalusJson} from installed file:{defpath}: {e.Message}");
+                Serilog.Log.Logger.Information($"Failed to initialize config file:{ConfigurationManager.ScalusJson} from installed file:{defpath}: {e.Message}");
             }
         }
 
         private static void ConfigureLogging()
         {
             var logFilePath = ConfigurationManager.LogFile;
-            var config = new LoggerConfiguration();
+            var config = new Serilog.LoggerConfiguration();
             config.WriteTo.File(logFilePath, shared: true);
             if (ConfigurationManager.MinLogLevel != null)
             {
-                config.MinimumLevel.ControlledBy(new LoggingLevelSwitch(ConfigurationManager.MinLogLevel.Value));
+                config.MinimumLevel.ControlledBy(new Serilog.Core.LoggingLevelSwitch(ConfigurationManager.MinLogLevel.Value));
             }
 
             if (ConfigurationManager.LogToConsole)
@@ -160,7 +182,7 @@ namespace OneIdentity.Scalus
                 config.WriteTo.Console();
             }
 
-            Log.Logger = config.CreateLogger();
+            Serilog.Log.Logger = config.CreateLogger();
         }
     }
 }

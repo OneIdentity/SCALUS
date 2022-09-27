@@ -159,11 +159,25 @@ namespace OneIdentity.Scalus.Platform
             }
             catch (System.Exception ex)
             {
-                Serilog.Log.Error($"Failed launching URL: {ex.Message}", ex);
+                Log.Error($"Failed launching URL: {ex.Message}", ex);
             }
             finally
             {
                 File.Delete(tempFile);
+            }
+        }
+
+        public void ShowMessage(string message)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+#if WPF
+                System.Windows.MessageBox.Show(message, "SCALUS");
+#endif
+            }
+            else
+            {
+                Log.Information(message);
             }
         }
 
