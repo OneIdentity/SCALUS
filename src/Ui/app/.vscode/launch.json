@@ -10,7 +10,7 @@
           "configurations": ["ng serve", "Launch Chrome against localhost"]
         },
     ],
-    "configurations": 
+    "configurations":
     [
         {
             "name": "ng serve",
@@ -18,7 +18,7 @@
             "request": "launch",
             "preLaunchTask": "npm: start",
             "url": "http://localhost:4200",
-          },
+        },
         {
             "type": "chrome",
             "request": "launch",

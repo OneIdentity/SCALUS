@@ -1,17 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
+    <NativeWindowing>false</NativeWindowing>
+    <Edition>community</Edition>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NativeWindowing)'=='false'">
     <TargetFramework>net6.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <SignAssembly>false</SignAssembly>
-
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
-
     <DelaySign>false</DelaySign>
-
     <OutputType>WinExe</OutputType>
+    <RootNamespace>OneIdentity.Scalus.Test</RootNamespace>
+    <RuntimeIdentifiers>linux-x64;osx-x64;win-x64;win-x86</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NativeWindowing)'=='true'">
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>OneIdentity.Scalus.Test</RootNamespace>
+    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Edition)'=='community'">
+    <DefineConstants>COMMUNITY_EDITION</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UseWPF)'=='true'">
+    <DefineConstants>WPF</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

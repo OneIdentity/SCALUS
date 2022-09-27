@@ -87,6 +87,7 @@ namespace OneIdentity.Scalus.Ui
 
         public void Shutdown()
         {
+            UserInteraction.Dispose();
             GenericHost.StopAsync();
         }
 
