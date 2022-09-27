@@ -1,7 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-  
+
+  <!-- 
+  These properties can be overridden to change the
+  how SCALUS is built.
+  -->
   <PropertyGroup>
-      <OutputType>Exe</OutputType>
+    <NativeWindowing>false</NativeWindowing>
+    <Edition>community</Edition>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(NativeWindowing)'=='false'">
+    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>OneIdentity.Scalus</RootNamespace>
     <AssemblyName>scalus</AssemblyName>
@@ -9,45 +18,67 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-    <RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x64;osx-x64;win-x64;win-x86</RuntimeIdentifiers>
     <UserSecretsId>dc8f57ba-8a9d-40c4-bf34-a2ffba1ff687</UserSecretsId>
     <Company>One Identity LLC</Company>
     <Copyright>Copyright 2021 One Identity LLC</Copyright>
     <Authors>One Identity</Authors>
     <PackageProjectUrl>https://github.com/OneIdentity/SCALUS</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
-    <!-- For a fancy windows implemenation that drops the console window...
-    <OutputType>WinExe</OutputType>
-    <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-    <UseWindowsForms>true</UseWindowsForms>
-    -->
+    <ApplicationIcon>scalus.ico</ApplicationIcon>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <Edition>community</Edition>
+  <PropertyGroup Condition="'$(NativeWindowing)'=='true'">
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RootNamespace>OneIdentity.Scalus</RootNamespace>
+    <AssemblyName>scalus</AssemblyName>
+    <StartupObject>OneIdentity.Scalus.Program</StartupObject>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
+    <UserSecretsId>dc8f57ba-8a9d-40c4-bf34-a2ffba1ff687</UserSecretsId>
+    <Company>One Identity LLC</Company>
+    <Copyright>Copyright 2021 One Identity LLC</Copyright>
+    <Authors>One Identity</Authors>
+    <PackageProjectUrl>https://github.com/OneIdentity/SCALUS</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>scalus.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Edition)'=='community'">
     <DefineConstants>COMMUNITY_EDITION</DefineConstants>
   </PropertyGroup>
-  
+
+  <PropertyGroup Condition="'$(UseWPF)'=='true'">
+    <DefineConstants>WPF</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
-  
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;CA1416</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Ui\app\**" />
     <Content Remove="Ui\app\**" />
     <EmbeddedResource Remove="Ui\app\**" />
     <None Remove="Ui\app\**" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Content Remove="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Resources\Default.rdp" />
+    <None Remove="scalus.png" />
     <None Remove="Ui\Web\3rdpartylicenses.txt" />
     <None Remove="Ui\Web\favicon.ico" />
     <None Remove="Ui\Web\index.html" />
@@ -62,6 +93,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="scalus.ico" />
     <Content Include="Ui\Web\3rdpartylicenses.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -131,6 +163,10 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>OneIdentity.Scalus.Test</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="scalus.png" />
   </ItemGroup>
 
 </Project>

@@ -27,6 +27,9 @@ namespace OneIdentity.Scalus
     using System.Linq;
     using System.Runtime.InteropServices;
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    [System.Runtime.Versioning.SupportedOSPlatform("linux")]
+    [System.Runtime.Versioning.SupportedOSPlatform("osx")]
     internal static class Constants
     {
         public static string DotNetPath()
@@ -81,6 +84,7 @@ namespace OneIdentity.Scalus
             return AppContext.BaseDirectory;
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static string GetLaunchCommand(string urlString = "<URL VARIABLE HERE>")
         {
             var binPath = GetBinaryPath().Trim();

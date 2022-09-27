@@ -21,22 +21,56 @@
 
 namespace OneIdentity.Scalus.Platform
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
 
     public interface IOsServices
     {
-        Process OpenDefault(string file);
+        /// <summary>
+        /// Open URL with OS default command (start, open, explorer) etc.
+        /// </summary>
+        /// <param name="url">URL to open</param>
+        /// <returns>Process</returns>
+        Process OpenDefault(string url);
 
+        /// <summary>
+        /// Start a process
+        /// </summary>
+        /// <param name="binary">Binary</param>
+        /// <param name="args">Arguments</param>
+        /// <returns>Process</returns>
         Process Execute(string binary, IEnumerable<string> args);
 
         /// <summary>
-        /// Open a text editor to display message
+        /// Open a text editor to display a message
         /// </summary>
+        /// <param name="message">The message to display</param>
         void OpenText(string message);
 
+        /// <summary>
+        /// On Windows: displays text in a MessageBox dialog
+        /// On Linux: Console.WriteLine
+        /// On Mac: Console.WriteLine
+        /// </summary>
+        /// <param name="message">The message to display</param>
+        /// <param name="duration">The time to display it</param>
+        void ShowMessage(string message);
+
+        /// <summary>
+        /// Returns whether the process is running as administrator
+        /// </summary>
+        /// <returns>Whether the process is running as administrator</returns>
         bool IsAdministrator();
 
+        /// <summary>
+        /// Run a command
+        /// </summary>
+        /// <param name="command">Command to execute</param>
+        /// <param name="args">Arguments</param>
+        /// <param name="stdOut">Captured standard output</param>
+        /// <param name="stdErr">Captured standard error</param>
+        /// <returns>Process result code</returns>
         int Execute(string command, IEnumerable<string> args, out string stdOut, out string stdErr);
     }
 }

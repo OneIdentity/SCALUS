@@ -21,7 +21,9 @@
 
 namespace OneIdentity.Scalus
 {
-    internal interface IUserInteraction
+    using System;
+
+    internal interface IUserInteraction : IDisposable
     {
         void Message(string message);
 
