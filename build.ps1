@@ -88,55 +88,42 @@ function GetProxyEnabledWebClient
 
 Write-Host "Preparing to run build script..."
 
-if(!$PSScriptRoot){
-    $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
+$TOOLS_DIR = Join-Path $PSScriptRoot "tools"
+
+# Try find dotnet.exe nuget.exe in path if not exists
+function Test-Command {
+    Param(
+        [Parameter(Mandatory=$true)]
+        [string] $Command
+    )
+    Get-Command $Command -EA SilentlyContinue
+}
+if (-not (Test-Command dotnet)) {
+    throw "This script requires dotnet.exe -- https://dotnet.microsoft.com/en-us/download"
+}
+if (-not (Test-Command nuget)) {
+    throw "This script requires nuget.exe -- https://www.nuget.org/downloads"
 }
 
-$TOOLS_DIR = Join-Path $PSScriptRoot "tools"
-$CAKE_DIR = Join-Path $TOOLS_DIR "Cake"
-$NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
-$CAKE_EXE = Join-Path $CAKE_DIR "Cake.exe"
-$NUGET_URL = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+# Save nuget.exe path to environment to be available to child processes
+$ENV:NUGET_EXE = (Test-Command nuget | Select-Object -ExpandProperty Definition)
 
 # Make sure tools folder exists
 if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
     Write-Verbose -Message "Creating tools directory..."
-    New-Item -Path $TOOLS_DIR -Type directory | out-null
+    New-Item -Path $TOOLS_DIR -Type directory | Out-Null
 }
 
-# Try find NuGet.exe in path if not exists
-if (!(Test-Path $NUGET_EXE)) {
-    Write-Verbose -Message "Trying to find nuget.exe in PATH..."
-    $existingPaths = $Env:Path -Split ';' | Where-Object { (![string]::IsNullOrEmpty($_)) -and (Test-Path $_ -PathType Container) }
-    $NUGET_EXE_IN_PATH = Get-ChildItem -Path $existingPaths -Filter "nuget.exe" | Select -First 1
-    if ($NUGET_EXE_IN_PATH -ne $null -and (Test-Path $NUGET_EXE_IN_PATH.FullName)) {
-        Write-Verbose -Message "Found in PATH at $($NUGET_EXE_IN_PATH.FullName)."
-        $NUGET_EXE = $NUGET_EXE_IN_PATH.FullName
-    }
+Write-Host "Installing Cake.Tool..."
+if (dotnet tool list --tool-path tools | Select-String cake.tools) {
+    Invoke-Expression "dotnet tool install Cake.Tool --version 2.2.0 --tool-path $TOOLS_DIR"
+}
+else {
+    Write-Host "Cake.Tool already installed"
 }
 
-# Try download NuGet.exe if not exists
-if (!(Test-Path $NUGET_EXE)) {
-    Write-Verbose -Message "Downloading NuGet.exe..."
-    try {
-        $wc = GetProxyEnabledWebClient
-        $wc.DownloadFile($NUGET_URL, $NUGET_EXE)
-    } catch {
-        Throw "Could not download NuGet.exe."
-    }
-}
-
-# Save nuget.exe path to environment to be available to child processes
-$ENV:NUGET_EXE = $NUGET_EXE
-
-Invoke-Expression "$NUGET_EXE install Cake -OutputDirectory $TOOLS_DIR -Version 2.2.0 -ExcludeVersion"
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
-}
-
-# Make sure that Cake has been installed.
-if (!(Test-Path $CAKE_EXE)) {
-    Throw "Could not find Cake.exe at $CAKE_EXE"
 }
 
 # Set it back so that DevOps doesn't get messed up
@@ -158,6 +145,6 @@ if ($Pre) { $cakeArguments += "--pre=true" }
 $cakeArguments += $ScriptArgs
 
 # Start Cake
-Write-Host "Running build script for Scalus..."
-&$CAKE_EXE $cakeArguments
+Write-Host "Running build script for SCALUS..."
+& (Join-Path $TOOLS_DIR dotnet-cake.exe) $cakeArguments
 exit $LASTEXITCODE
