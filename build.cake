@@ -178,11 +178,11 @@ Task("Build")
     .Does(() =>
     {
        DotNetBuild(solution,
-           new DotNetSettings()
-        {
-            Configuration = configuration,
-            OutputDirectory = builddir
-        });
+            new DotNetSettings()
+            {
+                Configuration = configuration,
+                OutputDirectory = builddir
+            });
     });
 
 

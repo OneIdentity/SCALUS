@@ -81,7 +81,7 @@ function GetProxyEnabledWebClient
 {
     $wc = New-Object System.Net.WebClient
     $proxy = [System.Net.WebRequest]::GetSystemWebProxy()
-    $proxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials        
+    $proxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials
     $wc.Proxy = $proxy
     return $wc
 }
@@ -129,7 +129,7 @@ if (!(Test-Path $NUGET_EXE)) {
 # Save nuget.exe path to environment to be available to child processes
 $ENV:NUGET_EXE = $NUGET_EXE
 
-Invoke-Expression "$NUGET_EXE install Cake -OutputDirectory $TOOLS_DIR -Version 1.0.0 -ExcludeVersion"
+Invoke-Expression "$NUGET_EXE install Cake -OutputDirectory $TOOLS_DIR -Version 2.2.0 -ExcludeVersion"
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
