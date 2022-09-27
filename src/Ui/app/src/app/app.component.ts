@@ -19,7 +19,7 @@ export class AppComponent implements OnInit {
   state = 'loading';
 
   communityEdition = true;
-  edition = 'Community Edition';
+  edition = 'Community';
 
   protocolName: string = '';
 
@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
     if (Edition[config.edition] === Edition.Supported)
     {
       this.communityEdition = false;
-      this.edition = "Professional Edition";
+      this.edition = "Safeguard";
     }
 
     this.config = config;
