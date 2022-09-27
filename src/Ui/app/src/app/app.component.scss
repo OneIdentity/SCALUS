@@ -40,8 +40,7 @@ h2{
 
 .row {
   display: flex;
-  flex-direction: row;
-  justify-content: top;  
+  flex-direction: row;  
 }
 
 .protocol-icon {
@@ -50,7 +49,11 @@ h2{
   margin: 16px 10px;
 }
 
-mat-toolbar {
+.community {
+  background-color: #616566;
+}
+
+.professional {
   background-color: #1CB0DD;
 }
 

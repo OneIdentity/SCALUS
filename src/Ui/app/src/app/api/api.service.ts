@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+export enum Edition {
+  Community,
+  Supported
+}
 
 export interface ScalusConfig {
   protocols: ProtocolMapping[];
   applications: ApplicationConfig[];
+  edition: string;
 }
 
 export interface ProtocolMapping {
@@ -20,16 +25,16 @@ export interface ProtocolMappingDisplay {
 }
 
 export enum Platform {
-  Windows = 0,
-  Linux = 1,
-  Mac = 2
+  Windows,
+  Linux,
+  Mac
 }
 
 export interface ApplicationConfig {
   id: string;
   name: string;
   description: string;
-  platforms: Platform[];
+  platforms: string[];
   protocol: string;
   parser: ParserConfig;
   exec: string; 
