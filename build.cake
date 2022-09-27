@@ -113,7 +113,7 @@ Task("MsiInstaller")
 
         var examples = tmpdir + "/examples";
         CopyDirectory("scripts/examples", examples);
-        CopyFile("scripts/Win/scalus.json", examples + "/scalus.json");
+        CopyFile("scripts/Win/SCALUS.json", examples + "/SCALUS.json");
         CopyFile("scripts/Win/Product.wxs", tmpdir + "/Product.wxs");
 
         var readme = tmpdir + "/readme.txt";

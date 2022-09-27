@@ -9,10 +9,35 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		azure-pipelines.yml = azure-pipelines.yml
+		build.cake = build.cake
+		build.ps1 = build.ps1
+		polaris.yml = polaris.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneIdentity.Scalus.Test", "test\OneIdentity.Scalus.Test.csproj", "{6BEB2322-F930-48A5-AF1E-94D7B69AFD6B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{33D86598-B964-41A2-A829-99ECE9386816}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win", "Win", "{D5F8000A-3EE7-4FB9-B900-252554BF27C4}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\Win\Product.wxs = scripts\Win\Product.wxs
+		scripts\Win\SCALUS.json = scripts\Win\SCALUS.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Osx", "Osx", "{5321F333-4DAE-41F5-A2E3-67EA83F6074E}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\Osx\applet = scripts\Osx\applet
+		scripts\Osx\package.sh = scripts\Osx\package.sh
+		scripts\Osx\resetInfoPlist.sh = scripts\Osx\resetInfoPlist.sh
+		scripts\Osx\SCALUS.json = scripts\Osx\SCALUS.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Linux", "Linux", "{7548F3C0-8A06-4AB4-B07D-7D48E9E5E096}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\Linux\SCALUS.json = scripts\Linux\SCALUS.json
+		scripts\Linux\setup.sh = scripts\Linux\setup.sh
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +56,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{33D86598-B964-41A2-A829-99ECE9386816} = {D51E41F2-91D0-437B-98E2-9E5169D9EA74}
+		{D5F8000A-3EE7-4FB9-B900-252554BF27C4} = {33D86598-B964-41A2-A829-99ECE9386816}
+		{5321F333-4DAE-41F5-A2E3-67EA83F6074E} = {33D86598-B964-41A2-A829-99ECE9386816}
+		{7548F3C0-8A06-4AB4-B07D-7D48E9E5E096} = {33D86598-B964-41A2-A829-99ECE9386816}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7A255A60-250C-438B-B123-D3DA8614F1CD}
