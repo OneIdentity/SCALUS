@@ -49,11 +49,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Edition)'=='community'">
-    <DefineConstants>COMMUNITY_EDITION</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMMUNITY_EDITION</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(UseWPF)'=='true'">
-    <DefineConstants>WPF</DefineConstants>
+    <DefineConstants>$(DefineConstants);WPF</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -78,7 +78,8 @@
 
   <ItemGroup>
     <None Remove="Resources\Default.rdp" />
-    <None Remove="scalus.png" />
+    <None Remove="Splash-CommunityScalus.png" />
+    <None Remove="Splash-SafeguardScalus.png" />
     <None Remove="Ui\Web\3rdpartylicenses.txt" />
     <None Remove="Ui\Web\favicon.ico" />
     <None Remove="Ui\Web\index.html" />
@@ -119,6 +120,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Default.rdp" />
+    <Resource Include="Resources\Splash-CommunityScalus.png" />
+    <Resource Include="Resources\Splash-SafeguardScalus.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -163,10 +166,6 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>OneIdentity.Scalus.Test</_Parameter1>
     </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="scalus.png" />
   </ItemGroup>
 
 </Project>

@@ -25,6 +25,7 @@ namespace OneIdentity.Scalus
     using System.IO;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Windows;
     using Autofac;
     using CommandLine;
     using OneIdentity.Scalus.Platform;
@@ -35,20 +36,21 @@ namespace OneIdentity.Scalus
     {
         private static int Main(string[] args)
         {
+            bool community = false;
+#if COMMUNITY_EDITION
+            community = true;
+#endif
+
 #if WPF
             System.Windows.SplashScreen splash = null;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                splash = new System.Windows.SplashScreen("scalus.png");
+                var resource = community ? "Resources/Splash-CommunityScalus.png" : "Resources/Splash-SafeguardScalus.png";
+                splash = new System.Windows.SplashScreen(resource);
                 splash.Show(false, true);
             }
 #endif
-
-#if COMMUNITY_EDITION
-            Console.WriteLine("Community Edition");
-#else
-            Console.WriteLine("OneIdentity Supported Edition");
-#endif
+            Console.WriteLine(community ? "Community Edition" : "Safeguard Edition");
 
             ConfigureLogging();
             CheckConfig();
