@@ -40,8 +40,6 @@ namespace OneIdentity.Scalus.Dto
 
         public List<ApplicationConfig> Applications { get; set; }
 
-        public Edition Edition { get; set; }
-
         public static Dictionary<string, string> DtoPropertyDescription => dtoPropertyDescription.Append(ProtocolMapping.DtoPropertyDescription).Append(ApplicationConfig.DtoPropertyDescription);
 
         public void Validate(List<string> errors, bool log = true)

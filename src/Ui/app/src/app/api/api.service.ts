@@ -9,6 +9,9 @@ export enum Edition {
 export interface ScalusConfig {
   protocols: ProtocolMapping[];
   applications: ApplicationConfig[];
+}
+
+export interface ScalusServerConfig extends ScalusConfig {
   edition: string;
 }
 
@@ -92,7 +95,7 @@ export class ApiService {
   private validateUrl = this.configUrl.concat('/Validate');
 
   getConfig() {
-    return this.http.get<ScalusConfig>(this.configUrl);
+    return this.http.get<ScalusServerConfig>(this.configUrl);
   }
 
   setConfig(config:ScalusConfig){

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IScalusApiConfiguration.cs" company="One Identity Inc.">
+// <copyright file="ScalusServerConfig.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
 //
@@ -19,32 +19,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OneIdentity.Scalus
+namespace OneIdentity.Scalus.Dto
 {
-    using System;
-    using System.Collections.Generic;
-    using OneIdentity.Scalus.Dto;
-
-    public interface IScalusApiConfiguration
+    public class ScalusServerConfig : ScalusConfig
     {
-        List<string> ValidationErrors { get; }
-
-        ScalusServerConfig GetConfiguration();
-
-        List<string> SaveConfiguration(ScalusConfig configuration);
-    }
-
-    internal interface IScalusConfiguration
-    {
-        List<string> ValidationErrors { get; }
-
-        IProtocolHandler GetProtocolHandler(string uri);
-
-        ScalusConfig GetConfiguration(string path = null);
-    }
-
-    internal interface IProtocolHandler : IDisposable
-    {
-        void Run(bool preview = false);
+        public Edition Edition { get; set; }
     }
 }

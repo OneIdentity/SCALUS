@@ -45,13 +45,26 @@ export class AppComponent implements OnInit {
     this.apiService.getapplicationDescriptions(),
     this.apiService.getTokens()])
     .subscribe(x => {
-      this.loadConfig(x[0], x[1]);
-      
+      var edition = x[0].edition;
+      if (Edition[edition] === Edition.Community)
+      {
+        this.communityEdition = true;
+        this.edition = "Community";
+      }
+      else
+      {
+      	this.communityEdition = false;
+        this.edition = "Safeguard";
+      }
+      console.log(`Loaded ${this.edition} SCALUS`);
+
+      delete x[0].edition;
+      this.loadConfig(x[0] as ScalusConfig, x[1]);
+
       this.applicationDescriptions = x[2];
       this.tokens = x[3];
 
       this.state = 'loaded';
-      console.log(`Loaded SCALUS ${this.config.edition} edition`);
     }, error => {
       this.showError("Failed to load configuration");
     });
@@ -59,12 +72,6 @@ export class AppComponent implements OnInit {
 
   loadConfig(config:ScalusConfig, registrations:Array<string>)
   {
-    if (Edition[config.edition] === Edition.Supported)
-    {
-      this.communityEdition = false;
-      this.edition = "Professional Edition";
-    }
-
     this.config = config;
     this.registrations = registrations;
 
@@ -259,6 +266,7 @@ export class AppComponent implements OnInit {
         try {
           var fileResults = fileReader.result as string;
           var config = JSON.parse(fileResults);
+          delete config.edition;
           this.apiService.setConfig(config).subscribe(
             x => {
               this.loadConfig(config, this.registrations);
