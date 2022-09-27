@@ -2,7 +2,15 @@
 
   <div class="header">
     <mat-toolbar [class]="communityEdition ? 'community': 'professional'">
-      SCALUS {{edition}}
+      <div *ngIf="communityEdition" class="masthead-logo">
+        <img src="assets/CommunityScalusLogo.Masthead.svg"/>
+      </div>
+      <div *ngIf="!communityEdition" class="masthead-logo">
+        <img src="assets/SafeguardScalusLogo.Masthead.svg"/>
+      </div>
+      <div class="masthead-text">
+        <span>{{edition}} SCALUS</span>
+      </div>
     </mat-toolbar>
   </div>
 
