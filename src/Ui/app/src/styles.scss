@@ -1,9 +1,6 @@
 @use '@angular/material' as mat;
 @import '@angular/material/theming';
-$material_icons_font_path: "~node_modules/@elemental-ui/core/assets/MaterialIcons";
-$cadence_font_path: "~node_modules/@elemental-ui/core/assets/Cadence";
-$source_sans_pro_font_path: "~node_modules/@elemental-ui/core/assets/Source_Sans_Pro"; 
-@import '@elemental-ui/core/src/styles/core'; 
+ 
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only

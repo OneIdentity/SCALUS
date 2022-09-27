@@ -102,6 +102,12 @@ namespace OneIdentity.Scalus.Ui
             fileServerOptions.StaticFileOptions.ServeUnknownFileTypes = true;
             app.UseFileServer(fileServerOptions);
 
+            //app.UseFileServer(new FileServerOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(Path.Combine(Path.Combine(Constants.GetBinaryDir(), @"Ui/Web/assets"))),
+            //    RequestPath = "/assets",
+            //});
+
             // Disable HTTPs for now
             // app.UseHttpsRedirection();
 

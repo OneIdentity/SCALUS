@@ -57,6 +57,14 @@ h2{
   background-color: #1CB0DD;
 }
 
+.masthead-logo {
+  margin-right: 10px;
+  margin-top: 6px;
+  img {
+    width: 48px;
+  }
+}
+
 :host ::ng-deep .mat-card-header-text {
   margin: 0;
 }

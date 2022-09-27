@@ -19,7 +19,7 @@ export class AppComponent implements OnInit {
   state = 'loading';
 
   communityEdition = true;
-  edition = 'Community Edition';
+  edition = 'Community';
 
   protocolName: string = '';
 

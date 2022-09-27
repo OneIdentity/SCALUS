@@ -121,7 +121,7 @@ namespace OneIdentity.Scalus.Ui
                     options.Listen(IPAddress.Loopback, WebPort);
                 })
                 .UseContentRoot(Constants.GetBinaryDir());
-        }
+         }
 
         private static int GetRandomFreePort()
         {

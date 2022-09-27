@@ -78,9 +78,9 @@
 
   <ItemGroup>
     <None Remove="Resources\Default.rdp" />
-    <None Remove="Splash-CommunityScalus.png" />
-    <None Remove="Splash-SafeguardScalus.png" />
     <None Remove="Ui\Web\3rdpartylicenses.txt" />
+    <None Remove="Ui\Web\assets\CommunityScalusLogo.Masthead.svg" />
+    <None Remove="Ui\Web\assets\SafeguardScalusLogo.Masthead.svg" />
     <None Remove="Ui\Web\favicon.ico" />
     <None Remove="Ui\Web\index.html" />
     <None Remove="Ui\Web\main.js" />
@@ -96,6 +96,12 @@
   <ItemGroup>
     <Content Include="scalus.ico" />
     <Content Include="Ui\Web\3rdpartylicenses.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Ui\Web\assets\CommunityScalusLogo.Masthead.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Ui\Web\assets\SafeguardScalusLogo.Masthead.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Ui\Web\favicon.ico">
