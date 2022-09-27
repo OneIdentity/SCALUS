@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
   title = 'SCALUS';
   state = 'loading';
 
-  cmmunityEdition = true;
+  communityEdition = true;
   edition = 'Community Edition';
 
   protocolName: string = '';
@@ -61,7 +61,7 @@ export class AppComponent implements OnInit {
   {
     if (config.edition == Edition.Supported)
     {
-      this.cmmunityEdition = false;
+      this.communityEdition = false;
       this.edition = "Professional Edition";
     }
 
