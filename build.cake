@@ -1,10 +1,10 @@
-#addin "Cake.Powershell&version=1.0.1"
-#tool "nuget:?package=xunit.runner.console&version=2.4.1"
+#addin "Cake.Powershell&version=2.0.0"
+#tool "nuget:?package=xunit.runner.console&version=2.4.2"
 #tool "nuget:?package=WiX&version=3.11.2"
-#addin nuget:?package=SharpZipLib&version=1.3.2   
-#addin nuget:?package=Cake.Compression&version=0.2.6
-#addin nuget:?package=Cake.FileHelpers&version=4.0.1
-#addin nuget:?package=Cake.Incubator&version=6.0.0
+#addin nuget:?package=SharpZipLib&version=1.4.0
+#addin nuget:?package=Cake.Compression&version=0.3.0
+#addin nuget:?package=Cake.FileHelpers&version=5.0.0
+#addin nuget:?package=Cake.Incubator&version=7.0.0
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -37,7 +37,7 @@ if (SignFiles)
 		Information("Code sign not selected");
 	}
 	else {
-		if ((!DirectoryExists(ToolPath)) || (!FileExists(CertPath))) 
+		if ((!DirectoryExists(ToolPath)) || (!FileExists(CertPath)))
 		{
 			if (!DirectoryExists(ToolPath))
 			{
@@ -78,7 +78,7 @@ if (isWindows)
 Task("Restore")
     .Does(() =>
     {
-        DotNetCoreRestore();
+        DotNetRestore();
     });
 
 
@@ -97,12 +97,12 @@ Task("MsiInstaller")
     {
 	if (!DirectoryExists(outputdir))
 	{
-		CreateDirectory(outputdir); 
+		CreateDirectory(outputdir);
 	}
 	var tmpdir = outputdir + "/tmp";
 	if (!DirectoryExists(tmpdir))
 	{
-		CreateDirectory(tmpdir); 
+		CreateDirectory(tmpdir);
 	}
 
 	var sourcedir = publishdir;
@@ -174,8 +174,8 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-       DotNetCoreBuild(solution,
-           new DotNetCoreBuildSettings()
+       DotNetBuild(solution,
+           new DotNetSettings()
 	{
 	Configuration = configuration,
         OutputDirectory = builddir
@@ -199,9 +199,9 @@ Task("Test")
             var projects = GetFiles("./test/**/*.csproj");
             foreach(var project in projects)
             {
-                DotNetCoreTest(
+                DotNetTest(
                     project.FullPath,
-                    new DotNetCoreTestSettings()
+                    new DotNetTestSettings()
                 {
                     Configuration = configuration
                 });
@@ -213,9 +213,9 @@ Task("Publish")
     .IsDependentOn("Test")
     .Does(() =>
     {
-       DotNetCorePublish(
-           "./src/scalus.csproj",
-           new DotNetCorePublishSettings()
+       DotNetPublish(
+           "./src/OneIdentity.Scalus.csproj",
+           new DotNetPublishSettings()
        {
            Configuration = configuration,
            DiagnosticOutput = true,
@@ -223,7 +223,7 @@ Task("Publish")
            SelfContained = true,
            Runtime = runtime,
            PublishSingleFile = true,
-           MSBuildSettings = new DotNetCoreMSBuildSettings()
+           MSBuildSettings = new DotNetMSBuildSettings()
 	   {
 	   }
        });
@@ -243,9 +243,9 @@ Task("OsxInstall")
 	    			Recursive = true,
 	    			Force = true
 			});
-		
+
 		}
-		CreateDirectory(exdir); 
+		CreateDirectory(exdir);
 		CopyDirectory("scripts/examples", exdir);
 
 		CopyFile("./scripts/readme.txt", exdir + "/readme.txt");
@@ -261,7 +261,7 @@ Task("OsxInstall")
 		var targetdir = scalusappdir + "/Contents/MacOS";
 		if (!DirectoryExists(scalusappdir))
 		{
-			CreateDirectory(scalusappdir); 
+			CreateDirectory(scalusappdir);
 		}
 		CopyDirectory("scripts/Osx/scalus.app", scalusappdir);
 
@@ -289,7 +289,7 @@ Task("LinuxInstall")
 	{
 		if (!DirectoryExists(outputdir))
 		{
-			CreateDirectory(outputdir); 
+			CreateDirectory(outputdir);
 		}
 	        var examples = publishdir + "/examples";
 	        CopyDirectory("scripts/examples", examples);
@@ -309,7 +309,7 @@ Task("LinuxInstall")
 			Information( "Building " + runtime + " zipfile: " + zipfile);
 		}
 		GZipCompress(publishdir, zipfile);
-	}); 
+	});
 
 
 
@@ -348,5 +348,5 @@ Task("SignMsi")
     	});
 
 
-Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "..."); 
+Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "...");
 RunTarget(target);
