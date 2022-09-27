@@ -129,7 +129,6 @@ if ($LASTEXITCODE -ne 0) {
 # Set it back so that DevOps doesn't get messed up
 [System.Net.ServicePointManager]::SecurityProtocol = $previousSecurityProtocol
 
-
 $scpt="${PSScriptRoot}/${Script}"
 
 # Build Cake arguments
@@ -146,5 +145,6 @@ $cakeArguments += $ScriptArgs
 
 # Start Cake
 Write-Host "Running build script for SCALUS..."
+Write-Host "cake $cakeArguments"
 & (Join-Path $TOOLS_DIR dotnet-cake.exe) $cakeArguments
 exit $LASTEXITCODE
