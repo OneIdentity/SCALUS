@@ -50,12 +50,6 @@ namespace OneIdentity.Scalus
                     scalusConfig = Load(configFile);
                 }
 
-#if COMMUNITY_EDITION
-                scalusConfig.Edition = Edition.Community;
-#else
-                scalusConfig.Edition = Edition.Supported;
-#endif
-
                 return scalusConfig;
             }
 
@@ -65,9 +59,19 @@ namespace OneIdentity.Scalus
             }
         }
 
-        public ScalusConfig GetConfiguration()
+        public ScalusServerConfig GetConfiguration()
         {
-            return Config;
+            var serverConfig = new ScalusServerConfig
+            {
+                Applications = Config.Applications,
+                Protocols = Config.Protocols,
+                Edition = Edition.Supported,
+            };
+
+#if COMMUNITY_EDITION
+            serverConfig.Edition = Edition.Community;
+#endif
+            return serverConfig;
         }
 
         public (bool, ScalusConfig) Validate(string json, bool strict = false)
