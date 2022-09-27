@@ -112,15 +112,15 @@ export class ScalusApplicationsComponent implements OnInit {
     app.description = ac.description;
     var platforms = new Array();
     ac.platforms?.forEach(p =>{
-      if (p === 0)
+      if (Platform[p] === Platform.Windows)
       {
         platforms.push(Platform[Platform.Windows]);
       }
-      else if (p === 1)
+      else if (Platform[p] === Platform.Linux)
       {
         platforms.push(Platform[Platform.Linux]);
       }
-      else if (p=== 2)
+      else if (Platform[p] === Platform.Mac)
       {
         platforms.push(Platform[Platform.Mac]);
       }
