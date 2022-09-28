@@ -48,7 +48,7 @@ SCALUS can be downloaded from the [releases area](https://github.com/OneIdentity
 
 ## Configure
 
-To configure SCALUS run the application with no arguments. The configuration UI will launch in your browser.
+To configure SCALUS run the application with no arguments. The configuration UI will launch in your browser. Check out the [SCALUS Wiki](https://github.com/OneIdentity/SCALUS/wiki) for more configuration details.
 
 # Contributing to SCALUS
 
