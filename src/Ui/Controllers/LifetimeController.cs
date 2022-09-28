@@ -23,6 +23,7 @@ namespace OneIdentity.Scalus.Ui.Web.Controllers
 {
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -50,6 +51,12 @@ namespace OneIdentity.Scalus.Ui.Web.Controllers
         public void Post()
         {
             Serilog.Log.Debug("Server shutdown requested.");
+            if (Util.ConfigurationManager.IgnoreShutdown)
+            {
+                Serilog.Log.Warning("Server shutdown ignored due to appsettings.json configuration.");
+                return;
+            }
+
             WebServer.Shutdown();
         }
     }

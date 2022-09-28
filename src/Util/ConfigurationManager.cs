@@ -70,6 +70,25 @@ namespace OneIdentity.Scalus.Util
             }
         }
 
+        public static bool IgnoreShutdown
+        {
+            get
+            {
+                var value = appSetting.GetSection("Lifetime:IgnoreShutdown");
+                if (value == null)
+                {
+                    return false;
+                }
+
+                if (!bool.TryParse(value.Value, out bool result))
+                {
+                    return false;
+                }
+
+                return result;
+            }
+        }
+
         public static string ExamplePath
         {
             get
