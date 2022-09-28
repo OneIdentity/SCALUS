@@ -70,7 +70,11 @@ namespace OneIdentity.Scalus
                 builder.RegisterType<UnsupportedPlatformRegistrar>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
             }
 
+#if WPF
+            builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
+#else
             builder.RegisterType<UserInteraction>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
+#endif
             builder.RegisterType<OsServicesBase>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
         }
 

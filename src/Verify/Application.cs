@@ -29,15 +29,18 @@ namespace OneIdentity.Scalus.Verify
 
     internal class Application : IApplication
     {
-        public Application(Options options, IScalusConfiguration config)
+        public Application(Options options, IScalusConfiguration config, IUserInteraction userInteraction)
         {
             Options = options;
             Configuration = config;
+            UserInteraction = userInteraction;
         }
 
         private Options Options { get; }
 
         private IScalusConfiguration Configuration { get; }
+
+        private IUserInteraction UserInteraction { get; }
 
         public int Run()
         {
@@ -58,7 +61,7 @@ namespace OneIdentity.Scalus.Verify
                 Errors = Configuration.ValidationErrors,
             };
             var json = JsonConvert.SerializeObject(result, Formatting.Indented);
-            Console.WriteLine(json);
+            UserInteraction.Message(json);
         }
     }
 }

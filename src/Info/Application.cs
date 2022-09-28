@@ -32,14 +32,13 @@ namespace OneIdentity.Scalus.Info
 
     internal class Application : IApplication
     {
-        private readonly IOsServices osServices;
-
-        public Application(Options options, IRegistration registration, IScalusConfiguration config, IOsServices osServices)
+        public Application(Options options, IRegistration registration, IScalusConfiguration config, IOsServices osServices, IUserInteraction userInteraction)
         {
             Options = options;
             Registration = registration;
             Configuration = config;
-            this.osServices = osServices;
+            OsServices = osServices;
+            UserInteraction = userInteraction;
         }
 
         private Options Options { get; }
@@ -47,6 +46,10 @@ namespace OneIdentity.Scalus.Info
         private IRegistration Registration { get; }
 
         private IScalusConfiguration Configuration { get; }
+
+        private IOsServices OsServices { get; }
+
+        private IUserInteraction UserInteraction { get; }
 
         public int Run()
         {
@@ -100,7 +103,7 @@ namespace OneIdentity.Scalus.Info
 
         private void ShowConfig()
         {
-            Console.WriteLine(@"
+            UserInteraction.Message(@"
  * SCALUS CONFIGURATION:
    --------------------
    The 'scalus.json' configuration file describes the supported protocols and the applications 
@@ -109,24 +112,24 @@ namespace OneIdentity.Scalus.Info
 ");
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Console.WriteLine($"   - Application Path     : {MacOsExtensions.GetAppPath(osServices)}");
+                UserInteraction.Message($"   - Application Path     : {MacOsExtensions.GetAppPath(OsServices)}");
             }
 
-            Console.WriteLine($"   - Configuration file   : {ConfigurationManager.ScalusJson}");
-            Console.WriteLine($"   - Logfile              : {ConfigurationManager.LogFile}");
-            Console.WriteLine();
-            Console.WriteLine($"   For detailed information about the scalus configuration file, run info -d");
-            Console.WriteLine($"   For detailed information about the tokens that can be used in scalus.json, run info -t");
+            UserInteraction.Message($"   - Configuration file   : {ConfigurationManager.ScalusJson}");
+            UserInteraction.Message($"   - Logfile              : {ConfigurationManager.LogFile}");
+            UserInteraction.Message(string.Empty);
+            UserInteraction.Message($"   For detailed information about the scalus configuration file, run info -d");
+            UserInteraction.Message($"   For detailed information about the tokens that can be used in scalus.json, run info -t");
 
             var config = Configuration.GetConfiguration();
 
-            Console.WriteLine(@"
+            UserInteraction.Message(@"
 
    - Protocols currently configured for scalus:
      -----------------------------------------
 ");
-            Console.WriteLine("     {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Configured Command");
-            Console.WriteLine("     ------------------------------------------------------------------------------------------------");
+            UserInteraction.Message(string.Format("     {0,-10} {1,-10} {2,-20} {3}", "Protocol", "Registered", "Description", "Configured Command"));
+            UserInteraction.Message("     ------------------------------------------------------------------------------------------------");
             if (config == null || config.Protocols == null || config.Protocols.Count == 0)
             {
                 return;
@@ -139,7 +142,7 @@ namespace OneIdentity.Scalus.Info
                     continue;
                 }
 
-                Console.Write("     {0,-10} ", one.Protocol);
+                UserInteraction.Message(string.Format("     {0,-10} ", one.Protocol));
                 ApplicationConfig appConfig = null;
                 if (config.Applications?.Count > 0)
                 {
@@ -154,26 +157,26 @@ namespace OneIdentity.Scalus.Info
 
                 if (appConfig != null)
                 {
-                    Console.Write(
+                    UserInteraction.Message(string.Format(
                         "{0,-10} {1,-20} ({2} {3})",
                         Registration.IsRegistered(one.Protocol) ? "yes" : "no",
                         appConfig.Description,
                         appConfig.Exec,
-                        string.Join(' ', appConfig.Args));
+                        string.Join(' ', appConfig.Args)));
                 }
                 else
                 {
-                    Console.Write(
+                    UserInteraction.Message(string.Format(
                         "{0,-10} {1,-20}",
                         Registration.IsRegistered(one.Protocol) ? "yes" : "no",
-                        "Not configured");
+                        "Not configured"));
                 }
 
                 Console.WriteLine();
             }
         }
 
-        private static void ShowDto()
+        private void ShowDto()
         {
             var example = new ScalusConfig()
             {
@@ -206,27 +209,27 @@ namespace OneIdentity.Scalus.Info
                 },
             };
 
-            Console.WriteLine(@"
+            UserInteraction.Message(@"
 
  * Example SCALUS configuration:
    ----------------------------
 
 ");
-            Console.WriteLine(JsonConvert.SerializeObject(example, Formatting.Indented));
-            Console.WriteLine(@"
+            UserInteraction.Message(JsonConvert.SerializeObject(example, Formatting.Indented));
+            UserInteraction.Message(@"
 
  * DTO Properties :
    --------------
 ");
             foreach (var one in ScalusConfig.DtoPropertyDescription)
             {
-                Console.WriteLine($"    - {one.Key} : {one.Value}");
+                UserInteraction.Message($"    - {one.Key} : {one.Value}");
             }
         }
 
-        private static void ShowTokens()
+        private void ShowTokens()
         {
-            Console.WriteLine(@"
+            UserInteraction.Message(@"
  - SCALUS Tokens:
    -------------
    The following tokens can be used in the scalus configuration file. 
@@ -236,10 +239,11 @@ namespace OneIdentity.Scalus.Info
             tokenList.Sort();
             foreach (var one in tokenList)
             {
-                Console.WriteLine(
+                UserInteraction.Message(
+                    string.Format(
                     "   - {0,-10} : {1}",
                     "%" + one + "%",
-                    ParserConfigDefinitions.TokenDescription[Enum.Parse<ParserConfigDefinitions.Token>(one, true)]);
+                    ParserConfigDefinitions.TokenDescription[Enum.Parse<ParserConfigDefinitions.Token>(one, true)]));
             }
         }
     }

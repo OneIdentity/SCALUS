@@ -30,12 +30,15 @@ namespace OneIdentity.Scalus
 
     internal class CommandLineHandler : ICommandLineParser
     {
-        public CommandLineHandler(IEnumerable<IVerb> verbs)
+        public CommandLineHandler(IEnumerable<IVerb> verbs, IUserInteraction userInteraction)
         {
             Verbs = verbs;
+            UserInteraction = userInteraction;
         }
 
         private IEnumerable<IVerb> Verbs { get; }
+
+        private IUserInteraction UserInteraction { get; }
 
         public IApplication Build(string[] args, Func<object, IApplication> appResolver)
         {
@@ -58,7 +61,7 @@ namespace OneIdentity.Scalus
             }
         }
 
-        private static void HandleErrors<T>(ParserResult<T> parserResult, IEnumerable<Error> errs)
+        private void HandleErrors<T>(ParserResult<T> parserResult, IEnumerable<Error> errs)
         {
             var header = "Session Client Application Launch Uri System (SCALUS)";
             var copyright = "Copyright (c) 2021 One Identity LLC";
@@ -66,7 +69,7 @@ namespace OneIdentity.Scalus
             // Handle version
             if (errs.IsVersion())
             {
-                Console.WriteLine($"{header}\r\n{copyright}\r\nVersion: {Assembly.GetEntryAssembly()?.GetName()?.Version}\r\n");
+                UserInteraction.Message($"{header}\r\n{copyright}\r\nVersion: {Assembly.GetEntryAssembly()?.GetName()?.Version}\r\n");
                 return;
             }
 
@@ -74,7 +77,7 @@ namespace OneIdentity.Scalus
             if (errs.IsHelp())
             {
                 string command = parserResult.TypeInfo.Current?.GetCustomAttribute<VerbAttribute>()?.Name;
-                Console.WriteLine(HelpText.AutoBuild(
+                UserInteraction.Message(HelpText.AutoBuild(
                     parserResult,
                     h =>
                     {
