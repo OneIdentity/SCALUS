@@ -15,6 +15,14 @@ ScriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ToolsDir="$ScriptDir/tools"
 Script="$ScriptDir/build.cake"
 
+if [[ $OSTYPE == 'darwin'* ]]; then
+    >&2 echo "Running on macOS!"
+    Runtime="osx-x64"
+else
+    >&2 echo "Running on Linux!"
+    Runtime="linux-x64"
+fi
+
 if [ -z "$(which dotnet)" ]; then
     >&2 echo "You must install dotnet to use this build script -- https://dotnet.microsoft.com/en-us/download"
     exit 1
@@ -40,7 +48,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ## Build Cake arguments
-CakeArguments=$Script
+CakeArguments="$Script --runtime=$Runtime"
 if [ ! -z "$Target" ]; then CakeArguments="$CakeArguments --target=$Target"; fi
 if [ ! -z "$Configuration" ]; then CakeArguments="$CakeArguments --configuration=$Configuration"; fi
 if [ ! -z "$Version" ]; then CakeArguments="$CakeArguments --version=$Version"; fi
