@@ -1,10 +1,10 @@
-#addin "Cake.Powershell&version=1.0.1"
-#tool "nuget:?package=xunit.runner.console&version=2.4.1"
+#addin "Cake.Powershell&version=2.0.0"
+#tool "nuget:?package=xunit.runner.console&version=2.4.2"
 #tool "nuget:?package=WiX&version=3.11.2"
-#addin nuget:?package=SharpZipLib&version=1.3.2   
-#addin nuget:?package=Cake.Compression&version=0.2.6
-#addin nuget:?package=Cake.FileHelpers&version=4.0.1
-#addin nuget:?package=Cake.Incubator&version=6.0.0
+#addin nuget:?package=SharpZipLib&version=1.4.0
+#addin nuget:?package=Cake.Compression&version=0.3.0
+#addin nuget:?package=Cake.FileHelpers&version=5.0.0
+#addin nuget:?package=Cake.Incubator&version=7.0.0
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -32,26 +32,29 @@ var signTool        = ToolPath + "/SignTool.exe";
 var canSign = false;
 if (SignFiles)
 {
-	if ((ToolPath == "") || (CertPath == "") || (CertPass == ""))
-	{
-		Information("Code sign not selected");
-	}
-	else {
-		if ((!DirectoryExists(ToolPath)) || (!FileExists(CertPath))) 
-		{
-			if (!DirectoryExists(ToolPath))
-			{
-				Information("Cannot sign code - invalid tool path: " + ToolPath);
-			}
-			if (!FileExists(CertPath))
-			{
-				Information("Cannot sign code - invalid cert path: " + CertPath);
-			}
-		} else {
-			canSign = true;
-			Information("Signing with " + ToolPath + ", cert:" + CertPath );
-		}
-	}
+    if ((ToolPath == "") || (CertPath == "") || (CertPass == ""))
+    {
+        Information("Code sign not selected");
+    }
+    else
+    {
+        if ((!DirectoryExists(ToolPath)) || (!FileExists(CertPath)))
+        {
+            if (!DirectoryExists(ToolPath))
+            {
+                Information("Cannot sign code - invalid tool path: " + ToolPath);
+            }
+            if (!FileExists(CertPath))
+            {
+                Information("Cannot sign code - invalid cert path: " + CertPath);
+            }
+        }
+        else
+        {
+            canSign = true;
+            Information("Signing with " + ToolPath + ", cert:" + CertPath );
+        }
+    }
 }
 var baseDir = Context.Environment.WorkingDirectory;
 var solution = "scalus.sln";
@@ -78,7 +81,7 @@ if (isWindows)
 Task("Restore")
     .Does(() =>
     {
-        DotNetCoreRestore();
+        DotNetRestore();
     });
 
 
@@ -87,86 +90,86 @@ Task("WindowsInstall")
     .IsDependentOn("SignPath")
     .IsDependentOn("MsiInstaller")
     .IsDependentOn("SignMsi")
-    .WithCriteria(isWindows)
-	;
+    .WithCriteria(isWindows);
 
 
 Task("MsiInstaller")
     .WithCriteria(isWindows)
     .Does(() =>
     {
-	if (!DirectoryExists(outputdir))
-	{
-		CreateDirectory(outputdir); 
-	}
-	var tmpdir = outputdir + "/tmp";
-	if (!DirectoryExists(tmpdir))
-	{
-		CreateDirectory(tmpdir); 
-	}
+        if (!DirectoryExists(outputdir))
+        {
+            CreateDirectory(outputdir);
+        }
+        var tmpdir = outputdir + "/tmp";
+        if (!DirectoryExists(tmpdir))
+        {
+            CreateDirectory(tmpdir);
+        }
 
-	var sourcedir = publishdir;
-	fileToSign = msiPath;
+        var sourcedir = publishdir;
+        fileToSign = msiPath;
 
-	var examples = tmpdir + "/examples";
-	CopyDirectory("scripts/examples", examples);
-	CopyFile("scripts/Win/scalus.json", examples + "/scalus.json");
-	CopyFile("scripts/Win/Product.wxs", tmpdir + "/Product.wxs");
+        var examples = tmpdir + "/examples";
+        CopyDirectory("scripts/examples", examples);
+        CopyFile("scripts/Win/scalus.json", examples + "/scalus.json");
+        CopyFile("scripts/Win/Product.wxs", tmpdir + "/Product.wxs");
 
-	var readme = tmpdir + "/readme.txt";
-	CopyFile("./scripts/readme.txt", readme);
-	ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
+        var readme = tmpdir + "/readme.txt";
+        CopyFile("./scripts/readme.txt", readme);
+        ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
 
-	var license = tmpdir + "/license.rtf";
-	CopyFile("./scripts/license.rtf", license);
+        var license = tmpdir + "/license.rtf";
+        CopyFile("./scripts/license.rtf", license);
 
 
         var wxsFiles = GetFiles(tmpdir + "/*.wxs");
-	var arch = Architecture.X86;
-	var Minimum_Version = "100";
-	var Program_Files = "ProgramFilesFolder";
-	if (is64)
-	{
-	    arch=Architecture.X64;
-	    Minimum_Version = "200";
-	    Program_Files = "ProgramFiles64Folder";
-	}
-	WiXCandle(wxsFiles, new CandleSettings
-	{
-		Architecture = arch,
-		WorkingDirectory = tmpdir,
-		OutputDirectory = tmpdir,
-		Verbose=true,
-		Defines = new Dictionary<string,string>
-		{
-			{ "sourcedir", sourcedir },
-			{ "tmpdir", tmpdir },
-			{ "Configuration", configuration },
-			{ "Version", Version },
-			{ "Minimum_Version", Minimum_Version },
-			{ "Program_Files", Program_Files }
-    		}
-    	});
+        var arch = Architecture.X86;
+        var Minimum_Version = "100";
+        var Program_Files = "ProgramFilesFolder";
+        if (is64)
+        {
+            arch=Architecture.X64;
+            Minimum_Version = "200";
+            Program_Files = "ProgramFiles64Folder";
+        }
+        WiXCandle(wxsFiles, new CandleSettings
+        {
+            Architecture = arch,
+            WorkingDirectory = tmpdir,
+            OutputDirectory = tmpdir,
+            Verbose=true,
+            Defines = new Dictionary<string,string>
+            {
+                { "sourcedir", sourcedir },
+                { "tmpdir", tmpdir },
+                { "Configuration", configuration },
+                { "Version", Version },
+                { "Minimum_Version", Minimum_Version },
+                { "Program_Files", Program_Files }
+            }
+        });
 
-	var wobjFiles = GetFiles(tmpdir + "/*.wixobj");
-	WiXLight(wobjFiles, new LightSettings
-	{
-		Extensions = new[] { "WixUIExtension", "WixUtilExtension" },
-		OutputFile = msiPath
-	});
-	if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
-	{
-    		BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " msiPath: " + msiPath);
-	}
-	else
-	{
-		Information( "Building locally " + runtime + " msiPath: " + msiPath);
-	}
+        var wobjFiles = GetFiles(tmpdir + "/*.wixobj");
+        WiXLight(wobjFiles, new LightSettings
+        {
+            Extensions = new[] { "WixUIExtension", "WixUtilExtension" },
+            OutputFile = msiPath
+        });
 
-	DeleteDirectory(tmpdir, new DeleteDirectorySettings {
-	    Recursive = true,
-	    Force = true
-	});
+        if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
+        {
+            BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " msiPath: " + msiPath);
+        }
+        else
+        {
+            Information( "Building locally " + runtime + " msiPath: " + msiPath);
+        }
+
+        DeleteDirectory(tmpdir, new DeleteDirectorySettings {
+            Recursive = true,
+            Force = true
+        });
     });
 
 
@@ -174,179 +177,169 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-       DotNetCoreBuild(solution,
-           new DotNetCoreBuildSettings()
-	{
-	Configuration = configuration,
-        OutputDirectory = builddir
-	});
+       DotNetBuild(solution,
+            new DotNetBuildSettings()
+            {
+                Configuration = configuration,
+                OutputDirectory = builddir
+            });
     });
 
 
 Task("Clean")
     .Does(() =>
     {
-    CleanDirectory(bindir);
-    CleanDirectory(testdir);
-    CleanDirectory(publishdir);
+        CleanDirectory(bindir);
+        CleanDirectory(testdir);
+        CleanDirectory(publishdir);
     });
 
 
 Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
+    {
+        var projects = GetFiles("./test/**/*.csproj");
+        foreach(var project in projects)
         {
-            var projects = GetFiles("./test/**/*.csproj");
-            foreach(var project in projects)
+            DotNetTest(
+                project.FullPath,
+                new DotNetTestSettings()
             {
-                DotNetCoreTest(
-                    project.FullPath,
-                    new DotNetCoreTestSettings()
-                {
-                    Configuration = configuration
-                });
-            }
-        });
+                Configuration = configuration
+            });
+        }
+    });
 
 
 Task("Publish")
     .IsDependentOn("Test")
     .Does(() =>
     {
-       DotNetCorePublish(
-           "./src/scalus.csproj",
-           new DotNetCorePublishSettings()
-       {
-           Configuration = configuration,
-           DiagnosticOutput = true,
-           OutputDirectory = publishdir,
-           SelfContained = true,
-           Runtime = runtime,
-           PublishSingleFile = true,
-           MSBuildSettings = new DotNetCoreMSBuildSettings()
-	   {
-	   }
-       });
+       DotNetPublish(
+            "./src/OneIdentity.Scalus.csproj",
+            new DotNetPublishSettings()
+            {
+                Configuration = configuration,
+                DiagnosticOutput = true,
+                OutputDirectory = publishdir,
+                SelfContained = true,
+                Runtime = runtime,
+                PublishSingleFile = true,
+                MSBuildSettings = new DotNetMSBuildSettings() {}
+            });
     });
 
 Task("OsxInstall")
-    	.IsDependentOn("Publish")
-	.WithCriteria(isOsx)
-	.Does(() =>
-	{
+    .IsDependentOn("Publish")
+    .WithCriteria(isOsx)
+    .Does(() =>
+    {
+        var  exdir = publishdir + "/examples";
 
-		var  exdir = publishdir + "/examples";
+        if (DirectoryExists(exdir))
+        {
+            DeleteDirectory(exdir, new DeleteDirectorySettings {
+                Recursive = true,
+                Force = true
+            });
+        }
 
-		if (DirectoryExists(exdir))
-		{
-			DeleteDirectory(exdir, new DeleteDirectorySettings {
-	    			Recursive = true,
-	    			Force = true
-			});
-		
-		}
-		CreateDirectory(exdir); 
-		CopyDirectory("scripts/examples", exdir);
+        CreateDirectory(exdir);
+        CopyDirectory("scripts/examples", exdir);
 
-		CopyFile("./scripts/readme.txt", exdir + "/readme.txt");
-		ReplaceTextInFiles(exdir + "/readme.txt", "SCALUSVERSION", Version);
+        CopyFile("./scripts/readme.txt", exdir + "/readme.txt");
+        ReplaceTextInFiles(exdir + "/readme.txt", "SCALUSVERSION", Version);
 
+        CopyFile(publishdir + "/appsettings.json", exdir + "/appsettings.json");
+        CopyFile(publishdir + "/web.config", exdir + "/web.config");
 
-		CopyFile(publishdir + "/appsettings.json", exdir + "/appsettings.json");
-		CopyFile(publishdir + "/web.config", exdir + "/web.config");
+        var tmpdir = outputdir + "/tmp";
+        var scalusappdir = tmpdir + "/scalus.app";
+        var targetdir = scalusappdir + "/Contents/MacOS";
 
+        if (!DirectoryExists(scalusappdir))
+        {
+            CreateDirectory(scalusappdir);
+        }
+        CopyDirectory("scripts/Osx/scalus.app", scalusappdir);
 
-		var tmpdir = outputdir + "/tmp";
-		var scalusappdir = tmpdir + "/scalus.app";
-		var targetdir = scalusappdir + "/Contents/MacOS";
-		if (!DirectoryExists(scalusappdir))
-		{
-			CreateDirectory(scalusappdir); 
-		}
-		CopyDirectory("scripts/Osx/scalus.app", scalusappdir);
+        CopyFile("scripts/Osx/scalus.json", exdir + "/scalus.json");
+        CopyFile(publishdir + "/scalus", targetdir + "/scalus");
 
-		CopyFile("scripts/Osx/scalus.json", exdir + "/scalus.json");
-		CopyFile(publishdir + "/scalus", targetdir + "/scalus");
-
-
-
-
-		var resourceDir = scalusappdir + "/Contents/Resources/examples";
-		CopyDirectory(exdir, resourceDir);
-		var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
-		Information( "Building " + runtime + " zipfile: " + zipfile);
-		GZipCompress(tmpdir, zipfile);
-		DeleteDirectory(tmpdir, new DeleteDirectorySettings {
-	    		Recursive = true,
-	    		Force = true
-		});
-	});
+        var resourceDir = scalusappdir + "/Contents/Resources/examples";
+        CopyDirectory(exdir, resourceDir);
+        var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
+        Information( "Building " + runtime + " zipfile: " + zipfile);
+        GZipCompress(tmpdir, zipfile);
+        DeleteDirectory(tmpdir, new DeleteDirectorySettings {
+            Recursive = true,
+            Force = true
+        });
+    });
 
 Task("LinuxInstall")
-    	.IsDependentOn("Publish")
-	.WithCriteria(isLinux)
-	.Does(() =>
-	{
-		if (!DirectoryExists(outputdir))
-		{
-			CreateDirectory(outputdir); 
-		}
-	        var examples = publishdir + "/examples";
-	        CopyDirectory("scripts/examples", examples);
+    .IsDependentOn("Publish")
+    .WithCriteria(isLinux)
+    .Does(() =>
+    {
+        if (!DirectoryExists(outputdir))
+        {
+            CreateDirectory(outputdir);
+        }
+        var examples = publishdir + "/examples";
+        CopyDirectory("scripts/examples", examples);
 
-		var readme = publishdir + "/readme.txt";
-		CopyFile("./scripts/readme.txt", readme);
-		ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
-		CopyDirectory("scripts/Linux", publishdir);
+        var readme = publishdir + "/readme.txt";
+        CopyFile("./scripts/readme.txt", readme);
+        ReplaceTextInFiles(readme, "SCALUSVERSION", Version);
+        CopyDirectory("scripts/Linux", publishdir);
 
-		var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
-		if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
-		{
-    			BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);
-		}
-		else
-		{
-			Information( "Building " + runtime + " zipfile: " + zipfile);
-		}
-		GZipCompress(publishdir, zipfile);
-	}); 
+        var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
+        if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
+        {
+                BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);
+        }
+        else
+        {
+            Information( "Building " + runtime + " zipfile: " + zipfile);
+        }
 
-
+        GZipCompress(publishdir, zipfile);
+    });
 
 Task("Default")
     .IsDependentOn("LinuxInstall")
     .IsDependentOn("OsxInstall")
-    .IsDependentOn("WindowsInstall")
-	;
+    .IsDependentOn("WindowsInstall");
 
 Task("SignPath")
     .WithCriteria(canSign)
-	.Does(() =>
-	{
- 		Information("Signing " + scalusExe);
- 		Sign( new string[] { scalusExe },
-    			new SignToolSignSettings {
-            		ToolPath = signTool,
-            		CertPath = CertPath,
-            		Password = CertPass,
-                        DigestAlgorithm = SignToolDigestAlgorithm.Sha256
-    		});
-    	});
+    .Does(() =>
+    {
+         Information("Signing " + scalusExe);
+         Sign(new string[] { scalusExe },
+                new SignToolSignSettings {
+                    ToolPath = signTool,
+                    CertPath = CertPath,
+                    Password = CertPass,
+                    DigestAlgorithm = SignToolDigestAlgorithm.Sha256
+            });
+        });
 
 Task("SignMsi")
     .WithCriteria(canSign)
-	.Does(() =>
-	{
- 		Information("Signing " + msiPath);
- 		Sign( new string[] { msiPath },
-    			new SignToolSignSettings {
-            		ToolPath = signTool,
-            		CertPath = CertPath,
-            		Password = CertPass,
-                        DigestAlgorithm = SignToolDigestAlgorithm.Sha256
-    		});
-    	});
+    .Does(() =>
+    {
+         Information("Signing " + msiPath);
+         Sign(new string[] { msiPath },
+                new SignToolSignSettings {
+                    ToolPath = signTool,
+                    CertPath = CertPath,
+                    Password = CertPass,
+                    DigestAlgorithm = SignToolDigestAlgorithm.Sha256
+            });
+        });
 
-
-Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "..."); 
+Information("Building " + target + "(" + configuration + ")  for runtime:" + runtime  + "...");
 RunTarget(target);

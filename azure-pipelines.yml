@@ -41,6 +41,11 @@ jobs:
 
   - task: VSTest@2
     inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: |
+        **\*.Test.dll
+        !**\*TestAdapter.dll
+        !**\obj\**
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
@@ -94,7 +99,7 @@ jobs:
       target: 'Default'
       verbosity: 'Verbose'
       arguments: '--runtime=linux-x64 --Version=$(version)'
-  
+
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Pipeline.Workspace)/s/Output/Release/linux-x64'
@@ -112,11 +117,11 @@ jobs:
       target: 'Default'
       verbosity: 'Verbose'
       arguments: '--runtime=osx-x64 --Version=$(version)'
-  
+
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
-      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64' 
+      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64'
 
   - task: PublishPipelineArtifact@1
     inputs:
