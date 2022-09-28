@@ -12,6 +12,7 @@
 
 var target          = Argument<string>("target", "Default");
 var configuration   = Argument<string>("Configuration", "Release");
+var edition         = Argument<string>("Edition", "community");
 var Version         = Argument<string>("Version", "1.0.0");
 var runtime         = Argument<string>("Runtime", "win-x64");
 var GitRevision     = Argument<string>("GitRevision", "0000000000000000000000000000000000000000");
@@ -181,7 +182,9 @@ Task("Build")
             new DotNetBuildSettings()
             {
                 Configuration = configuration,
-                OutputDirectory = builddir
+                OutputDirectory = builddir,
+                MSBuildSettings = new DotNetMSBuildSettings()
+                    .WithProperty("Edition", edition)
             });
     });
 

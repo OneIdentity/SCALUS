@@ -18,6 +18,8 @@ The build script to execute.
 The build script target to run.
 .PARAMETER Configuration
 The build configuration to use.
+.PARAMETER Edition
+The build edition to use.
 .PARAMETER Verbosity
 Specifies the amount of information to be displayed.
 .PARAMETER ShowDescription
@@ -41,6 +43,8 @@ Param(
     [string]$Target,
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Release",
+    [ValidateSet("community", "safeguard")]
+    [string]$Edition = "community",
     [string]$Version,
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
     [string]$Verbosity,
@@ -115,11 +119,11 @@ if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
 }
 
 Write-Host "Installing Cake.Tool..."
-if (dotnet tool list --tool-path tools | Select-String cake.tools) {
-    Invoke-Expression "dotnet tool install Cake.Tool --version 2.2.0 --tool-path $TOOLS_DIR"
+if (dotnet tool list --tool-path tools | Select-String cake.tool) {
+    Write-Host "Cake.Tool already installed"
 }
 else {
-    Write-Host "Cake.Tool already installed"
+    Invoke-Expression "dotnet tool install Cake.Tool --version 2.2.0 --tool-path $TOOLS_DIR"
 }
 
 if ($LASTEXITCODE -ne 0) {
@@ -135,6 +139,7 @@ $scpt="${PSScriptRoot}/${Script}"
 $cakeArguments = @("$scpt");
 if ($Target) { $cakeArguments += "--target=$Target" }
 if ($Configuration) { $cakeArguments += "--configuration=$Configuration" }
+if ($Edition) { $cakeArguments += "--edition=$Edition" }
 if ($Version) { $cakeArguments += "--version=$Version" }
 if ($Verbosity) { $cakeArguments += "--verbosity=$Verbosity" }
 if ($ShowDescription) { $cakeArguments += "--showdescription" }
