@@ -14,9 +14,29 @@ SCALUS consists of 3 major components:
 
 ### Build
 
-Use the dotnet CLI to build SCALUS:
+* Using Visual Studio
 
-dotnet build
+    Open the scalus.sln in Visual Studio and build.
+
+* Using dotnet CLI
+
+    Make sure you have nuget.org configured as a package source:
+
+    ```
+    dotnet nuget list source
+    ```
+
+    If not, add it:
+    
+    ```
+    dotnet nuget add source -n Nuget.Org https://api.nuget.org/v3/index.json
+    ```
+
+    Use the dotnet CLI to build SCALUS:
+
+    ```
+    dotnet build
+    ```
 
 The following build parameters can be set to customize the build output:
 
@@ -27,6 +47,11 @@ The following build parameters can be set to customize the build output:
 * /p:NativeWindowing=&lt;true | false&gt;
 
     Determines whether or not to use native Windowing features. This is currently only supported for Windows platforms. With NativeWindowing enabled SCALUS shows a splash screen on startup and does not display a console Window when invoked to handle a URL.
+
+Example:
+```
+dotnet build /p:Edition=community /p:NativeWindowing=true
+```
 
 ### Configuration
 
