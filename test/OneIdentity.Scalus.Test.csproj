@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <NativeWindowing>false</NativeWindowing>
+    <NativeWindowing>true</NativeWindowing>
     <Edition>community</Edition>
   </PropertyGroup>
 
