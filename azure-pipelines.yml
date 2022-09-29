@@ -11,6 +11,8 @@ parameters:
     - community
     - supported
 
+name: $(Date:yyyyMMdd).$(Rev:r)_${{ parameters.edition }}
+
 variables:
   version: '1.0.0.$(Revision)'
   solution: '**/*.sln'
