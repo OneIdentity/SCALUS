@@ -26,6 +26,7 @@
     <PackageProjectUrl>https://github.com/OneIdentity/SCALUS</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
     <ApplicationIcon>scalus.ico</ApplicationIcon>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(NativeWindowing)'=='true'">
@@ -46,6 +47,7 @@
     <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>scalus.ico</ApplicationIcon>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Edition)'=='community'">
