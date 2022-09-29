@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <NativeWindowing>true</NativeWindowing>
+    <NativeWindowing>false</NativeWindowing>
     <Edition>community</Edition>
   </PropertyGroup>
 
@@ -12,7 +12,7 @@
     <DelaySign>false</DelaySign>
     <OutputType>WinExe</OutputType>
     <RootNamespace>OneIdentity.Scalus.Test</RootNamespace>
-    <RuntimeIdentifiers>linux-x64;osx-x64;win-x64;win-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x64;osx-x64;win10-x64</RuntimeIdentifiers>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
@@ -24,7 +24,7 @@
     <DelaySign>false</DelaySign>
     <OutputType>WinExe</OutputType>
     <RootNamespace>OneIdentity.Scalus.Test</RootNamespace>
-    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
     <UseWPF>true</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>

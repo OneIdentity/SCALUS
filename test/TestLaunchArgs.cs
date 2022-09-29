@@ -402,7 +402,7 @@ namespace OneIdentity.Scalus.Test
             var root = Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName, "scripts");
             foreach (var dir in new string[] { "Win", "Linux", "Osx" })
             {
-                var path = Path.Combine(root, Path.Combine(dir, "scalus.json"));
+                var path = Path.Combine(root, Path.Combine(dir, "SCALUS.json"));
                 Assert.True(File.Exists(path));
                 var json = File.ReadAllText(path);
                 CheckJson(json, 0);

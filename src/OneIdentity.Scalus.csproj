@@ -5,7 +5,7 @@
   how SCALUS is built.
   -->
   <PropertyGroup>
-    <NativeWindowing>true</NativeWindowing>
+    <NativeWindowing>false</NativeWindowing>
     <Edition>community</Edition>
   </PropertyGroup>
   
@@ -18,7 +18,7 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-    <RuntimeIdentifiers>linux-x64;osx-x64;win-x64;win-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x64;osx-x64;win10-x64</RuntimeIdentifiers>
     <UserSecretsId>dc8f57ba-8a9d-40c4-bf34-a2ffba1ff687</UserSecretsId>
     <Company>One Identity LLC</Company>
     <Copyright>Copyright 2021 One Identity LLC</Copyright>
@@ -38,7 +38,7 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
     <UserSecretsId>dc8f57ba-8a9d-40c4-bf34-a2ffba1ff687</UserSecretsId>
     <Company>One Identity LLC</Company>
     <Copyright>Copyright 2021 One Identity LLC</Copyright>

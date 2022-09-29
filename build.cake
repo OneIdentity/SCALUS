@@ -186,7 +186,7 @@ Task("Build")
                 OutputDirectory = builddir,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)
-                    .WithProperty("NativeWindowing", isWindows)
+                    .WithProperty("NativeWindowing", isWindows ? "true" : "false")
             });
     });
 
