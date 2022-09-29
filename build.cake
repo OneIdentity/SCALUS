@@ -6,6 +6,7 @@
 #addin nuget:?package=Cake.FileHelpers&version=5.0.0
 #addin nuget:?package=Cake.Incubator&version=7.0.0
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -113,7 +114,7 @@ Task("MsiInstaller")
 
         var examples = tmpdir + "/examples";
         CopyDirectory("scripts/examples", examples);
-        CopyFile("scripts/Win/scalus.json", examples + "/scalus.json");
+        CopyFile("scripts/Win/SCALUS.json", examples + "/SCALUS.json");
         CopyFile("scripts/Win/Product.wxs", tmpdir + "/Product.wxs");
 
         var readme = tmpdir + "/readme.txt";
@@ -256,7 +257,6 @@ Task("OsxInstall")
         ReplaceTextInFiles(exdir + "/readme.txt", "SCALUSVERSION", Version);
 
         CopyFile(publishdir + "/appsettings.json", exdir + "/appsettings.json");
-        CopyFile(publishdir + "/web.config", exdir + "/web.config");
 
         var tmpdir = outputdir + "/tmp";
         var scalusappdir = tmpdir + "/scalus.app";

@@ -79,7 +79,7 @@ namespace OneIdentity.Scalus.Launch
             }
             catch (Exception e)
             {
-                Serilog.Log.Error($"Failed to read config file:{scalusJsonPath}:{e.Message}");
+                OsServices.ShowMessage($"Failed to read config file:{scalusJsonPath}:{e.Message}");
             }
 
             var msg =

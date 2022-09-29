@@ -34,13 +34,12 @@ namespace OneIdentity.Scalus.Ui
 
     internal class Application : IApplication, IWebServer
     {
-        public Application(Options options, Serilog.ILogger logger, IUserInteraction userInteraction, IOsServices osServices, ILifetimeScope container)
+        public Application(Options options, Serilog.ILogger logger, IOsServices osServices, ILifetimeScope container)
         {
             Options = options;
             Logger = logger;
             WebPort = GetRandomFreePort();
             OsServices = osServices;
-            UserInteraction = userInteraction;
 
             // This is a hack, see the bottom of the file
             if (ExternalContainer != null)
@@ -61,15 +60,13 @@ namespace OneIdentity.Scalus.Ui
 
         private IHost GenericHost { get; set; }
 
-        private IUserInteraction UserInteraction { get; }
-
         private IOsServices OsServices { get; }
 
         private static ILifetimeScope ExternalContainer { get; set; }
 
         public int Run()
         {
-            UserInteraction.Message($"SCALUS is starting up...");
+            Console.WriteLine($"SCALUS is starting up...");
             using (GenericHost = CreateHost())
             {
                 var serverTask = GenericHost.RunAsync(CancellationTokenSource.Token).ContinueWith(x =>
@@ -78,7 +75,7 @@ namespace OneIdentity.Scalus.Ui
                     return x;
                 });
                 OsServices.OpenDefault($"http://localhost:{WebPort}/index.html");
-                UserInteraction.Message($"SCALUS is running at http://localhost:{WebPort}. Close the browser window to quit.");
+                Console.WriteLine($"SCALUS is running at http://localhost:{WebPort}. Close the browser window to quit.");
                 GenericHost.WaitForShutdown();
             }
 
@@ -87,7 +84,6 @@ namespace OneIdentity.Scalus.Ui
 
         public void Shutdown()
         {
-            UserInteraction.Dispose();
             GenericHost.StopAsync();
         }
 

@@ -34,6 +34,8 @@ namespace OneIdentity.Scalus.Util
         {
         }
 
+        protected override bool AutoClose { get => StartupCache.Count == 0; }
+
         private List<string> StartupCache { get; } = new List<string>();
 
         public void Error(string error)
@@ -52,6 +54,8 @@ namespace OneIdentity.Scalus.Util
             {
                 SetString(item);
             }
+
+            Window.Activate();
         }
 
         private void SetString(string message)
@@ -68,6 +72,7 @@ namespace OneIdentity.Scalus.Util
             }
             else
             {
+                StartWindowing();
                 StartupCache.Add(message);
             }
         }

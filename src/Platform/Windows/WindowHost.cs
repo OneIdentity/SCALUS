@@ -25,42 +25,26 @@ namespace OneIdentity.Scalus.Platform.Windows
     using System;
     using System.Threading;
     using System.Windows;
+    using Microsoft.AspNetCore.Components;
 
-    public class WindowHost<TWindow> : IDisposable
+    internal abstract class WindowHost<TWindow> : IDisposable
         where TWindow : Window,  new()
     {
+        private static object locker = new object();
+
         private bool disposedValue;
 
         public WindowHost()
         {
-            // create a thread
-            NewWindowThread = new Thread(new ThreadStart(() =>
-            {
-                // create and show the window
-                Window = new TWindow();
-                Window.Show();
-
-                // start the Dispatcher processing
-                IsRunning = true;
-                OnStarted();
-                System.Windows.Threading.Dispatcher.Run();
-            }));
-
-            // set the apartment state
-            NewWindowThread.SetApartmentState(ApartmentState.STA);
-
-            // make the thread a background thread
-            NewWindowThread.IsBackground = true;
-
-            // start the thread
-            NewWindowThread.Start();
         }
 
         public TWindow Window { get; set; }
 
         protected bool IsRunning { get; private set; }
 
-        private Thread NewWindowThread { get; }
+        protected abstract bool AutoClose { get; }
+
+        private Thread NewWindowThread { get; set; }
 
         private Action<TWindow> StartupCallback { get; set; }
 
@@ -91,14 +75,62 @@ namespace OneIdentity.Scalus.Platform.Windows
             {
                 if (disposing)
                 {
-                    var dispatcher = System.Windows.Threading.Dispatcher.FromThread(NewWindowThread);
-                    dispatcher?.Invoke(() => Window.Close());
+                    if (NewWindowThread == null)
+                    {
+                        return;
+                    }
 
-                    NewWindowThread.Join(TimeSpan.FromSeconds(2));
+                    var dispatcher = System.Windows.Threading.Dispatcher.FromThread(NewWindowThread);
+                    if (AutoClose)
+                    {
+                        dispatcher?.Invoke(() => Window.Close());
+                    }
+
+                    NewWindowThread.Join();
                 }
 
                 disposedValue = true;
             }
+        }
+
+        protected void StartWindowing()
+        {
+            lock (locker)
+            {
+                if (NewWindowThread != null)
+                {
+                    return;
+                }
+
+                // create a thread
+                NewWindowThread = new Thread(new ThreadStart(() =>
+                {
+                    // create and show the window
+                    Window = new TWindow();
+                    Window.Show();
+                    Window.Closed += Window_Closed;
+
+                    // start the Dispatcher processing
+                    IsRunning = true;
+                    OnStarted();
+                    System.Windows.Threading.Dispatcher.Run();
+                }));
+
+                // set the apartment state
+                NewWindowThread.SetApartmentState(ApartmentState.STA);
+
+                // make the thread a background thread
+                NewWindowThread.IsBackground = true;
+
+                // start the thread
+                NewWindowThread.Start();
+            }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            var dispatcher = System.Windows.Threading.Dispatcher.FromThread(NewWindowThread);
+            dispatcher.InvokeShutdown();
         }
     }
 }
