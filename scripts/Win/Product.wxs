@@ -2,9 +2,12 @@
 <?define ProductUpgradeCode="71bf8eb3-8498-438a-b1c4-e5165e0ed7a4"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Product Id="*" UpgradeCode="$(var.ProductUpgradeCode)"
-        Name="scalus" Version="$(var.Version)" Manufacturer="One Identity" Language="1033">
+        Name="SCALUS" Version="$(var.Version)" Manufacturer="One Identity" Language="1033">
         <Package InstallerVersion="$(var.Minimum_Version)" Compressed="yes" Comments="Windows Installer Package" InstallScope="perMachine"/>
         <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+
+		<Icon Id="icon.ico" SourceFile="$(var.tmpdir)\icon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
         <Upgrade Id="$(var.ProductUpgradeCode)">
             <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="no" Property="NEWERVERSIONDETECTED"/>

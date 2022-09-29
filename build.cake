@@ -124,6 +124,15 @@ Task("MsiInstaller")
         var license = tmpdir + "/license.rtf";
         CopyFile("./scripts/license.rtf", license);
 
+        var iconFile = tmpdir + "/icon.ico";
+        if (edition == "community")
+        {
+            CopyFile("./src/scalus-community.ico", iconFile);
+        }
+        else
+        {
+            CopyFile("./src/scalus-safeguard.ico", iconFile);
+        }
 
         var wxsFiles = GetFiles(tmpdir + "/*.wxs");
         var arch = Architecture.X86;
