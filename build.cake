@@ -207,8 +207,7 @@ Task("Test")
         var projects = GetFiles("./test/**/*.csproj");
         foreach(var project in projects)
         {
-            DotNetTest(
-                project.FullPath,
+            DotNetTest(project.FullPath,
                 new DotNetTestSettings()
             {
                 Configuration = configuration
@@ -231,7 +230,9 @@ Task("Publish")
                 SelfContained = true,
                 Runtime = runtime,
                 PublishSingleFile = true,
-                MSBuildSettings = new DotNetMSBuildSettings() {}
+                MSBuildSettings = new DotNetMSBuildSettings()
+                    .WithProperty("Edition", edition)
+                    .WithProperty("NativeWindowing", isWindows ? "true" : "false")
             });
     });
 

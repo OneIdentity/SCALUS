@@ -19,21 +19,48 @@
             <Directory Id="$(var.Program_Files)" >
                 <Directory Id="INSTALLDIR" Name="SCALUS">
                     <Component Id="ApplicationFiles" Guid="ae36b4af-d3ac-4f74-bdaf-98587e6fffe8" >
-                        <File Id="AppFile1" Source="$(var.sourcedir)\appsettings.json" />
-                        <File Id="AppFile2" Source="$(var.sourcedir)\scalus.exe" />
-                        <File Id="AppFile3" Source="$(var.sourcedir)\web.config" />
-                        <File Id="AppFile4" Source="$(var.tmpdir)\readme.txt" />
+                      <File Id="AppFile1" Source="$(var.sourcedir)\appsettings.json" />
+                      <File Id="AppFile2" Source="$(var.sourcedir)\scalus.exe" />
+                      <File Id="AppFile3" Source="$(var.sourcedir)\web.config" />
+                      <File Id="AppFile4" Source="$(var.tmpdir)\readme.txt" />
                     </Component>
+                    <Component Id="WindowingFiles" Guid="48428c66-0b4c-4e08-9945-bccf4011b78c">
+                      <File Id="WindowingFile1" Source="$(var.sourcedir)\aspnetcorev2_inprocess.dll" />
+                      <File Id="WindowingFile2" Source="$(var.sourcedir)\D3DCompiler_47_cor3.dll" />
+                      <File Id="WindowingFile3" Source="$(var.sourcedir)\PenImc_cor3.dll" />
+                      <File Id="WindowingFile4" Source="$(var.sourcedir)\PresentationNative_cor3.dll" />
+                      <File Id="WindowingFile5" Source="$(var.sourcedir)\vcruntime140_cor3.dll" />
+                      <File Id="WindowingFile6" Source="$(var.sourcedir)\wpfgfx_cor3.dll" />
+                    </Component>
+                    <Directory Id="UIDIR" Name="Ui">
+                      <Directory Id="WEBDIR" Name="Web">
+                        <Component Id="WebFiles" Guid="94f127a9-92c3-4ffd-a5a4-b557e2153e7b">
+                          <File Id="WebFiles1" Source="$(var.sourcedir)\Ui\Web\3rdpartylicenses.txt" />
+                          <File Id="WebFiles2" Source="$(var.sourcedir)\Ui\Web\favicon.ico" />
+                          <File Id="WebFiles3" Source="$(var.sourcedir)\Ui\Web\index.html" />
+                          <File Id="WebFiles4" Source="$(var.sourcedir)\Ui\Web\main.js" />
+                          <File Id="WebFiles5" Source="$(var.sourcedir)\Ui\Web\polyfills.js" />
+                          <File Id="WebFiles6" Source="$(var.sourcedir)\Ui\Web\runtime.js" />
+                          <File Id="WebFiles7" Source="$(var.sourcedir)\Ui\Web\styles.css" />
+                        </Component>
+                        <Directory Id="ASSETSDIR" Name="assets">
+                          <Component Id="AssetsFiles" Guid="35aa5a4c-1df6-4905-9857-5f488cd388cb">
+                            <File Id="AssetsFiles1" Source="$(var.sourcedir)\Ui\Web\assets\CommunityScalusLogo.Masthead.svg" />
+                            <File Id="AssetsFiles2" Source="$(var.sourcedir)\Ui\Web\assets\SafeguardScalusLogo.Masthead.svg" />
+                          </Component>
+                        </Directory>
+                      </Directory>
+                    </Directory>
                     <Directory Id="ExampleDir" Name="Examples">
-                    <Component Id="ExampleFiles" Guid="1c2b8871-25c0-41a1-92f5-46104da2a0da" >
-                            <File Id="eg1" Source="$(var.tmpdir)\examples\examplePlugin.pl" />
-                            <File Id="eg2" Source="$(var.tmpdir)\examples\exampleRdpTemplate.rdp" />
-                            <File Id="eg3" Source="$(var.tmpdir)\examples\SCALUS.json" />
-                            <File Id="eg4" Source="$(var.tmpdir)\examples\rdp.remmina" />
-                            <File Id="eg5" Source="$(var.tmpdir)\examples\ssh.remmina" />
-                            <File Id="eg6" Source="$(var.tmpdir)\examples\RdpRemoteAppTemplate.rdp" />
-                            <File Id="eg7" Source="$(var.tmpdir)\examples\WinRdpTemplate.rdp" />
-                    </Component>
+                      <Component Id="ExampleFiles" Guid="1c2b8871-25c0-41a1-92f5-46104da2a0da" >
+                        <File Id="eg1" Source="$(var.tmpdir)\examples\examplePlugin.pl" />
+                        <File Id="eg2" Source="$(var.tmpdir)\examples\exampleRdpTemplate.rdp" />
+                        <File Id="eg3" Source="$(var.tmpdir)\examples\SCALUS.json" />
+                        <File Id="eg4" Source="$(var.tmpdir)\examples\rdp.remmina" />
+                        <File Id="eg5" Source="$(var.tmpdir)\examples\ssh.remmina" />
+                        <File Id="eg6" Source="$(var.tmpdir)\examples\RdpRemoteAppTemplate.rdp" />
+                        <File Id="eg7" Source="$(var.tmpdir)\examples\WinRdpTemplate.rdp" />
+                      </Component>
                     </Directory>
                 </Directory>
             </Directory>
@@ -72,6 +99,9 @@
             <ComponentRef Id="ApplicationFiles"/>
             <ComponentRef Id="ExampleFiles"/>
             <ComponentRef Id="ApplicationShortcuts"/>
+            <ComponentRef Id="WebFiles"/>
+            <ComponentRef Id="AssetsFiles"/>
+            <ComponentRef Id="WindowingFiles"/>
         </Feature>
         <InstallExecuteSequence>
                   <Custom Action="UninstallScalus" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") </Custom>

@@ -40,7 +40,7 @@ Param(
     [string]$Target,
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Release",
-    [ValidateSet("community", "safeguard")]
+    [ValidateSet("community", "supported")]
     [string]$Edition = "community",
     [string]$Version,
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
