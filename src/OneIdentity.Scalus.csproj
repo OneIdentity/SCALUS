@@ -25,7 +25,6 @@
     <Authors>One Identity</Authors>
     <PackageProjectUrl>https://github.com/OneIdentity/SCALUS</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
-    <ApplicationIcon>scalus.ico</ApplicationIcon>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
@@ -46,11 +45,15 @@
     <PackageProjectUrl>https://github.com/OneIdentity/SCALUS</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>scalus.ico</ApplicationIcon>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Edition)'=='supported'">
+	<ApplicationIcon>scalus-safeguard.ico</ApplicationIcon>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Edition)'=='community'">
+	<ApplicationIcon>scalus-community.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants);COMMUNITY_EDITION</DefineConstants>
   </PropertyGroup>
 
