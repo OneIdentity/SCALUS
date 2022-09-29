@@ -78,7 +78,7 @@ if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
 }
 
 Write-Host "Installing Cake.Tool..."
-if (dotnet tool list --tool-path tools | Select-String cake.tool) {
+if (-not (dotnet tool list --tool-path tools | Select-String cake.tool)) {
     Invoke-Expression "dotnet tool install Cake.Tool --version 2.2.0 --tool-path $TOOLS_DIR"
 }
 else {

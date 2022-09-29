@@ -2,11 +2,11 @@
   "Protocols": [
     {
       "Protocol": "rdp",
-      "AppId": "mac-rdp"
+      "AppId": "freerdp"
     },
     {
       "Protocol": "ssh",
-      "APpId": "mac-ssh"
+      "AppId": "gnome-terminal-ssh"
     },
     {
       "Protocol":  "telnet" 
@@ -23,8 +23,8 @@
         "ParserId": "rdp",
         "Options": [ "waitForInputIdle" ],
         "UseDefaultTemplate": true,
-        "PostProcessingExec": "C:/strawberry/perl/bin/perl.exe",
-        "PostProcessingArgs": [ "%AppData%/examplePlugin.pl" ]
+        "PostProcessingExec": null,
+        "PostProcessingArgs": null
 
       },
       "Exec": "C:\\windows\\system32\\mstsc.exe",
