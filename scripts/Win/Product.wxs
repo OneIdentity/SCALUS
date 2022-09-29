@@ -6,6 +6,9 @@
         <Package InstallerVersion="$(var.Minimum_Version)" Compressed="yes" Comments="Windows Installer Package" InstallScope="perMachine"/>
         <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
 
+		<Icon Id="icon.ico" SourceFile="$(var.tmpdir)\icon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
         <Upgrade Id="$(var.ProductUpgradeCode)">
             <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="no" Property="NEWERVERSIONDETECTED"/>
             <UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes" Property="OLDERVERSIONBEINGUPGRADED"/>
