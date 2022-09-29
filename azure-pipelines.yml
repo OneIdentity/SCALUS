@@ -3,13 +3,13 @@ trigger:
 - release*
 
 parameters:
-  - name: editon
+  - name: edition
     displayName: 'Build Edition'
     type: string
     default: 'community'
     values:
     - community
-    - oneidentity
+    - supported
 
 variables:
   version: '1.0.0.$(Revision)'
@@ -22,6 +22,7 @@ variables:
 
 jobs:
 - job: BuildAndTest
+  displayName: 'Build & Test - ${{ parameters.edition }}'
   pool:
     vmImage: 'windows-latest'
   steps:
@@ -35,7 +36,7 @@ jobs:
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
-      msbuildArgs: '/p:Edition="$(edition)" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+      msbuildArgs: '/p:Edition="${{ parameters.edition }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
