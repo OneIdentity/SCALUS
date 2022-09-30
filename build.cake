@@ -184,7 +184,7 @@ Task("MsiInstaller")
 
         if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
         {
-            BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " msiPath: " + msiPath);
+            Information( "Building " + runtime + " msiPath: " + msiPath);
         }
         else
         {
@@ -326,11 +326,11 @@ Task("LinuxInstall")
         var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
         if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
         {
-                BuildSystem.AzurePipelines.Commands.WriteWarning( "Building " + runtime + " zipfile: " + zipfile);
+            Information( "Building " + runtime + " zipfile: " + zipfile);
         }
         else
         {
-            Information( "Building " + runtime + " zipfile: " + zipfile);
+            Information( "Building locally " + runtime + " zipfile: " + zipfile);
         }
 
         GZipCompress(publishdir, zipfile);
