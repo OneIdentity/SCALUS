@@ -72,7 +72,7 @@
                 <Directory Id="ProgramMenuSubfolder" Name="SCALUS">
                     <Component Id="ApplicationShortcuts" Guid="755ffdfc-4255-4374-99a5-e604984abb02">
                         <Shortcut Id="ApplicationShortcut1" Name="ScalusUI" Description="SCALUS UI"
-                            Target="[INSTALLDIR]scalus.exe" WorkingDirectory="INSTALLDIR"/>
+                            Target="[INSTALLDIR]_scalus.exe" WorkingDirectory="INSTALLDIR"/>
                         <Shortcut Id="ApplicationShortcut2" Name="Readme" Description="SCALUS ReadMe"
                             Target="[INSTALLDIR]readme.txt" WorkingDirectory="INSTALLDIR"/>
                         <RegistryValue Root="HKCU" Key="Software\OneIdentity\SCALUS"
@@ -110,6 +110,6 @@
         <InstallExecuteSequence>
                   <Custom Action="UninstallScalus" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") </Custom>
                 </InstallExecuteSequence>
-        <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]_scalus.exe unregister -q"/>
+        <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister -q"/>
     </Product>
 </Wix>
