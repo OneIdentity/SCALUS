@@ -125,13 +125,19 @@ Task("MsiInstaller")
         CopyFile("./scripts/license.rtf", license);
 
         var iconFile = tmpdir + "/icon.ico";
+        var bannerBmp = tmpdir + "/banner.bmp";
+        var dialogBmp = tmpdir + "/dialog.bmp";
         if (edition == "community")
         {
             CopyFile("./src/scalus-community.ico", iconFile);
+            CopyFile("./src/Banner-CommunityScalus.bmp", bannerBmp);
+            CopyFile("./src/Dialog-CommunityScalus.bmp", dialogBmp);
         }
         else
         {
             CopyFile("./src/scalus-safeguard.ico", iconFile);
+            CopyFile("./src/Banner-SafeguardScalus.bmp", bannerBmp);
+            CopyFile("./src/Dialog-SafeguardScalus.bmp", dialogBmp);
         }
 
         var wxsFiles = GetFiles(tmpdir + "/*.wxs");
