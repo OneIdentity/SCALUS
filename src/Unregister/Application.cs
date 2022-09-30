@@ -23,7 +23,7 @@ namespace OneIdentity.Scalus.Unregister
 {
     internal class Application : IApplication
     {
-        public Application(Options options, IRegistration registration)
+        public Application(Options options, IRegistration registration, IUserInteraction userInteraction)
         {
             Options = options;
             Registration = registration;
@@ -33,9 +33,17 @@ namespace OneIdentity.Scalus.Unregister
 
         private IRegistration Registration { get; }
 
+        private IUserInteraction UserInteraction { get; }
+
         public int Run()
         {
-            return Registration.UnRegister(Options.Protocols, Options.RootMode, Options.UseSudo) ? 0 : 1;
+            if (Options.Quiet)
+            {
+                UserInteraction.Silence();
+            }
+
+            Registration.UnRegister(Options.Protocols, Options.RootMode, Options.UseSudo);
+            return 0;
         }
     }
 }

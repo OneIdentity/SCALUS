@@ -28,5 +28,7 @@ namespace OneIdentity.Scalus
         void Message(string message);
 
         void Error(string error);
+
+        void Silence();
     }
 }

@@ -25,8 +25,9 @@
           <Component Id="ApplicationFiles" Guid="ae36b4af-d3ac-4f74-bdaf-98587e6fffe8">
             <File Id="AppFile1" Source="$(var.sourcedir)\appsettings.json" />
             <File Id="AppFile2" Source="$(var.sourcedir)\scalus.exe" />
-            <File Id="AppFile3" Source="$(var.sourcedir)\web.config" />
-            <File Id="AppFile4" Source="$(var.tmpdir)\readme.txt" />
+            <File Id="AppFile3" Source="$(var.sourcedir)\_scalus.exe" />
+            <File Id="AppFile4" Source="$(var.sourcedir)\web.config" />
+            <File Id="AppFile5" Source="$(var.tmpdir)\readme.txt" />
           </Component>
           <Component Id="WindowingFiles" Guid="48428c66-0b4c-4e08-9945-bccf4011b78c">
             <File Id="WindowingFile1" Source="$(var.sourcedir)\aspnetcorev2_inprocess.dll" />
@@ -72,7 +73,7 @@
         <Directory Id="ProgramMenuSubfolder" Name="SCALUS">
           <Component Id="ApplicationShortcuts" Guid="755ffdfc-4255-4374-99a5-e604984abb02">
             <Shortcut Id="ApplicationShortcut1" Name="SCALUS" Description="SCALUS Configuration"
-                      Target="[INSTALLDIR]scalus.exe" WorkingDirectory="INSTALLDIR" Icon="icon.ico"/>
+                      Target="[INSTALLDIR]_scalus.exe" WorkingDirectory="INSTALLDIR" Icon="icon.ico"/>
             <Shortcut Id="ApplicationShortcut2" Name="Readme" Description="SCALUS ReadMe"
                       Target="[INSTALLDIR]readme.txt" WorkingDirectory="INSTALLDIR"/>
             <RegistryValue Root="HKCU" Key="Software\OneIdentity\SCALUS" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
@@ -106,6 +107,6 @@
     <InstallExecuteSequence>
       <Custom Action="UninstallScalus" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") </Custom>
     </InstallExecuteSequence>
-    <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister"/>
+    <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister -q"/>
   </Product>
 </Wix>

@@ -22,9 +22,11 @@
 namespace OneIdentity.Scalus
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Threading;
     using System.Windows;
     using Autofac;
     using CommandLine;
@@ -41,17 +43,7 @@ namespace OneIdentity.Scalus
             community = true;
 #endif
 
-#if WPF
-            System.Windows.SplashScreen splash = null;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var resource = community ? "Resources/Splash-CommunityScalus.png" : "Resources/Splash-SafeguardScalus.png";
-                splash = new System.Windows.SplashScreen(resource);
-                splash.Show(false, true);
-            }
-#endif
             Console.WriteLine(community ? "Community Edition" : "Safeguard Edition");
-
             ConfigureLogging();
             CheckConfig();
             IOsServices services = null;
@@ -75,13 +67,12 @@ namespace OneIdentity.Scalus
                 // If application is null, then they ran help or version commands, just return
                 if (application == null)
                 {
+                    ReleaseLaunchSemaphore();
                     return 0;
                 }
 
                 // Run application
-#if WPF
-                splash.Close(TimeSpan.Zero);
-#endif
+                ReleaseLaunchSemaphore();
                 return application.Run();
             }
             catch (CommandLineHelpException ex)
@@ -100,14 +91,28 @@ namespace OneIdentity.Scalus
             {
                 HandleUnexpectedError(ex);
             }
-            finally
-            {
-#if WPF
-                splash.Close(TimeSpan.Zero);
-#endif
-            }
 
             return 1;
+        }
+
+        private static void ReleaseLaunchSemaphore()
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return;
+            }
+
+            try
+            {
+                using var sem = Semaphore.OpenExisting("OneIdentity.Scalus");
+                sem.Release();
+            }
+            catch (Exception)
+            {
+                Serilog.Log.Debug("Failed to release semaphore!");
+                // Failed to open the semaphore, so we can't signal it.
+                // The launcher will time out after 15 seconds.
+            }
         }
 
         private static void HandleUnexpectedError(Exception ex)

@@ -38,5 +38,10 @@ namespace OneIdentity.Scalus.Util
         {
             Console.WriteLine(message);
         }
+
+        public void Silence()
+        {
+            // No effect here...
+        }
     }
 }
