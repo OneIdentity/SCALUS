@@ -114,6 +114,10 @@ Task("MsiInstaller")
 
         var examples = tmpdir + "/examples";
         CopyDirectory("scripts/examples", examples);
+
+        var prelaunchExe=builddir + "/prelaunch.exe";
+        MoveFile(publishdir + "/scalus.exe", publishdir + "/_scalus.exe");
+        CopyFile(prelaunchExe, publishdir + "/scalus.exe");
         CopyFile("scripts/Win/SCALUS.json", examples + "/SCALUS.json");
         CopyFile("scripts/Win/Product.wxs", tmpdir + "/Product.wxs");
 

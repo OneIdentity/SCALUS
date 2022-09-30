@@ -49,11 +49,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Edition)'=='supported'">
-	<ApplicationIcon>scalus-safeguard.ico</ApplicationIcon>
+    <ApplicationIcon>scalus-safeguard.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Edition)'=='community'">
-	<ApplicationIcon>scalus-community.ico</ApplicationIcon>
+    <ApplicationIcon>scalus-community.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants);COMMUNITY_EDITION</DefineConstants>
   </PropertyGroup>
 
@@ -131,8 +131,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Default.rdp" />
-    <Resource Include="Resources\Splash-CommunityScalus.png" />
-    <Resource Include="Resources\Splash-SafeguardScalus.png" />
   </ItemGroup>
 
   <ItemGroup>

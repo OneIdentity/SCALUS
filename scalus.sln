@@ -39,6 +39,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Linux", "Linux", "{7548F3C0
 		scripts\Linux\setup.sh = scripts\Linux\setup.sh
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneIdentity.Scalus.Prelaunch", "prelaunch\OneIdentity.Scalus.Prelaunch.csproj", "{C4BF923B-1C63-4C15-8C92-BED68B594903}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2F3F4943-EBF8-4B5C-9BBA-500D96DD3EA2} = {2F3F4943-EBF8-4B5C-9BBA-500D96DD3EA2}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +58,10 @@ Global
 		{6BEB2322-F930-48A5-AF1E-94D7B69AFD6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BEB2322-F930-48A5-AF1E-94D7B69AFD6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BEB2322-F930-48A5-AF1E-94D7B69AFD6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4BF923B-1C63-4C15-8C92-BED68B594903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4BF923B-1C63-4C15-8C92-BED68B594903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4BF923B-1C63-4C15-8C92-BED68B594903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4BF923B-1C63-4C15-8C92-BED68B594903}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

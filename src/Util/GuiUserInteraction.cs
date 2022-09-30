@@ -38,6 +38,8 @@ namespace OneIdentity.Scalus.Util
 
         private List<string> StartupCache { get; } = new List<string>();
 
+        private bool Silent { get; set; }
+
         public void Error(string error)
         {
             SetString("ERROR: " + error);
@@ -46,6 +48,11 @@ namespace OneIdentity.Scalus.Util
         public void Message(string message)
         {
             SetString(message);
+        }
+
+        public void Silence()
+        {
+            Silent = true;
         }
 
         protected override void OnStarted()
@@ -60,6 +67,11 @@ namespace OneIdentity.Scalus.Util
 
         private void SetString(string message)
         {
+            if (Silent)
+            {
+                return;
+            }
+
             if (IsRunning)
             {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() =>

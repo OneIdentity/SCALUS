@@ -35,5 +35,8 @@ namespace OneIdentity.Scalus.Unregister
 
         [Option('s', "sudo", Required = false, HelpText = "use (passwordless) sudo to update system files on supported platforms")]
         public bool UseSudo { get; set; }
+
+        [Option('q', "quiet", Required = false, Hidden = true)]
+        public bool Quiet { get; set; }
     }
 }
