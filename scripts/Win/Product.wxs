@@ -1,115 +1,112 @@
 ﻿<?xml version="1.0"?>
 <?define ProductUpgradeCode="71bf8eb3-8498-438a-b1c4-e5165e0ed7a4"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="*" UpgradeCode="$(var.ProductUpgradeCode)"
-        Name="SCALUS" Version="$(var.Version)" Manufacturer="One Identity" Language="1033">
-        <Package InstallerVersion="$(var.Minimum_Version)" Compressed="yes" Comments="Windows Installer Package" InstallScope="perMachine"/>
-        <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+  <Product Id="*" UpgradeCode="$(var.ProductUpgradeCode)" Name="SCALUS" Version="$(var.Version)" Manufacturer="One Identity" Language="1033">
+    <Package InstallerVersion="$(var.Minimum_Version)" Compressed="yes" Comments="Windows Installer Package" InstallScope="perMachine"/>
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
 
-		<Icon Id="icon.ico" SourceFile="$(var.tmpdir)\icon.ico"/>
-		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+    <Icon Id="icon.ico" SourceFile="$(var.tmpdir)\icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
-        <Upgrade Id="$(var.ProductUpgradeCode)">
-            <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="no" Property="NEWERVERSIONDETECTED"/>
-            <UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes" Property="OLDERVERSIONBEINGUPGRADED"/>
-        </Upgrade>
-        <Condition Message="A newer version of this software is already installed.">NOT NEWERVERSIONDETECTED</Condition>
+    <Upgrade Id="$(var.ProductUpgradeCode)">
+      <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="no" Property="NEWERVERSIONDETECTED"/>
+      <UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes" Property="OLDERVERSIONBEINGUPGRADED"/>
+    </Upgrade>
+    <Condition Message="A newer version of this software is already installed.">NOT NEWERVERSIONDETECTED</Condition>
     <MajorUpgrade AllowSameVersionUpgrades="yes" AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed. If you are sure you want to downgrade, remove the existing installation via Programs and Features." Schedule="afterInstallFinalize"/>
 
-        <WixVariable Id="WixUILicenseRtf" Value="$(var.tmpdir)\license.rtf" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.tmpdir)\license.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.tmpdir)\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.tmpdir)\dialog.bmp" />
 
-        <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="$(var.Program_Files)" >
-                <Directory Id="INSTALLDIR" Name="SCALUS">
-                    <Component Id="ApplicationFiles" Guid="ae36b4af-d3ac-4f74-bdaf-98587e6fffe8" >
-                      <File Id="AppFile1" Source="$(var.sourcedir)\appsettings.json" />
-                      <File Id="AppFile2" Source="$(var.sourcedir)\scalus.exe" />
-                      <File Id="AppFile3" Source="$(var.sourcedir)\_scalus.exe" />
-                      <File Id="AppFile4" Source="$(var.sourcedir)\web.config" />
-                      <File Id="AppFile5" Source="$(var.tmpdir)\readme.txt" />
-                    </Component>
-                    <Component Id="WindowingFiles" Guid="48428c66-0b4c-4e08-9945-bccf4011b78c">
-                      <File Id="WindowingFile1" Source="$(var.sourcedir)\aspnetcorev2_inprocess.dll" />
-                      <File Id="WindowingFile2" Source="$(var.sourcedir)\D3DCompiler_47_cor3.dll" />
-                      <File Id="WindowingFile3" Source="$(var.sourcedir)\PenImc_cor3.dll" />
-                      <File Id="WindowingFile4" Source="$(var.sourcedir)\PresentationNative_cor3.dll" />
-                      <File Id="WindowingFile5" Source="$(var.sourcedir)\vcruntime140_cor3.dll" />
-                      <File Id="WindowingFile6" Source="$(var.sourcedir)\wpfgfx_cor3.dll" />
-                    </Component>
-                    <Directory Id="UIDIR" Name="Ui">
-                      <Directory Id="WEBDIR" Name="Web">
-                        <Component Id="WebFiles" Guid="94f127a9-92c3-4ffd-a5a4-b557e2153e7b">
-                          <File Id="WebFiles1" Source="$(var.sourcedir)\Ui\Web\3rdpartylicenses.txt" />
-                          <File Id="WebFiles2" Source="$(var.sourcedir)\Ui\Web\favicon.ico" />
-                          <File Id="WebFiles3" Source="$(var.sourcedir)\Ui\Web\index.html" />
-                          <File Id="WebFiles4" Source="$(var.sourcedir)\Ui\Web\main.js" />
-                          <File Id="WebFiles5" Source="$(var.sourcedir)\Ui\Web\polyfills.js" />
-                          <File Id="WebFiles6" Source="$(var.sourcedir)\Ui\Web\runtime.js" />
-                          <File Id="WebFiles7" Source="$(var.sourcedir)\Ui\Web\styles.css" />
-                        </Component>
-                        <Directory Id="ASSETSDIR" Name="assets">
-                          <Component Id="AssetsFiles" Guid="35aa5a4c-1df6-4905-9857-5f488cd388cb">
-                            <File Id="AssetsFiles1" Source="$(var.sourcedir)\Ui\Web\assets\CommunityScalusLogo.Masthead.svg" />
-                            <File Id="AssetsFiles2" Source="$(var.sourcedir)\Ui\Web\assets\SafeguardScalusLogo.Masthead.svg" />
-                          </Component>
-                        </Directory>
-                      </Directory>
-                    </Directory>
-                    <Directory Id="ExampleDir" Name="Examples">
-                      <Component Id="ExampleFiles" Guid="1c2b8871-25c0-41a1-92f5-46104da2a0da" >
-                        <File Id="eg1" Source="$(var.tmpdir)\examples\examplePlugin.pl" />
-                        <File Id="eg2" Source="$(var.tmpdir)\examples\exampleRdpTemplate.rdp" />
-                        <File Id="eg3" Source="$(var.tmpdir)\examples\SCALUS.json" />
-                        <File Id="eg4" Source="$(var.tmpdir)\examples\rdp.remmina" />
-                        <File Id="eg5" Source="$(var.tmpdir)\examples\ssh.remmina" />
-                        <File Id="eg6" Source="$(var.tmpdir)\examples\RdpRemoteAppTemplate.rdp" />
-                        <File Id="eg7" Source="$(var.tmpdir)\examples\WinRdpTemplate.rdp" />
-                      </Component>
-                    </Directory>
-                </Directory>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.Program_Files)">
+        <Directory Id="INSTALLDIR" Name="SCALUS">
+          <Component Id="ApplicationFiles" Guid="ae36b4af-d3ac-4f74-bdaf-98587e6fffe8">
+            <File Id="AppFile1" Source="$(var.sourcedir)\appsettings.json" />
+            <File Id="AppFile2" Source="$(var.sourcedir)\scalus.exe" />
+            <File Id="AppFile3" Source="$(var.sourcedir)\_scalus.exe" />
+            <File Id="AppFile4" Source="$(var.sourcedir)\web.config" />
+            <File Id="AppFile5" Source="$(var.tmpdir)\readme.txt" />
+          </Component>
+          <Component Id="WindowingFiles" Guid="48428c66-0b4c-4e08-9945-bccf4011b78c">
+            <File Id="WindowingFile1" Source="$(var.sourcedir)\aspnetcorev2_inprocess.dll" />
+            <File Id="WindowingFile2" Source="$(var.sourcedir)\D3DCompiler_47_cor3.dll" />
+            <File Id="WindowingFile3" Source="$(var.sourcedir)\PenImc_cor3.dll" />
+            <File Id="WindowingFile4" Source="$(var.sourcedir)\PresentationNative_cor3.dll" />
+            <File Id="WindowingFile5" Source="$(var.sourcedir)\vcruntime140_cor3.dll" />
+            <File Id="WindowingFile6" Source="$(var.sourcedir)\wpfgfx_cor3.dll" />
+          </Component>
+          <Directory Id="UIDIR" Name="Ui">
+            <Directory Id="WEBDIR" Name="Web">
+              <Component Id="WebFiles" Guid="94f127a9-92c3-4ffd-a5a4-b557e2153e7b">
+                <File Id="WebFiles1" Source="$(var.sourcedir)\Ui\Web\3rdpartylicenses.txt" />
+                <File Id="WebFiles2" Source="$(var.sourcedir)\Ui\Web\favicon.ico" />
+                <File Id="WebFiles3" Source="$(var.sourcedir)\Ui\Web\index.html" />
+                <File Id="WebFiles4" Source="$(var.sourcedir)\Ui\Web\main.js" />
+                <File Id="WebFiles5" Source="$(var.sourcedir)\Ui\Web\polyfills.js" />
+                <File Id="WebFiles6" Source="$(var.sourcedir)\Ui\Web\runtime.js" />
+                <File Id="WebFiles7" Source="$(var.sourcedir)\Ui\Web\styles.css" />
+              </Component>
+              <Directory Id="ASSETSDIR" Name="assets">
+                <Component Id="AssetsFiles" Guid="35aa5a4c-1df6-4905-9857-5f488cd388cb">
+                  <File Id="AssetsFiles1" Source="$(var.sourcedir)\Ui\Web\assets\CommunityScalusLogo.Masthead.svg" />
+                  <File Id="AssetsFiles2" Source="$(var.sourcedir)\Ui\Web\assets\SafeguardScalusLogo.Masthead.svg" />
+                </Component>
+              </Directory>
             </Directory>
-            <Directory Id="ProgramMenuFolder">
-                <Directory Id="ProgramMenuSubfolder" Name="SCALUS">
-                    <Component Id="ApplicationShortcuts" Guid="755ffdfc-4255-4374-99a5-e604984abb02">
-                        <Shortcut Id="ApplicationShortcut1" Name="ScalusUI" Description="SCALUS UI"
-                            Target="[INSTALLDIR]_scalus.exe" WorkingDirectory="INSTALLDIR"/>
-                        <Shortcut Id="ApplicationShortcut2" Name="Readme" Description="SCALUS ReadMe"
-                            Target="[INSTALLDIR]readme.txt" WorkingDirectory="INSTALLDIR"/>
-                        <RegistryValue Root="HKCU" Key="Software\OneIdentity\SCALUS"
-                            Name="installed" Type="integer" Value="1" KeyPath="yes"/>
-                        <RemoveFolder Id="ProgramMenuSubfolder" On="uninstall"/>
-                    </Component>
-                </Directory>
-            </Directory>
+          </Directory>
+          <Directory Id="ExampleDir" Name="Examples">
+            <Component Id="ExampleFiles" Guid="1c2b8871-25c0-41a1-92f5-46104da2a0da">
+              <File Id="eg1" Source="$(var.tmpdir)\examples\examplePlugin.pl" />
+              <File Id="eg2" Source="$(var.tmpdir)\examples\exampleRdpTemplate.rdp" />
+              <File Id="eg3" Source="$(var.tmpdir)\examples\SCALUS.json" />
+              <File Id="eg4" Source="$(var.tmpdir)\examples\rdp.remmina" />
+              <File Id="eg5" Source="$(var.tmpdir)\examples\ssh.remmina" />
+              <File Id="eg6" Source="$(var.tmpdir)\examples\RdpRemoteAppTemplate.rdp" />
+              <File Id="eg7" Source="$(var.tmpdir)\examples\WinRdpTemplate.rdp" />
+            </Component>
+          </Directory>
         </Directory>
-        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch SCALUS" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ProgramMenuSubfolder" Name="SCALUS">
+          <Component Id="ApplicationShortcuts" Guid="755ffdfc-4255-4374-99a5-e604984abb02">
+            <Shortcut Id="ApplicationShortcut1" Name="SCALUS" Description="SCALUS Configuration"
+                      Target="[INSTALLDIR]_scalus.exe" WorkingDirectory="INSTALLDIR" Icon="icon.ico"/>
+            <Shortcut Id="ApplicationShortcut2" Name="Readme" Description="SCALUS ReadMe"
+                      Target="[INSTALLDIR]readme.txt" WorkingDirectory="INSTALLDIR"/>
+            <RegistryValue Root="HKCU" Key="Software\OneIdentity\SCALUS" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            <RemoveFolder Id="ProgramMenuSubfolder" On="uninstall"/>
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch SCALUS" />
 
-        <Property Id="WixShellExecTarget" Value="[#AppFile2]" />
-        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+    <Property Id="WixShellExecTarget" Value="[#AppFile2]" />
+    <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
 
-        <UI>
-            <UIRef Id="WixUI_Minimal" />
-            <Publish Dialog="ExitDialog"
-                    Control="Finish"
-                    Event="DoAction"
-                Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
-            </Publish>
-        </UI>
+    <UI>
+      <UIRef Id="WixUI_Minimal" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+      </Publish>
+    </UI>
 
-        <Property Id="WixShellExecReadFile" Value="[#AppFile5]" />
-        <CustomAction Id="LaunchFile" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+    <Property Id="WixShellExecReadFile" Value="[#AppFile5]" />
+    <CustomAction Id="LaunchFile" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
 
-        <Feature Id="DefaultFeature" Level="1">
-            <ComponentRef Id="ApplicationFiles"/>
-            <ComponentRef Id="ExampleFiles"/>
-            <ComponentRef Id="ApplicationShortcuts"/>
-            <ComponentRef Id="WebFiles"/>
-            <ComponentRef Id="AssetsFiles"/>
-            <ComponentRef Id="WindowingFiles"/>
-        </Feature>
-        <InstallExecuteSequence>
-                  <Custom Action="UninstallScalus" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") </Custom>
-                </InstallExecuteSequence>
-        <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister -q"/>
-    </Product>
+    <Feature Id="DefaultFeature" Level="1">
+      <ComponentRef Id="ApplicationFiles"/>
+      <ComponentRef Id="ExampleFiles"/>
+      <ComponentRef Id="ApplicationShortcuts"/>
+      <ComponentRef Id="WebFiles"/>
+      <ComponentRef Id="AssetsFiles"/>
+      <ComponentRef Id="WindowingFiles"/>
+    </Feature>
+    <InstallExecuteSequence>
+      <Custom Action="UninstallScalus" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") </Custom>
+    </InstallExecuteSequence>
+    <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister -q"/>
+  </Product>
 </Wix>

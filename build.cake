@@ -131,15 +131,21 @@ Task("MsiInstaller")
 
         var iconFile = tmpdir + "/icon.ico";
         var scalusExeFile = publishdir + "/scalus.exe";
+        var bannerBmp = tmpdir + "/banner.bmp";
+        var dialogBmp = tmpdir + "/dialog.bmp";
         if (edition == "community")
         {
             CopyFile(communityPrelaunch, scalusExeFile);
-            CopyFile(solutionDir + "/src/scalus-community.ico", iconFile);
+            CopyFile("./src/scalus-community.ico", iconFile);
+            CopyFile("./src/Banner-CommunityScalus.bmp", bannerBmp);
+            CopyFile("./src/Dialog-CommunityScalus.bmp", dialogBmp);
         }
         else
         {
             CopyFile(supportedPrelaunch, scalusExeFile);
-            CopyFile(solutionDir + "/src/scalus-safeguard.ico", iconFile);
+            CopyFile("./src/scalus-safeguard.ico", iconFile);
+            CopyFile("./src/Banner-SafeguardScalus.bmp", bannerBmp);
+            CopyFile("./src/Dialog-SafeguardScalus.bmp", dialogBmp);
         }
 
         var wxsFiles = GetFiles(tmpdir + "/*.wxs");
