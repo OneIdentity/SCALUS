@@ -16,6 +16,8 @@
     <MajorUpgrade AllowSameVersionUpgrades="yes" AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed. If you are sure you want to downgrade, remove the existing installation via Programs and Features." Schedule="afterInstallFinalize"/>
 
     <WixVariable Id="WixUILicenseRtf" Value="$(var.tmpdir)\license.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.tmpdir)\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.tmpdir)\dialog.bmp" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.Program_Files)">
