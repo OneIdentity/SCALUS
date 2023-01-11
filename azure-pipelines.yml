@@ -78,6 +78,7 @@ jobs:
       script: 'build.cake'
       target: 'Default'
       verbosity: 'Verbose'
+      version: '2.2.0'
       arguments: '--runtime=win10-x64 --Edition=${{ parameters.edition }} --Version=$(version) --SignFiles=$(isRelease) --CertPath="$(Build.BinariesDirectory)/$(codeSigningCertFileName)" --ToolPath="$(signingToolPath)" --CertPass=$(OneIdentity-CodeSigningCertPassword)'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -101,6 +102,7 @@ jobs:
       script: 'build.cake'
       target: 'Default'
       verbosity: 'Verbose'
+      version: '2.2.0'
       arguments: '--runtime=linux-x64 --Edition=${{ parameters.edition }} --Version=$(version)'
 
   - task: PublishPipelineArtifact@1
@@ -119,6 +121,7 @@ jobs:
       script: 'build.cake'
       target: 'Default'
       verbosity: 'Verbose'
+      version: '2.2.0'
       arguments: '--runtime=osx-x64 --Edition=${{ parameters.edition }} --Version=$(version)'
 
   - task: Bash@3
