@@ -33,7 +33,7 @@ SCALUS can be downloaded from the [releases area](https://github.com/OneIdentity
 * Linux
 
     Run the following command to install to the selected installdir (this also creates a link to the SCALUS program from /usr/bin):
-    `sudo /bin/sh "-c mkdir -p _installdir_; tar xf _tarfile_ -C _installdir_; _installdir_/setup.sh"`
+    `sudo /bin/sh -c "mkdir -p _installdir_; tar xf _tarfile_ -C _installdir_; _installdir_/setup.sh"`
      
     To start the UI, run  `/usr/bin/scalus`
  
