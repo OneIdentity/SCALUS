@@ -29,7 +29,7 @@ namespace OneIdentity.Scalus.Util
 
     public static class ConfigurationManager
     {
-        public const string ProdName = "scalus";
+        public const string ProdName = "SCALUS";
 
         private const string LogFileSetting = "Logging:fileName";
         private const string ConfigFileSetting = "Configuration:fileName";
