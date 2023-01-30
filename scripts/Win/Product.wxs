@@ -22,24 +22,15 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.Program_Files)">
         <Directory Id="INSTALLDIR" Name="SCALUS">
-          <Component Id="ApplicationFiles" Guid="ae36b4af-d3ac-4f74-bdaf-98587e6fffe8">
+          <Component Id="ApplicationFiles" Guid="7f90994e-447c-4415-a1a1-1134e1acbd0e">
             <File Id="AppFile1" Source="$(var.sourcedir)\appsettings.json" />
             <File Id="AppFile2" Source="$(var.sourcedir)\scalus.exe" />
-            <File Id="AppFile3" Source="$(var.sourcedir)\_scalus.exe" />
-            <File Id="AppFile4" Source="$(var.sourcedir)\web.config" />
-            <File Id="AppFile5" Source="$(var.tmpdir)\readme.txt" />
-          </Component>
-          <Component Id="WindowingFiles" Guid="48428c66-0b4c-4e08-9945-bccf4011b78c">
-            <File Id="WindowingFile1" Source="$(var.sourcedir)\aspnetcorev2_inprocess.dll" />
-            <File Id="WindowingFile2" Source="$(var.sourcedir)\D3DCompiler_47_cor3.dll" />
-            <File Id="WindowingFile3" Source="$(var.sourcedir)\PenImc_cor3.dll" />
-            <File Id="WindowingFile4" Source="$(var.sourcedir)\PresentationNative_cor3.dll" />
-            <File Id="WindowingFile5" Source="$(var.sourcedir)\vcruntime140_cor3.dll" />
-            <File Id="WindowingFile6" Source="$(var.sourcedir)\wpfgfx_cor3.dll" />
+            <File Id="AppFile3" Source="$(var.sourcedir)\web.config" />
+            <File Id="AppFile4" Source="$(var.tmpdir)\readme.txt" />
           </Component>
           <Directory Id="UIDIR" Name="Ui">
             <Directory Id="WEBDIR" Name="Web">
-              <Component Id="WebFiles" Guid="94f127a9-92c3-4ffd-a5a4-b557e2153e7b">
+              <Component Id="WebFiles" Guid="f115e668-a06c-4a8c-befd-887230753c6a">
                 <File Id="WebFiles1" Source="$(var.sourcedir)\Ui\Web\3rdpartylicenses.txt" />
                 <File Id="WebFiles2" Source="$(var.sourcedir)\Ui\Web\favicon.ico" />
                 <File Id="WebFiles3" Source="$(var.sourcedir)\Ui\Web\index.html" />
@@ -49,7 +40,7 @@
                 <File Id="WebFiles7" Source="$(var.sourcedir)\Ui\Web\styles.css" />
               </Component>
               <Directory Id="ASSETSDIR" Name="assets">
-                <Component Id="AssetsFiles" Guid="35aa5a4c-1df6-4905-9857-5f488cd388cb">
+                <Component Id="AssetsFiles" Guid="916a22b0-ffa5-42f2-b1db-6e284c315691">
                   <File Id="AssetsFiles1" Source="$(var.sourcedir)\Ui\Web\assets\CommunityScalusLogo.Masthead.svg" />
                   <File Id="AssetsFiles2" Source="$(var.sourcedir)\Ui\Web\assets\SafeguardScalusLogo.Masthead.svg" />
                 </Component>
@@ -57,7 +48,7 @@
             </Directory>
           </Directory>
           <Directory Id="ExampleDir" Name="Examples">
-            <Component Id="ExampleFiles" Guid="1c2b8871-25c0-41a1-92f5-46104da2a0da">
+            <Component Id="ExampleFiles" Guid="c6771984-a17d-40b3-861d-7d2490ed7b33">
               <File Id="eg1" Source="$(var.tmpdir)\examples\examplePlugin.pl" />
               <File Id="eg2" Source="$(var.tmpdir)\examples\exampleRdpTemplate.rdp" />
               <File Id="eg3" Source="$(var.tmpdir)\examples\SCALUS.json" />
@@ -71,9 +62,9 @@
       </Directory>
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ProgramMenuSubfolder" Name="SCALUS">
-          <Component Id="ApplicationShortcuts" Guid="755ffdfc-4255-4374-99a5-e604984abb02">
+          <Component Id="ApplicationShortcuts" Guid="43811f49-72ad-47ff-984f-6b11d9c9f5c9">
             <Shortcut Id="ApplicationShortcut1" Name="SCALUS" Description="SCALUS Configuration"
-                      Target="[INSTALLDIR]_scalus.exe" WorkingDirectory="INSTALLDIR" Icon="icon.ico"/>
+                      Target="[INSTALLDIR]scalus.exe" WorkingDirectory="INSTALLDIR" Icon="icon.ico"/>
             <Shortcut Id="ApplicationShortcut2" Name="Readme" Description="SCALUS ReadMe"
                       Target="[INSTALLDIR]readme.txt" WorkingDirectory="INSTALLDIR"/>
             <RegistryValue Root="HKCU" Key="Software\OneIdentity\SCALUS" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
@@ -102,11 +93,10 @@
       <ComponentRef Id="ApplicationShortcuts"/>
       <ComponentRef Id="WebFiles"/>
       <ComponentRef Id="AssetsFiles"/>
-      <ComponentRef Id="WindowingFiles"/>
     </Feature>
     <InstallExecuteSequence>
       <Custom Action="UninstallScalus" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") </Custom>
     </InstallExecuteSequence>
-    <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister -q"/>
+    <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister"/>
   </Product>
 </Wix>
