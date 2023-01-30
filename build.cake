@@ -289,6 +289,8 @@ Task("OsxInstall")
         CopyFile("scripts/Osx/scalus.json", exdir + "/scalus.json");
         CopyFile(publishdir + "/scalus", targetdir + "/scalus");
 
+        CopyDirectory(builddir + "/Ui", targetdir + "/Ui");
+
         var resourceDir = scalusappdir + "/Contents/Resources/examples";
         CopyDirectory(exdir, resourceDir);
         var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
