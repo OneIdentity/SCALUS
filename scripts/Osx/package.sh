@@ -181,7 +181,7 @@ fi
     mkdir -p ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui
 
-    cp -R $publishdir/Ui/  ${tmpdir}/${appname}.app/Contents/MacOS/Ui
+    cp -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
 
     mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
