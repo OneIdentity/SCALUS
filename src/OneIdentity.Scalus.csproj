@@ -5,11 +5,10 @@
   how SCALUS is built.
   -->
   <PropertyGroup>
-    <NativeWindowing>false</NativeWindowing>
     <Edition>community</Edition>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(NativeWindowing)'=='false'">
+  <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>OneIdentity.Scalus</RootNamespace>
@@ -28,26 +27,6 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(NativeWindowing)'=='true'">
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <RootNamespace>OneIdentity.Scalus</RootNamespace>
-    <AssemblyName>scalus</AssemblyName>
-    <StartupObject>OneIdentity.Scalus.Program</StartupObject>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
-    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-    <RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
-    <UserSecretsId>dc8f57ba-8a9d-40c4-bf34-a2ffba1ff687</UserSecretsId>
-    <Company>One Identity LLC</Company>
-    <Copyright>Copyright 2021 One Identity LLC</Copyright>
-    <Authors>One Identity</Authors>
-    <PackageProjectUrl>https://github.com/OneIdentity/SCALUS</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/OneIdentity/SCALUS</RepositoryUrl>
-    <UseWPF>true</UseWPF>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Edition)'=='supported'">
     <ApplicationIcon>scalus-safeguard.ico</ApplicationIcon>
   </PropertyGroup>
@@ -55,10 +34,6 @@
   <PropertyGroup Condition="'$(Edition)'=='community'">
     <ApplicationIcon>scalus-community.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants);COMMUNITY_EDITION</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(UseWPF)'=='true'">
-    <DefineConstants>$(DefineConstants);WPF</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

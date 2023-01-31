@@ -169,16 +169,7 @@ namespace OneIdentity.Scalus.Platform
 
         public void ShowMessage(string message)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-#if WPF
-                System.Windows.MessageBox.Show(message, "SCALUS");
-#endif
-            }
-            else
-            {
-                Log.Information(message);
-            }
+            Log.Information(message);
         }
 
         private static string GetTempFile(string ext)

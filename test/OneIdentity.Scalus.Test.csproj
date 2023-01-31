@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <NativeWindowing>false</NativeWindowing>
     <Edition>community</Edition>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(NativeWindowing)'=='false'">
+  <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <SignAssembly>false</SignAssembly>
@@ -16,25 +15,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(NativeWindowing)'=='true'">
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <IsPackable>false</IsPackable>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
-    <DelaySign>false</DelaySign>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>OneIdentity.Scalus.Test</RootNamespace>
-    <RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
-    <UseWPF>true</UseWPF>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Edition)'=='community'">
     <DefineConstants>COMMUNITY_EDITION</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(UseWPF)'=='true'">
-    <DefineConstants>WPF</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

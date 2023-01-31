@@ -67,9 +67,6 @@ var builddir=solutionDir + "/Build/" + configuration + "/" + runtime;
 var outputdir=solutionDir + "/Output/" + configuration + "/" + runtime;
 var bindir=solutionDir + "/src/bin/" + configuration;
 var testdir=solutionDir + "/test/bin/" + configuration;
-var prelaunchdir=solutionDir + "/prelaunch";
-var communityPrelaunch=prelaunchdir + "/community-prelaunch.exe";
-var supportedPrelaunch=prelaunchdir + "/supported-prelaunch.exe";
 
 Information("Building in " + solutionDir);
 var scalusExe=publishdir + "/scalus";
@@ -118,7 +115,7 @@ Task("MsiInstaller")
         var examples = tmpdir + "/examples";
         CopyDirectory("scripts/examples", examples);
 
-        MoveFile(publishdir + "/scalus.exe", publishdir + "/_scalus.exe");
+        MoveFile(publishdir + "/scalus.exe", publishdir + "/scalus.exe");
         CopyFile("scripts/Win/SCALUS.json", examples + "/SCALUS.json");
         CopyFile("scripts/Win/Product.wxs", tmpdir + "/Product.wxs");
 
@@ -135,14 +132,12 @@ Task("MsiInstaller")
         var dialogBmp = tmpdir + "/dialog.bmp";
         if (edition == "community")
         {
-            CopyFile(communityPrelaunch, scalusExeFile);
             CopyFile("./src/scalus-community.ico", iconFile);
             CopyFile("./src/Banner-CommunityScalus.bmp", bannerBmp);
             CopyFile("./src/Dialog-CommunityScalus.bmp", dialogBmp);
         }
         else
         {
-            CopyFile(supportedPrelaunch, scalusExeFile);
             CopyFile("./src/scalus-safeguard.ico", iconFile);
             CopyFile("./src/Banner-SafeguardScalus.bmp", bannerBmp);
             CopyFile("./src/Dialog-SafeguardScalus.bmp", dialogBmp);
@@ -209,7 +204,6 @@ Task("Build")
                 OutputDirectory = builddir,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)
-                    .WithProperty("NativeWindowing", isWindows ? "true" : "false")
             });
     });
 
@@ -294,6 +288,8 @@ Task("OsxInstall")
 
         CopyFile("scripts/Osx/scalus.json", exdir + "/scalus.json");
         CopyFile(publishdir + "/scalus", targetdir + "/scalus");
+
+        CopyDirectory(builddir + "/Ui", targetdir + "/Ui");
 
         var resourceDir = scalusappdir + "/Contents/Resources/examples";
         CopyDirectory(exdir, resourceDir);

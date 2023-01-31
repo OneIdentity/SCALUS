@@ -70,17 +70,12 @@ namespace OneIdentity.Scalus
                 builder.RegisterType<UnsupportedPlatformRegistrar>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
             }
 
-#if WPF
-            builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
-#else
             builder.RegisterType<UserInteraction>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
-#endif
             builder.RegisterType<OsServicesBase>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
         }
 
         private static void RegisterWindowsComponents(this ContainerBuilder builder)
         {
-            // builder.RegisterType<GuiUserInteraction>().AsImplementedInterfaces().SingleInstance();
             if (OperatingSystem.IsWindows())
             {
                 builder.RegisterType<WindowsBasicProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
