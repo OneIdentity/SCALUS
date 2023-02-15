@@ -47,10 +47,29 @@ namespace OneIdentity.Scalus
         public string GetRegisteredCommand(string protocol)
         {
             var home = Environment.GetEnvironmentVariable("HOME");
+            var output = string.Empty;
+
+            // Try python first then python3
             var res =
                 this.RunCommand("/bin/sh",
-                    new List<string> { "-c", $"HOME=\"{home}\"; export HOME; python -c \"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')\"" },
-                    out string output);
+                    new List<string>
+                    {
+                        "-c",
+                        $"HOME=\"{home}\"; export HOME; python -c \"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')\"",
+                    },
+                    out output);
+            if (!res)
+            {
+                res =
+                this.RunCommand("/bin/sh",
+                    new List<string>
+                    {
+                        "-c",
+                        $"HOME=\"{home}\"; export HOME; python3 -c \"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')\"",
+                    },
+                    out output);
+            }
+
             if (!res)
             {
                 Serilog.Log.Warning($"Failed to get the default protocol handler for:{protocol}: {output}");
@@ -95,13 +114,27 @@ namespace OneIdentity.Scalus
         {
             var handler = add ? MacOsExtensions.ScalusHandler : string.Empty;
             var home = Environment.GetEnvironmentVariable("HOME");
+            var output = string.Empty;
+
+            // Try python first then python3
             var res = this.RunCommand("/bin/sh",
                 new List<string>
                 {
                     "-c",
                     $"HOME=\"{home}\";export HOME; python -c \"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')\"",
                 },
-                out var output);
+                out output);
+            if (!res)
+            {
+                res = this.RunCommand("/bin/sh",
+                new List<string>
+                {
+                    "-c",
+                    $"HOME=\"{home}\";export HOME; python3 -c \"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')\"",
+                },
+                out output);
+            }
+
             if (!res)
             {
                 Serilog.Log.Error($"Failed to update the configured default:{output}");
