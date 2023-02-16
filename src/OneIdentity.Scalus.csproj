@@ -132,7 +132,6 @@
     </PackageReference>
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0" />
-    <PackageReference Include="XamarinMac" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
