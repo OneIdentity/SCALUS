@@ -23,7 +23,9 @@ namespace OneIdentity.Scalus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.RegularExpressions;
+    using CoreServices;
     using OneIdentity.Scalus.Platform;
 
     public class MacOSUserDefaultRegistrar : IProtocolRegistrar
@@ -49,8 +51,10 @@ namespace OneIdentity.Scalus
             var home = Environment.GetEnvironmentVariable("HOME");
             var output = string.Empty;
 
+            var handlers = LaunchServices.GetAllHandlersForUrlScheme(protocol);
+
             // Try python first then python3
-            var res =
+            /*var res =
                 this.RunCommand("/bin/sh",
                     new List<string>
                     {
@@ -74,11 +78,14 @@ namespace OneIdentity.Scalus
             {
                 Serilog.Log.Warning($"Failed to get the default protocol handler for:{protocol}: {output}");
                 return string.Empty;
-            }
+            }*/
 
-            output = Regex.Replace(output, @"\t|\n|\r", string.Empty);
-            Serilog.Log.Information($"Registered command is :{output}.");
-            return Regex.IsMatch(output, "none", RegexOptions.IgnoreCase) ? string.Empty : output;
+            Serilog.Log.Warning($"*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_* Handlers for:{protocol}: {handlers}");
+
+            //output = Regex.Replace(output, @"\t|\n|\r", string.Empty);
+            //Serilog.Log.Information($"Registered command is :{output}.");
+            //return Regex.IsMatch(output, "none", RegexOptions.IgnoreCase) ? string.Empty : output;
+            return handlers.FirstOrDefault();
         }
 
         public bool IsScalusRegistered(string protocol)
@@ -110,14 +117,16 @@ namespace OneIdentity.Scalus
             return Register(protocol);
         }
 
-        private bool UpdateConfiguredDefault(string protocol, bool add = true)
+        private static bool UpdateConfiguredDefault(string protocol, bool add = true)
         {
             var handler = add ? MacOsExtensions.ScalusHandler : string.Empty;
             var home = Environment.GetEnvironmentVariable("HOME");
             var output = string.Empty;
 
+            var result = LaunchServices.SetDefaultHandlerForUrlScheme(protocol, handler);
+
             // Try python first then python3
-            var res = this.RunCommand("/bin/sh",
+            /*var res = this.RunCommand("/bin/sh",
                 new List<string>
                 {
                     "-c",
@@ -139,9 +148,9 @@ namespace OneIdentity.Scalus
             {
                 Serilog.Log.Error($"Failed to update the configured default:{output}");
                 return false;
-            }
+            }*/
 
-            return true;
+            return result.Equals(LSResult.Success);
 
             // return this.Refresh();
         }
