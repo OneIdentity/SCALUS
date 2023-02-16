@@ -25,12 +25,14 @@ namespace OneIdentity.Scalus
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
     using OneIdentity.Scalus.Platform;
+    using Python.Runtime;
 
     public class MacOSUserDefaultRegistrar : IProtocolRegistrar
     {
         public MacOSUserDefaultRegistrar(IOsServices osServices)
         {
             OsServices = osServices;
+            PythonEngine.Initialize();
         }
 
         public bool UseSudo { get; set; }
@@ -46,7 +48,7 @@ namespace OneIdentity.Scalus
         // get the current configured default
         public string GetRegisteredCommand(string protocol)
         {
-            var home = Environment.GetEnvironmentVariable("HOME");
+            /*var home = Environment.GetEnvironmentVariable("HOME");
             var output = string.Empty;
 
             // Try python first then python3
@@ -78,7 +80,15 @@ namespace OneIdentity.Scalus
 
             output = Regex.Replace(output, @"\t|\n|\r", string.Empty);
             Serilog.Log.Information($"Registered command is :{output}.");
-            return Regex.IsMatch(output, "none", RegexOptions.IgnoreCase) ? string.Empty : output;
+            return Regex.IsMatch(output, "none", RegexOptions.IgnoreCase) ? string.Empty : output;*/
+
+            using (Py.GIL())
+            {
+                dynamic launchServices = Py.Import("pyobjc-framework-LaunchServices");
+                var result = launchServices.LSCopyDefaultHandlerForURLScheme(protocol);
+                Serilog.Log.Warning($"*_*_*_*_*_*_*_*_*_*_*_* Results:{protocol}: {result}");
+                return result;
+            }
         }
 
         public bool IsScalusRegistered(string protocol)
