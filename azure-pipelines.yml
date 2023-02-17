@@ -73,6 +73,9 @@ jobs:
       [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
     displayName: 'Save code signing certificate to PFX file'
     condition: and(succeeded(), eq(variables.isRelease, true))
+  - task: UseDotNet@2
+    inputs:
+        version: '6.0.x'
   - task: Cake@2
     inputs:
       script: 'build.cake'
