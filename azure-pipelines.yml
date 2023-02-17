@@ -116,10 +116,6 @@ jobs:
   pool:
     vmImage: 'macOS-latest'
   steps:
-  - task: UseDotNet@2
-    inputs:
-        version: '7.0.102'
-
   - task: Cake@2
     inputs:
       script: 'build.cake'
