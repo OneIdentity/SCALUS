@@ -99,7 +99,7 @@ jobs:
   steps:
   - task: UseDotNet@2
     inputs:
-        version: '6.0'
+        version: '6.0.x'
   - task: Cake@2
     inputs:
       script: 'build.cake'
