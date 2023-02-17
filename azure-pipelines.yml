@@ -118,7 +118,7 @@ jobs:
   steps:
   - task: UseDotNet@2
     inputs:
-        version: '7.0.103'
+        version: '7.0.102'
 
   - task: Cake@2
     inputs:
