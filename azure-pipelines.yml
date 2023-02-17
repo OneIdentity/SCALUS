@@ -97,7 +97,6 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   steps:
-  steps:
   - task: UseDotNet@2
     inputs:
         version: '7.0.103'
