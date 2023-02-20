@@ -73,6 +73,9 @@ jobs:
       [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
     displayName: 'Save code signing certificate to PFX file'
     condition: and(succeeded(), eq(variables.isRelease, true))
+  - task: UseDotNet@2
+    inputs:
+        version: '6.0.x'
   - task: Cake@2
     inputs:
       script: 'build.cake'
@@ -97,6 +100,9 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   steps:
+  - task: UseDotNet@2
+    inputs:
+        version: '6.0.x'
   - task: Cake@2
     inputs:
       script: 'build.cake'
@@ -111,26 +117,31 @@ jobs:
       artifact: 'Scalus-Linux'
       publishLocation: 'pipeline'
 
-- job: Mac
-  dependsOn: BuildAndTest
-  pool:
-    vmImage: 'macOS-latest'
-  steps:
-  - task: Cake@2
-    inputs:
-      script: 'build.cake'
-      target: 'Default'
-      verbosity: 'Verbose'
-      version: '2.2.0'
-      arguments: '--runtime=osx-x64 --Edition=${{ parameters.edition }} --Version=$(version)'
-
-  - task: Bash@3
-    inputs:
-      filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
-      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64'
-
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: '$(Pipeline.Workspace)/s/Output/Release/osx-x64'
-      artifact: 'Scalus-Osx'
-      publishLocation: 'pipeline'
+# Dropping support for Mac at this time
+#- job: Mac
+#  dependsOn: BuildAndTest
+#  pool:
+#    vmImage: 'macOS-latest'
+#  steps:
+#  - task: UseDotNet@2
+#    inputs:
+#        version: '7.0.102'
+#
+#  - task: Cake@2
+#    inputs:
+#      script: 'build.cake'
+#      target: 'Default'
+#      verbosity: 'Verbose'
+#      version: '2.2.0'
+#      arguments: '--runtime=osx-x64 --Edition=${{ parameters.edition }} --Version=$(version)'
+#
+#  - task: Bash@3
+#    inputs:
+#      filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
+#      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64'
+#
+#  - task: PublishPipelineArtifact@1
+#    inputs:
+#      targetPath: '$(Pipeline.Workspace)/s/Output/Release/osx-x64'
+#      artifact: 'Scalus-Osx'
+#      publishLocation: 'pipeline'

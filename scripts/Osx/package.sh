@@ -178,6 +178,12 @@ fi
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
 
+    mkdir -p ${tmpdir}/${appname}.app/Contents/MacOS/Ui
+    chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui
+
+    cp -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
+    chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
+
     mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
 
