@@ -13,9 +13,9 @@ chmod 0755 `find $here -type d`
 chmod 0644 `find $here -type f`
 chmod 0755 $here/scalus
 
-if [ -h /usr/bin/scalus ]; then 
-    rm -f /usr/bin/scalus
+if [ -h /usr/local/bin/scalus ]; then 
+    rm -f /usr/local/bin/scalus
 fi
-ln -s ${here}/scalus /usr/bin/scalus
+ln -s ${here}/scalus /usr/local/bin/scalus
 cat ${here}/readme.txt
 
