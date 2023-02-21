@@ -33,6 +33,7 @@ namespace OneIdentity.Scalus
     using OneIdentity.Scalus.Platform;
     using OneIdentity.Scalus.Util;
     using Serilog;
+    using Serilog.Sinks.SystemConsole.Themes;
 
     internal class Program
     {
@@ -50,7 +51,8 @@ namespace OneIdentity.Scalus
             try
             {
                 // Register components with autofac
-                using var container = Ioc.RegisterApplication(Serilog.Log.Logger);
+                var logger = new LoggerConfiguration().WriteTo.Console(theme: ConsoleTheme.None).CreateLogger();
+                using var container = Ioc.RegisterApplication(logger);
                 using var lifetimeScope = container.BeginLifetimeScope();
                 services = lifetimeScope.Resolve<IOsServices>();
 
