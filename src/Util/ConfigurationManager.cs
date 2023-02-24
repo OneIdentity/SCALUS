@@ -36,6 +36,7 @@ namespace OneIdentity.Scalus.Util
         private const string MinLogLevelSetting = "Logging:MinLevel";
         private const string LogToConsoleSetting = "Logging:Console";
         private const string JsonFile = ProdName + ".json";
+        private const string DefaultJsonFile = "DefaultSCALUS.json";
         private const string LogFileName = ProdName + ".log";
         private const string Examples = "examples";
 
@@ -214,10 +215,10 @@ namespace OneIdentity.Scalus.Util
                     return scalusJsonDefault;
                 }
 
-                scalusJsonDefault = Path.Combine(Constants.GetBinaryDirectory(), JsonFile);
+                scalusJsonDefault = Path.Combine(Constants.GetBinaryDirectory(), DefaultJsonFile);
                 if (!File.Exists(scalusJsonDefault))
                 {
-                    scalusJsonDefault = Path.Combine(Path.Combine(ExamplePath, JsonFile));
+                    scalusJsonDefault = Path.Combine(Path.Combine(ExamplePath, DefaultJsonFile));
                 }
 
                 if (!File.Exists(scalusJsonDefault))
