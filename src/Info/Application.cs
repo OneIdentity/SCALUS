@@ -142,7 +142,6 @@ namespace OneIdentity.Scalus.Info
                     continue;
                 }
 
-                UserInteraction.Message(string.Format("     {0,-10} ", one.Protocol));
                 ApplicationConfig appConfig = null;
                 if (config.Applications?.Count > 0)
                 {
@@ -158,7 +157,8 @@ namespace OneIdentity.Scalus.Info
                 if (appConfig != null)
                 {
                     UserInteraction.Message(string.Format(
-                        "{0,-10} {1,-20} ({2} {3})",
+                        "     {0,-10} {1,-10} {2,-20} ({3} {4})",
+                        one.Protocol,
                         Registration.IsRegistered(one.Protocol) ? "yes" : "no",
                         appConfig.Description,
                         appConfig.Exec,
@@ -167,7 +167,8 @@ namespace OneIdentity.Scalus.Info
                 else
                 {
                     UserInteraction.Message(string.Format(
-                        "{0,-10} {1,-20}",
+                        "     {0,-10} {1,-10} {2,-20}",
+                        one.Protocol,
                         Registration.IsRegistered(one.Protocol) ? "yes" : "no",
                         "Not configured"));
                 }
