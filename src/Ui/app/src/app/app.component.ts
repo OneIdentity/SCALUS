@@ -253,7 +253,12 @@ export class AppComponent implements OnInit {
     });
     ref.afterClosed().subscribe(
       () => {
-        this.loadConfig(this.config, this.registrations);
+        forkJoin([
+          this.apiService.getConfig(),
+          this.apiService.getRegistrations()])
+          .subscribe(x => {
+            this.loadConfig(x[0] as ScalusConfig, x[1]);
+          });  
       });
   }
 
