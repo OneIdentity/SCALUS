@@ -1,3 +1,6 @@
+# No Mac support in current release.  Coming soon
+
+
 # SCALUS
 
 SCALUS is an acronym for **Session Client Application Launch Uri System**. It was developed as a hackathon project at OneIdentity to aid launching remote sessions from OneIdentity's privileged account management software, [**Safeguard**](https://www.oneidentity.com/one-identity-safeguard). It is a general purpose tool that can be used for many different purposes and doesn't require **Safeguard** to use.
@@ -35,7 +38,7 @@ SCALUS can be downloaded from the [releases area](https://github.com/OneIdentity
     Run the following command to install to the selected installdir (this also creates a link to the SCALUS program from /usr/bin):
     `sudo /bin/sh -c "mkdir -p _installdir_; tar xf _tarfile_ -C _installdir_; _installdir_/setup.sh"`
      
-    To start the UI, run  `/usr/bin/scalus`
+    To start the UI, run  `/usr/local/bin/scalus`
  
 * Mac OSX
 
