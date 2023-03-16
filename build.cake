@@ -294,7 +294,7 @@ Task("OsxInstall")
         var resourceDir = scalusappdir + "/Contents/Resources/examples";
         CopyDirectory(exdir, resourceDir);
 
-        CopyFile("scripts/Osx/scalusmac", targetdir + "/scalusmac");
+        CopyFile("scalusmac/.build/release/scalusmac", targetdir + "/scalusmac");
 
         var zipfile= outputdir +  "/scalus-" + Version + "-" + runtime + ".tar.gz";
         Information( "Building " + runtime + " zipfile: " + zipfile);

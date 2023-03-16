@@ -9,7 +9,7 @@ outpath=""
 appname="scalus"
 publishdir=""
 
-scalusmac=""
+scalusmacdir=""
 
 PARAMS=""
 while(( "$#" )); do
@@ -59,13 +59,13 @@ while(( "$#" )); do
          publishdir="$2"
      shift 2
     ;;
-       --scalusmac)
+       --scalusmacdir)
          if [ -z "$2" ] || [ ${2:0:1} = "-" ]; then 
-            echo "Error : missing scalusmac"
+            echo "Error : missing scalusmacdir"
             shift
             exit 1
      fi
-         scalusmac="$2"
+         scalusmacdir="$2"
      shift 2
     ;;
       *)
@@ -103,8 +103,8 @@ if [ ! -f "${publishdir}/scalus" ]; then
     exit 1
 fi
 
-if [ -z "${scalusmac}" ]; then 
-    echo "missing scalusmac"
+if [ -z "${scalusmacdir}" ]; then 
+    echo "missing scalusmacdir"
     exit 1
 fi
 
@@ -194,7 +194,7 @@ fi
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
 
-    cp $scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
+    cp scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
 
     mkdir -p ${tmpdir}/${appname}.app/Contents/MacOS/Ui

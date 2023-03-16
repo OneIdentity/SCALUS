@@ -126,6 +126,11 @@ jobs:
     inputs:
         version: '6.0.x'
 
+  - task: Bash@3
+    inputs:
+      filePath: '$(Pipeline.Workspace)/s/scripts/Osx/scalusmacBuild.sh'
+      arguments: "--scalusmacdir $(Pipeline.Workspace)/s/scalusmac"
+
   - task: Cake@2
     inputs:
       script: 'build.cake'
@@ -137,7 +142,7 @@ jobs:
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
-      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64 --scalusmac $(Pipeline.Workspace)/s/scripts/Osx/scalusmac'
+      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64 --scalusmacdir $(Pipeline.Workspace)/s/scalusmac'
 
   - task: PublishPipelineArtifact@1
     inputs:
