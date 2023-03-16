@@ -54,7 +54,6 @@ namespace OneIdentity.Scalus.Platform
         /// On Mac: Console.WriteLine
         /// </summary>
         /// <param name="message">The message to display</param>
-        /// <param name="duration">The time to display it</param>
         void ShowMessage(string message);
 
         /// <summary>

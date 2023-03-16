@@ -46,10 +46,11 @@ namespace OneIdentity.Scalus
         // get the current configured default
         public string GetRegisteredCommand(string protocol)
         {
+            var path = Constants.GetBinaryDirectory();
             var home = Environment.GetEnvironmentVariable("HOME");
             var res =
                 this.RunCommand("/bin/sh",
-                    new List<string> { "-c", $"HOME=\"{home}\"; export HOME; python -c \"from LaunchServices import LSCopyDefaultHandlerForURLScheme; print LSCopyDefaultHandlerForURLScheme('{protocol}')\"" },
+                    new List<string> { "-c", $"HOME=\"{home}\"; export HOME; {path}/scalusmac {protocol}" },
                     out string output);
             if (!res)
             {
@@ -93,13 +94,14 @@ namespace OneIdentity.Scalus
 
         private bool UpdateConfiguredDefault(string protocol, bool add = true)
         {
-            var handler = add ? MacOsExtensions.ScalusHandler : string.Empty;
+            var option = add ? "-r" : "-u";
+            var path = Constants.GetBinaryDirectory();
             var home = Environment.GetEnvironmentVariable("HOME");
             var res = this.RunCommand("/bin/sh",
                 new List<string>
                 {
                     "-c",
-                    $"HOME=\"{home}\";export HOME; python -c \"from LaunchServices import LSSetDefaultHandlerForURLScheme; LSSetDefaultHandlerForURLScheme('{protocol}', '{handler}')\"",
+                    $"HOME=\"{home}\";export HOME; {path}/scalusmac {protocol} {option}",
                 },
                 out var output);
             if (!res)
