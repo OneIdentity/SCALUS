@@ -194,7 +194,7 @@ fi
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
 
-    cp scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
+    cp $scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
 
     mkdir -p ${tmpdir}/${appname}.app/Contents/MacOS/Ui
