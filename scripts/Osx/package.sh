@@ -130,30 +130,12 @@ function resetInfo()
         <key>CFBundleTypeRole</key>
         <string>Viewer</string>
         <key>CFBundleURLName</key>
-        <string>scalus telnet URL</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>telnet</string>
-        </array>
-    </dict>
-    <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Viewer</string>
-        <key>CFBundleURLName</key>
-        <string>scalus ssh URL</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>ssh</string>
-        </array>
-    </dict>
-    <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Viewer</string>
-        <key>CFBundleURLName</key>
-        <string>scalus rdp URL</string>
+        <string>SCALUS</string>
         <key>CFBundleURLSchemes</key>
         <array>
             <string>rdp</string>
+            <string>ssh</string>
+            <string>telnet</string>
         </array>
     </dict>
 </array> '"
