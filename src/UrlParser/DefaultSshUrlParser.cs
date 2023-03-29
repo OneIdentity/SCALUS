@@ -23,6 +23,7 @@ namespace OneIdentity.Scalus.UrlParser
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
     using System.Text.RegularExpressions;
     using System.Web;
     using OneIdentity.Scalus.Dto;
@@ -108,8 +109,18 @@ namespace OneIdentity.Scalus.UrlParser
 
         protected override IEnumerable<string> GetDefaultTemplate()
         {
-            Serilog.Log.Error("No default template is defined in this parser");
-            throw new NotImplementedException();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                var list = new List<string>();
+                list.Add("#!/bin/bash");
+                list.Add($"ssh {Dictionary[Token.User]}@{Dictionary[Token.Host]}");
+                return list;
+            }
+            else
+            {
+                Serilog.Log.Error("No default template is defined in this parser");
+                throw new NotImplementedException();
+            }
         }
     }
 }
