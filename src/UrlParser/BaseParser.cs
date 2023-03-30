@@ -435,7 +435,7 @@ namespace OneIdentity.Scalus.UrlParser
                     }
                 }
 
-                Disposables.Add(Disposable.Create(() => File.Delete(tempFile)));
+                //Disposables.Add(Disposable.Create(() => File.Delete(tempFile)));
                 var newlines = new List<string>();
                 foreach (var line in lines)
                 {
