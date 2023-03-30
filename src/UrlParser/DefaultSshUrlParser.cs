@@ -23,6 +23,7 @@ namespace OneIdentity.Scalus.UrlParser
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
     using System.Text.RegularExpressions;
     using System.Web;
     using OneIdentity.Scalus.Dto;
@@ -44,7 +45,7 @@ namespace OneIdentity.Scalus.UrlParser
         public DefaultSshUrlParser(ParserConfig config)
             : base(config)
         {
-            FileExtension = ".ssh";
+            FileExtension = ".sh";
         }
 
         public DefaultSshUrlParser(ParserConfig config, IDictionary<Token, string> dictionary)
@@ -80,6 +81,8 @@ namespace OneIdentity.Scalus.UrlParser
                     throw new ParserException($"The SSH parser cannot parse URL:{url}");
                 }
 
+                Log.Information($"Parsing URL{url} as a default URL");
+
                 Parse(result);
             }
             else
@@ -108,8 +111,24 @@ namespace OneIdentity.Scalus.UrlParser
 
         protected override IEnumerable<string> GetDefaultTemplate()
         {
-            Serilog.Log.Error("No default template is defined in this parser");
-            throw new NotImplementedException();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                var user = Dictionary[Token.User];
+                var host = Dictionary[Token.Host];
+                var cmd = $"ssh {user}@{host}";
+                Log.Information($"Default SSH file with cmd: {cmd}");
+
+                var list = new List<string>();
+                list.Add("#!/bin/bash");
+                list.Add(cmd);
+                list.Add("exit;");
+                return list;
+            }
+            else
+            {
+                Serilog.Log.Error("No default template is defined in this parser");
+                throw new NotImplementedException();
+            }
         }
     }
 }
