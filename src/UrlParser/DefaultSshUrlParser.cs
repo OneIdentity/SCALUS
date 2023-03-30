@@ -27,6 +27,7 @@ namespace OneIdentity.Scalus.UrlParser
     using System.Text.RegularExpressions;
     using System.Web;
     using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Platform;
     using OneIdentity.Scalus.Util;
     using Serilog;
     using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
@@ -45,7 +46,7 @@ namespace OneIdentity.Scalus.UrlParser
         public DefaultSshUrlParser(ParserConfig config)
             : base(config)
         {
-            FileExtension = ".sh";
+            FileExtension = ".ssh";
         }
 
         public DefaultSshUrlParser(ParserConfig config, IDictionary<Token, string> dictionary)
@@ -54,6 +55,33 @@ namespace OneIdentity.Scalus.UrlParser
             if (dictionary != null)
             {
                 Dictionary = dictionary;
+            }
+        }
+
+        public override void PreExecute(IOsServices services)
+        {
+            base.PreExecute(services);
+
+            var tempFile = Dictionary[Token.GeneratedFile];
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !string.IsNullOrEmpty(tempFile))
+            {
+                // Make the temp file executable so it can be passed to the Terminal
+                Log.Information($"Changing permissions on temp file: {tempFile}");
+                var path = Constants.GetBinaryDirectory();
+                var home = Environment.GetEnvironmentVariable("HOME");
+
+                string output;
+                string err;
+                var res = services.Execute("/bin/sh",
+                    new List<string> { "-c", $"HOME=\"{home}\"; export HOME; chmod 777 {tempFile}" },
+                    out output,
+                    out err);
+
+                if (res != 0)
+                {
+                    Serilog.Log.Warning($"Failed to change permissions on temp file: {res}, output:{output}, err:{err}");
+                }
             }
         }
 
@@ -80,8 +108,6 @@ namespace OneIdentity.Scalus.UrlParser
                 {
                     throw new ParserException($"The SSH parser cannot parse URL:{url}");
                 }
-
-                Log.Information($"Parsing URL{url} as a default URL");
 
                 Parse(result);
             }
@@ -119,9 +145,8 @@ namespace OneIdentity.Scalus.UrlParser
                 Log.Information($"Default SSH file with cmd: {cmd}");
 
                 var list = new List<string>();
-                list.Add("#!/bin/bash");
+                list.Add("#!/bin/zsh");
                 list.Add(cmd);
-                list.Add("exit;");
                 return list;
             }
             else
