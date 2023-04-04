@@ -90,7 +90,7 @@ namespace OneIdentity.Scalus
 
         private static void RegisterOsxComponents(this ContainerBuilder builder)
         {
-            builder.RegisterType<MacOSProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
+            //builder.RegisterType<MacOSProtocolRegistrar>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<MacOSUserDefaultRegistrar>().AsImplementedInterfaces().SingleInstance();
         }
     }

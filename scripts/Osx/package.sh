@@ -9,6 +9,8 @@ outpath=""
 appname="scalus"
 publishdir=""
 
+scalusmacdir=""
+
 PARAMS=""
 while(( "$#" )); do
     case "$1" in
@@ -57,6 +59,15 @@ while(( "$#" )); do
          publishdir="$2"
      shift 2
     ;;
+       --scalusmacdir)
+         if [ -z "$2" ] || [ ${2:0:1} = "-" ]; then 
+            echo "Error : missing scalusmacdir"
+            shift
+            exit 1
+     fi
+         scalusmacdir="$2"
+     shift 2
+    ;;
       *)
         shift
         ;;
@@ -89,6 +100,11 @@ if [ -z "${publishdir}" ]; then
 fi
 if [ ! -f "${publishdir}/scalus" ]; then 
     echo "publishdir must be full path containing published scalus"
+    exit 1
+fi
+
+if [ -z "${scalusmacdir}" ]; then 
+    echo "missing scalusmacdir"
     exit 1
 fi
 
@@ -177,6 +193,9 @@ fi
 
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
+
+    cp $scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
+    chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
 
     mkdir -p ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui

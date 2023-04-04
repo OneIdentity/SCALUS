@@ -94,10 +94,11 @@
       "Protocol": "ssh",
       "Parser": {
         "ParserId": "ssh",
-        "Options": [ "waitforexit" ]
+        "UseDefaultTemplate": true,
+        "Options": [ "wait:10" ]
       },
       "Exec": "/usr/bin/open",
-      "Args": [ "-b", "com.apple.terminal", "%OriginalURL%" ]
+      "Args": [ "-b", "com.apple.terminal", "%GeneratedFile%" ]
     },
     {
       "Id": "mac-rdp",

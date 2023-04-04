@@ -31,6 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Osx", "Osx", "{5321F333-4DA
 		scripts\Osx\package.sh = scripts\Osx\package.sh
 		scripts\Osx\resetInfoPlist.sh = scripts\Osx\resetInfoPlist.sh
 		scripts\Osx\SCALUS.json = scripts\Osx\SCALUS.json
+		scripts\Osx\scalusmacBuild.sh = scripts\Osx\scalusmacBuild.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Linux", "Linux", "{7548F3C0-8A06-4AB4-B07D-7D48E9E5E096}"

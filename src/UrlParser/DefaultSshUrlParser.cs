@@ -23,9 +23,11 @@ namespace OneIdentity.Scalus.UrlParser
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
     using System.Text.RegularExpressions;
     using System.Web;
     using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Platform;
     using OneIdentity.Scalus.Util;
     using Serilog;
     using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
@@ -53,6 +55,33 @@ namespace OneIdentity.Scalus.UrlParser
             if (dictionary != null)
             {
                 Dictionary = dictionary;
+            }
+        }
+
+        public override void PreExecute(IOsServices services)
+        {
+            base.PreExecute(services);
+
+            var tempFile = Dictionary[Token.GeneratedFile];
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !string.IsNullOrEmpty(tempFile))
+            {
+                // Make the temp file executable so it can be passed to the Terminal
+                Log.Information($"Changing permissions on temp file: {tempFile}");
+                var path = Constants.GetBinaryDirectory();
+                var home = Environment.GetEnvironmentVariable("HOME");
+
+                string output;
+                string err;
+                var res = services.Execute("/bin/sh",
+                    new List<string> { "-c", $"HOME=\"{home}\"; export HOME; chmod 777 {tempFile}" },
+                    out output,
+                    out err);
+
+                if (res != 0)
+                {
+                    Serilog.Log.Warning($"Failed to change permissions on temp file: {res}, output:{output}, err:{err}");
+                }
             }
         }
 
@@ -108,8 +137,23 @@ namespace OneIdentity.Scalus.UrlParser
 
         protected override IEnumerable<string> GetDefaultTemplate()
         {
-            Serilog.Log.Error("No default template is defined in this parser");
-            throw new NotImplementedException();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                var user = Dictionary[Token.User];
+                var host = Dictionary[Token.Host];
+                var cmd = $"ssh {user}@{host}";
+                Log.Information($"Default SSH file with cmd: {cmd}");
+
+                var list = new List<string>();
+                list.Add("#!/bin/zsh");
+                list.Add(cmd);
+                return list;
+            }
+            else
+            {
+                Serilog.Log.Error("No default template is defined in this parser");
+                throw new NotImplementedException();
+            }
         }
     }
 }
