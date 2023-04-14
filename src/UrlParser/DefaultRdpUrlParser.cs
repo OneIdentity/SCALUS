@@ -22,6 +22,7 @@
 namespace OneIdentity.Scalus.UrlParser
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -30,10 +31,15 @@ namespace OneIdentity.Scalus.UrlParser
     using System.Runtime.InteropServices;
     using System.Runtime.Versioning;
     using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Web;
+    using Autofac.Core;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Win32;
     using OneIdentity.Scalus.Dto;
+    using OneIdentity.Scalus.Platform;
     using OneIdentity.Scalus.Util;
     using Serilog;
     using static OneIdentity.Scalus.Dto.ParserConfigDefinitions;
@@ -92,6 +98,47 @@ namespace OneIdentity.Scalus.UrlParser
 
             defaultArgs = ParseTemplate(list);
             return;
+        }
+
+        public override void PreExecute(IOsServices services)
+        {
+            base.PreExecute(services);
+
+            var tempFile = Dictionary[Token.GeneratedFile];
+            if (string.IsNullOrEmpty(tempFile))
+            {
+                Log.Debug("No temp file was written");
+            }
+
+            var thumbprint = GetScalusThumbprint(services);
+            if (string.IsNullOrEmpty(thumbprint))
+            {
+                Log.Debug("No SCALUS signing certificate found");
+            }
+
+            // Sign the rdp file to eliminate warning messages when lauching the RDP session
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                !string.IsNullOrEmpty(tempFile) &&
+                !string.IsNullOrEmpty(thumbprint))
+            {
+                // Found signing certificate
+                Log.Information($"Found SCALUS signing certificate: {thumbprint}");
+
+                // Sign the temp file
+                Log.Information($"Signing temp file: {tempFile}");
+
+                string output;
+                string err;
+                var res = services.Execute("rdpsign",
+                    new List<string> { "/sha256", thumbprint, tempFile },
+                    out output,
+                    out err);
+
+                if (res != 0)
+                {
+                    Serilog.Log.Warning($"Failed to sign temp file: {res}, output:{output}, err:{err}");
+                }
+            }
         }
 
         public override IDictionary<Token, string> Parse(string url)
@@ -201,6 +248,82 @@ namespace OneIdentity.Scalus.UrlParser
             }
 
             return list;
+        }
+
+        private static string GetScalusThumbprint(IOsServices services)
+        {
+            var cert = GetScalusSigningCert();
+            if (cert == null)
+            {
+                Log.Debug("No SCALUS signing certificate found, attempting to create one");
+                cert = CreateScalusSigningCert(services);
+            }
+
+            if (cert != null)
+            {
+                return cert.Thumbprint;
+            }
+
+            return string.Empty;
+        }
+
+        private static X509Certificate2 GetScalusSigningCert()
+        {
+            var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+            foreach (var cert in store.Certificates)
+            {
+                if (string.Equals(cert.Subject, "CN=SCALUS", StringComparison.OrdinalIgnoreCase))
+                {
+                    return cert;
+                }
+            }
+
+            return null;
+        }
+
+        private static X509Certificate2 CreateScalusSigningCert(IOsServices services)
+        {
+            Log.Debug("Attempting to create SCALUS signing certificate");
+            string output;
+            string err;
+            var res = services.Execute("powershell",
+                new List<string>
+                {
+                    "New-SelfSignedCertificate",
+                    "-Subject",
+                    "SCALUS",
+                    "-NotAfter",
+                    "(Get-Date).AddYears(5)",
+                    "-KeyUsage",
+                    "DigitalSignature",
+                    "-CertStoreLocation",
+                    "Cert:\\CurrentUser\\My",
+                },
+                out output,
+                out err);
+
+            if (res != 0)
+            {
+                Serilog.Log.Warning($"Failed to create SCALUS signing cert: {res}, output:{output}, err:{err}");
+            }
+
+            var cert = GetScalusSigningCert();
+            if (cert != null)
+            {
+                TrustScalusSigningCert(cert);
+            }
+
+            return cert;
+        }
+
+        private static void TrustScalusSigningCert(X509Certificate2 cert)
+        {
+            Log.Debug("Attempting to trust SCALUS signing certificate");
+            var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadWrite);
+            store.Add(cert);
+            Log.Debug("SCALUS signing certificate trusted");
         }
 
         private static string GetResource(string name)
