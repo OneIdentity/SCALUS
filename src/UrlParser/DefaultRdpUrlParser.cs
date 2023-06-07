@@ -104,39 +104,41 @@ namespace OneIdentity.Scalus.UrlParser
         {
             base.PreExecute(services);
 
-            var tempFile = Dictionary[Token.GeneratedFile];
-            if (string.IsNullOrEmpty(tempFile))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Log.Debug("No temp file was written");
-            }
-
-            var thumbprint = GetScalusThumbprint(services);
-            if (string.IsNullOrEmpty(thumbprint))
-            {
-                Log.Debug("No SCALUS signing certificate found");
-            }
-
-            // Sign the rdp file to eliminate warning messages when lauching the RDP session
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-                !string.IsNullOrEmpty(tempFile) &&
-                !string.IsNullOrEmpty(thumbprint))
-            {
-                // Found signing certificate
-                Log.Information($"Found SCALUS signing certificate: {thumbprint}");
-
-                // Sign the temp file
-                Log.Information($"Signing temp file: {tempFile}");
-
-                string output;
-                string err;
-                var res = services.Execute("rdpsign",
-                    new List<string> { "/sha256", thumbprint, tempFile },
-                    out output,
-                    out err);
-
-                if (res != 0)
+                var tempFile = Dictionary[Token.GeneratedFile];
+                if (string.IsNullOrEmpty(tempFile))
                 {
-                    Serilog.Log.Warning($"Failed to sign temp file: {res}, output:{output}, err:{err}");
+                    Log.Debug("No temp file was written");
+                }
+
+                var thumbprint = GetScalusThumbprint(services);
+                if (string.IsNullOrEmpty(thumbprint))
+                {
+                    Log.Debug("No SCALUS signing certificate found");
+                }
+
+                // Sign the rdp file to eliminate warning messages when lauching the RDP session
+                if (!string.IsNullOrEmpty(tempFile) &&
+                    !string.IsNullOrEmpty(thumbprint))
+                {
+                    // Found signing certificate
+                    Log.Information($"Found SCALUS signing certificate: {thumbprint}");
+
+                    // Sign the temp file
+                    Log.Information($"Signing temp file: {tempFile}");
+
+                    string output;
+                    string err;
+                    var res = services.Execute("rdpsign",
+                        new List<string> { "/sha256", thumbprint, tempFile },
+                        out output,
+                        out err);
+
+                    if (res != 0)
+                    {
+                        Serilog.Log.Warning($"Failed to sign temp file: {res}, output:{output}, err:{err}");
+                    }
                 }
             }
         }
