@@ -15,12 +15,14 @@ on open location theURL
 	display dialog "launching URL " & theURL
 	set cmdpath to checkit()
 	do shell script cmdpath & " launch -u '" & theURL & "'"
+	display dialog "launching URL -- Completed"
 end open location
 
 on runScalus()
-	display dialog "launching SCALUS"
+	display dialog "Launching SCALUS"
 	set cmdpath to checkit()
 	do shell script cmdpath
+	display dialog "Launching SCALUS -- Comnpleted"
 end runScalus
 
 run runScalus()
