@@ -13,9 +13,11 @@ end checkit
 
 on open location theURL
 	set cmdpath to checkit()
-	if theUrl is not equal to "" then
+	if (theUrl is not equal to "") then
+		display dialog "Launching URL" & theURL
 	    do shell script cmdpath & " launch -u '" & theURL & "'"
     else
+		display dialog "launching SCALUS UI"
 	    do shell script cmdpath
 	end if
 end open location

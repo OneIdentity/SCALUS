@@ -51,11 +51,6 @@ namespace OneIdentity.Scalus.Ui.Web.Controllers
         public void Post()
         {
             Serilog.Log.Debug("Server shutdown requested.");
-            if (Util.ConfigurationManager.IgnoreShutdown)
-            {
-                Serilog.Log.Warning("Server shutdown ignored due to appsettings.json configuration.");
-                return;
-            }
 
             WebServer.Shutdown();
         }
