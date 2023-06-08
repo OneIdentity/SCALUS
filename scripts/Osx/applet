@@ -17,10 +17,10 @@ on open location theURL
 	do shell script cmdpath & " launch -u '" & theURL & "'"
 end open location
 
-script runScalus
+on runScalus
 	display dialog "launching SCALUS"
 	set cmdpath to checkit()
 	do shell script cmdpath
-end script
+end runScalus
 
 run runScalus
