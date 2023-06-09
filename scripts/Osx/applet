@@ -12,17 +12,13 @@ on checkit()
 end checkit
 
 on open location theURL
-	display dialog "launching URL " & theURL
 	set cmdpath to checkit()
-	do shell script cmdpath & " launch -u '" & theURL & "'"
-	display dialog "launching URL -- Completed"
+	do shell script "open -n " & cmdpath & " launch -u '" & theURL & "'"
 end open location
 
 on runScalus()
-	display dialog "Launching SCALUS"
 	set cmdpath to checkit()
-	do shell script cmdpath
-	display dialog "Launching SCALUS -- Comnpleted"
+	do shell script "open -n " & cmdpath
 end runScalus
 
 run runScalus()
