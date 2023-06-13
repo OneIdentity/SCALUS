@@ -98,7 +98,29 @@
         "Options": [ "wait:10" ]
       },
       "Exec": "/usr/bin/open",
-      "Args": [ "-b", "com.apple.terminal", "%GeneratedFile%" ]
+      "Args": [
+        "-b",
+        "com.apple.terminal",
+        "%GeneratedFile%"
+      ]
+    },
+    {
+      "Id": "mac-ssh-iTerm",
+      "Name": "MAC iTermSSH",
+      "Description": "Run iTerm2 on Mac OS with the SSH connection information",
+      "Platforms": [ "Mac" ],
+      "Protocol": "ssh",
+      "Parser": {
+        "ParserId": "ssh",
+        "UseDefaultTemplate": true,
+        "Options": [ "wait:10" ]
+      },
+      "Exec": "/usr/bin/open",
+      "Args": [
+        "-b",
+        "com.googlecode.iterm2",
+        "%GeneratedFile%"
+      ]
     },
     {
       "Id": "mac-rdp",
