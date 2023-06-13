@@ -16,3 +16,9 @@ on open location theURL
 	do shell script cmdpath & " launch -u '" & theURL & "'"
 end open location
 
+on runScalus()
+	set cmdpath to checkit()
+	do shell script "open -n " & cmdpath
+end runScalus
+
+run runScalus()
