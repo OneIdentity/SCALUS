@@ -45,7 +45,7 @@ SCALUS can be downloaded from the [releases area](https://github.com/OneIdentity
     Install the scalus.app application from the downloaded package file  e.g.
     `installer -pkg scalus-_version__osx-x64.pkg -target /`
 
-    To start the UI, run `/Applications/scalus.app`
+    To start the UI, run `open /Applications/scalus.app`
 
     The readme and examples can be found in _/Applications/scalus.app/Contents/Resources/examples_
 
