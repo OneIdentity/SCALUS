@@ -70,6 +70,15 @@ export class AppComponent implements OnInit {
     });
   }
 
+  reloadConfig() {
+    this.apiService.getConfig().subscribe(
+      result => {
+        this.loadConfig(result as ScalusConfig, this.registrations);
+      }, error => {
+        this.showError("Failed to reload configuration");
+      });
+  }
+
   loadConfig(config:ScalusConfig, registrations:Array<string>)
   {
     this.config = config;
@@ -173,6 +182,8 @@ export class AppComponent implements OnInit {
       }, 
       error => {
         this.showError("Failed to save configuration");
+        // config failed to save to reload it
+        this.reloadConfig();
     });
   }
 
@@ -190,6 +201,8 @@ export class AppComponent implements OnInit {
       }, 
       error => {
         this.showError("Failed to save configuration");
+        // config failed to save to reload it
+        this.reloadConfig();
     });
   }
 
