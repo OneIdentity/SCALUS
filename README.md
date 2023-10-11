@@ -1,6 +1,3 @@
-# No Mac support in current release.  Coming soon
-
-
 # SCALUS
 
 SCALUS is an acronym for **Session Client Application Launch Uri System**. It was developed as a hackathon project at OneIdentity to aid launching remote sessions from OneIdentity's privileged account management software, [**Safeguard**](https://www.oneidentity.com/one-identity-safeguard). It is a general purpose tool that can be used for many different purposes and doesn't require **Safeguard** to use.
