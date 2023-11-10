@@ -389,15 +389,6 @@ namespace OneIdentity.Scalus.UrlParser
                 value = HttpUtility.UrlDecode(value);
                 if (name.Equals(UsernameKey, StringComparison.Ordinal))
                 {
-                    if (value.Contains("%25") || value.Contains("%5c") || value.Contains("%20"))
-                    {
-                        value = HttpUtility.UrlDecode(value);
-                    }
-                    else
-                    {
-                        value = value.Replace("%3a", ":");
-                    }
-
                     // Workaround a bug where 2 slashes were added to the connection URI instead of just 1
                     value = value.Replace("\\\\", "\\");
 
@@ -422,8 +413,6 @@ namespace OneIdentity.Scalus.UrlParser
                 }
                 else
                 {
-                    value = HttpUtility.UrlDecode(value);
-
                     foreach (var one in rdpKeys)
                     {
                         if (Regex.IsMatch(name, one.Item1))
