@@ -40,7 +40,7 @@ namespace OneIdentity.Scalus
         {
             Serilog.Log.Information($"Checking configuration for url:{uri}");
             // var manually parse out the protocol
-            var index = uri.IndexOf("://");
+            var index = uri.IndexOf("://", StringComparison.Ordinal);
             var protocol = string.Empty;
             if (index >= 0)
             {
