@@ -33,11 +33,15 @@ open(DATA, "<${filename}") or die "ERROR:Couldnt open file ${filename}, $!";
 open(TOFILE, ">${tmpfile}") or die "ERROR:Couldnt open file ${tmpfile}, $!";
 while (<DATA>){
 	chomp;
-	my ($key, $valtype, $val) = split /:/, $_;
-	if (not (exists $settings{$key})) {
-		if (($key ne "password 51") or ($spass == ""))
+	my @keyval = split /:/, $_;
+	if (not (exists $settings{$keyval[0]})) {
+		if (($keyval[0] ne "password 51") or ($spass == ""))
 		{
-			$settings{$key} = "${valtype}:${val}";
+			$settings{$keyval[0]} = "$keyval[1]:$keyval[2]";
+			if ((lc($keyval[0]) eq "full address") and ($keyval[3] ne ""))
+			{
+				$settings{$keyval[0]} = "$keyval[1]:$keyval[2]:$keyval[3]";
+			}
 		} 
 	}
 
