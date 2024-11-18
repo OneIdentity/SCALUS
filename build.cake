@@ -174,6 +174,7 @@ Task("MsiInstaller")
         WiXLight(wobjFiles, new LightSettings
         {
             Extensions = new[] { "WixUIExtension", "WixUtilExtension" },
+            RawArguments = "-sice:ICE61",
             OutputFile = msiPath
         });
 
@@ -201,8 +202,9 @@ Task("Build")
             new DotNetBuildSettings()
             {
                 Configuration = configuration,
-                OutputDirectory = builddir,
+                //OutputDirectory = builddir,
                 MSBuildSettings = new DotNetMSBuildSettings()
+                    .WithProperty("OutputPath", builddir)
                     .WithProperty("Edition", edition)
             });
     });
