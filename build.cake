@@ -1,4 +1,4 @@
-#addin "Cake.Powershell&version=2.0.0"
+#addin "Cake.Powershell&version=2.0.0&loaddependencies=true"
 #tool "nuget:?package=xunit.runner.console&version=2.4.2"
 #tool "nuget:?package=WiX&version=3.11.2"
 #addin nuget:?package=SharpZipLib&version=1.4.0
