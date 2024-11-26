@@ -82,10 +82,10 @@ jobs:
       target: 'Default'
       verbosity: 'Verbose'
       version: '2.2.0'
-      arguments: '--runtime=win10-x64 --Edition=${{ parameters.edition }} --Version=$(version) --SignFiles=$(isRelease) --CertPath="$(Build.BinariesDirectory)/$(codeSigningCertFileName)" --ToolPath="$(signingToolPath)" --CertPass=$(OneIdentity-CodeSigningCertPassword)'
+      arguments: '--runtime=win-x64 --Edition=${{ parameters.edition }} --Version=$(version) --SignFiles=$(isRelease) --CertPath="$(Build.BinariesDirectory)/$(codeSigningCertFileName)" --ToolPath="$(signingToolPath)" --CertPass=$(OneIdentity-CodeSigningCertPassword)'
   - task: PublishPipelineArtifact@1
     inputs:
-      targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
+      targetPath: '$(Pipeline.Workspace)/s/Output/Release/win-x64'
       artifact: 'Scalus-Win10'
       publishLocation: 'pipeline'
   - task: DeleteFiles@1
