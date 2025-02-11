@@ -39,6 +39,7 @@ namespace OneIdentity.Scalus
         public IProtocolHandler GetProtocolHandler(string uri)
         {
             Serilog.Log.Information($"Checking configuration for url:{uri}");
+            uri = uri.Replace("rdp:", "rdp://");
             // var manually parse out the protocol
             var index = uri.IndexOf("://", StringComparison.Ordinal);
             var protocol = string.Empty;
