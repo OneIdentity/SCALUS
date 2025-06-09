@@ -18,9 +18,7 @@ var Version         = Argument<string>("Version", "1.0.0");
 var runtime         = Argument<string>("Runtime", "win-x64");
 var GitRevision     = Argument<string>("GitRevision", "0000000000000000000000000000000000000000");
 var GitRepo         = Argument<string>("GitRepo", "broken/repo");
-var CertPath        = Argument<string>("CertPath", "");
-var CertPass        = Argument<string>("CertPass", "");
-var ToolPath        = Argument<string>("ToolPath", "");
+var SignToolPath    = Argument<string>("SignToolPath", "");
 var SignFiles       = Argument<bool>("SignFiles", false);
 
 var isWindows       = Argument<bool>("isWindows", runtime.StartsWithIgnoreCase("win"));
@@ -30,31 +28,23 @@ var is64            = Argument<bool>("is64", runtime.EndsWithIgnoreCase("X64"));
 
 var isLocalBuild = BuildSystem.IsLocalBuild;
 
-var signTool        = ToolPath + "/SignTool.exe";
 var canSign = false;
 if (SignFiles)
 {
-    if ((ToolPath == "") || (CertPath == "") || (CertPass == ""))
+    if (SignToolPath == "")
     {
-        Information("Code sign not selected");
+        Information("The SignFiles parameter was set to true, but the SignToolPath parameter did not have a value.");
     }
     else
     {
-        if ((!DirectoryExists(ToolPath)) || (!FileExists(CertPath)))
+        if (!FileExists(SignToolPath))
         {
-            if (!DirectoryExists(ToolPath))
-            {
-                Information("Cannot sign code - invalid tool path: " + ToolPath);
-            }
-            if (!FileExists(CertPath))
-            {
-                Information("Cannot sign code - invalid cert path: " + CertPath);
-            }
+            Information("The sign tool file does not exist at: " + SignToolPath);
         }
         else
         {
             canSign = true;
-            Information("Signing with " + ToolPath + ", cert:" + CertPath );
+            Information("Signing with " + SignToolPath);
         }
     }
 }
@@ -344,13 +334,15 @@ Task("SignPath")
     .WithCriteria(canSign)
     .Does(() =>
     {
+         // https://stackoverflow.com/questions/66049792/how-to-sign-binaries-during-publishing-a-single-file-dotnet-core-app
          Information("Signing " + scalusExe);
          Sign(new string[] { scalusExe },
                 new SignToolSignSettings {
-                    ToolPath = signTool,
-                    CertPath = CertPath,
-                    Password = CertPass,
-                    DigestAlgorithm = SignToolDigestAlgorithm.Sha256
+                    ToolPath = SignToolPath,
+                    CertSubjectName = "One Identity LLC",
+                    DigestAlgorithm = SignToolDigestAlgorithm.Sha256,
+                    TimeStampDigestAlgorithm = SignToolDigestAlgorithm.Sha256,
+                    TimeStampUri = new Uri("http://ts.ssl.com"),
             });
         });
 
@@ -361,10 +353,11 @@ Task("SignMsi")
          Information("Signing " + msiPath);
          Sign(new string[] { msiPath },
                 new SignToolSignSettings {
-                    ToolPath = signTool,
-                    CertPath = CertPath,
-                    Password = CertPass,
-                    DigestAlgorithm = SignToolDigestAlgorithm.Sha256
+                    ToolPath = SignToolPath,
+                    CertSubjectName = "One Identity LLC",
+                    DigestAlgorithm = SignToolDigestAlgorithm.Sha256,
+                    TimeStampDigestAlgorithm = SignToolDigestAlgorithm.Sha256,
+                    TimeStampUri = new Uri("http://ts.ssl.com"),
             });
         });
 
