@@ -160,8 +160,8 @@ jobs:
 
   - task: AzureKeyVault@2
     inputs:  
-      azureSubscription: 'OneIdentity.RD.SBox.Starling'
-      KeyVaultName: 'SafeguardAssets-Dev'
+      ConnectedServiceName: "OneIdentity.Infrastructure.SPPCodeSigning"
+      KeyVaultName: "SPPCodeSigning"
       SecretsFilter: 'AppleCertificate-Installer-Cert,AppleCertificate-Installer-Password,AppleCertificate-Application-Cert,Apple-App-Specific-Password'
 
   - powershell: |
