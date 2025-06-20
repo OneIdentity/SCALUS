@@ -223,7 +223,7 @@ jobs:
     displayName: 'x64-ProductSigning'
     
   - script: |
-        # Upload the zip archive to the Apple Notary Service
+        # Upload the pkg to the Apple Notary Service
         xcrun notarytool submit \
             --apple-id "One.Identity.Apple.Developer@oneidentity.com" \
             --password "$(Apple-App-Specific-Password)" \
@@ -236,7 +236,7 @@ jobs:
       sudo xcrun stapler staple $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
     displayName: 'Staple'
 
-    - powershell: |  
+  - powershell: |  
       sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.tar.gz $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
     displayName: 'x64-ProductSigning '
     
