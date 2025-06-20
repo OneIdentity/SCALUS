@@ -158,6 +158,48 @@ jobs:
     inputs:
         version: '6.0.x'
 
+  - task: AzureKeyVault@2
+    inputs:  
+      azureSubscription: 'OneIdentity.RD.SBox.Starling'
+      KeyVaultName: 'SafeguardAssets-Dev'
+      SecretsFilter: 'AppleCertificate-Installer-Cert,AppleCertificate-Installer-Password,AppleCertificate-Application-Cert,Apple-App-Specific-Password'
+
+  - powershell: |
+         $kvSecretBytes = [System.Convert]::FromBase64String("$(AppleCertificate-Installer-Cert)")
+         $certCollection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
+         $certCollection.Import($kvSecretBytes,$null,[System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+         $protectedCertificateBytes = $certCollection.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pkcs12,"$(AppleCertificate-Installer-Password)")
+         $certpath = '$(Build.SourcesDirectory)/$(ProductSigningCertFileName)'
+         Write-Verbose -Verbose $certpath
+         [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
+         sudo security import $certpath -k /Library/Keychains/System.keychain -P $(AppleCertificate-Installer-Password) -A -t cert -f pkcs12
+    displayName: 'Save Apple product signing certificate to PFX file'
+
+  - powershell: |
+        $kvSecretBytes = [System.Convert]::FromBase64String("$(AppleCertificate-Application-Cert)")
+        $certCollection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
+        $certCollection.Import($kvSecretBytes,$null,[System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+        $protectedCertificateBytes = $certCollection.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pkcs12,"$(AppleCertificate-Installer-Password)")
+        $certpath = '$(Build.SourcesDirectory)/$(CodeSigningCertFileName)'
+        Write-Verbose -Verbose $certpath
+        [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
+        sudo security import $certpath -k /Library/Keychains/System.keychain -P $(AppleCertificate-Installer-Password) -A -t cert -f pkcs12
+    displayName: 'Save Apple code signing certificate to PFX file'
+
+  - task: DeleteFiles@1
+    displayName: 'Delete product signing certificate files'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      Contents: '$(ProductSigningCertFileName)'
+    condition: succeededOrFailed()
+
+  - task: DeleteFiles@1
+    displayName: 'Delete code signing certificate files'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      Contents: '$(CodeSigningCertFileName)'
+    condition: succeededOrFailed()
+
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/scalusmacBuild.sh'
@@ -175,6 +217,46 @@ jobs:
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
       arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64 --scalusmacdir $(Pipeline.Workspace)/s/scalusmac'
+      
+  - powershell: |  
+      sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
+    displayName: 'x64-ProductSigning'
+    
+  - script: |
+        # Upload the zip archive to the Apple Notary Service
+        xcrun notarytool submit \
+            --apple-id "One.Identity.Apple.Developer@oneidentity.com" \
+            --password "$(Apple-App-Specific-Password)" \
+            --team-id "LDBTVAT43D" \
+            --wait \
+            $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg \
+    displayName: 'Upload and notarize'
+
+  - powershell: |
+      sudo xcrun stapler staple $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
+    displayName: 'Staple'
+
+    - powershell: |  
+      sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.tar.gz $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
+    displayName: 'x64-ProductSigning '
+    
+  - script: |
+        # Upload the zip archive to the Apple Notary Service
+        xcrun notarytool submit \
+            --apple-id "One.Identity.Apple.Developer@oneidentity.com" \
+            --password "$(Apple-App-Specific-Password)" \
+            --team-id "LDBTVAT43D" \
+            --wait \
+            $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz \
+    displayName: 'Upload and notarize'
+
+  - powershell: |
+      sudo xcrun stapler staple $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
+    displayName: 'Staple'
+
+  - powershell: |
+      spctl -vvv --assess --type install $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
+    displayName: 'Check if run with the system policies'
 
   - task: PublishPipelineArtifact@1
     inputs:

@@ -203,6 +203,36 @@ fi
     cp -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
 
+    
+    # CodeSigning 
+    for dir in ${tmpdir}/${appname}.app/Contents/MacOS/*; do 
+        if [ ! -d "${dir}" ]; then 
+            if fn_Runit "codesign --force -s LDBTVAT43D -v ${dir} --deep --strict --options=runtime --timestamp" > /dev/null 2>&1; then 
+                echo "[INFO] Code signing succeeded for ${dir}"
+                continue
+            else
+                fn_Runit "codesign --remove-signature ${dir}"
+                fn_Runit "codesign --force -s LDBTVAT43D -v ${dir} --deep --strict --options=runtime --timestamp"
+                echo "[INFO] Code signing succeeded for ${dir}"
+                continue               
+            fi            
+        fi
+        for file in ${dir}/*; do
+            if [ ! -d "${file}" ]; then 
+                if fn_Runit "codesign --force -s LDBTVAT43D -v ${file} --deep --strict --options=runtime --timestamp" > /dev/null 2>&1; then 
+                    echo "[INFO] Code signing succeeded for ${file}"
+                    continue
+                else
+                    fn_Runit "codesign --remove-signature ${file}"
+                    fn_Runit "codesign --force -s LDBTVAT43D -v ${file} --deep --strict --options=runtime --timestamp"
+                    echo "[INFO] Code signing succeeded for ${file}"
+                    continue
+                fi
+            fi  
+        done
+    done
+
+
     mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
 
