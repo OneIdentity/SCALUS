@@ -203,7 +203,9 @@ fi
     cp -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
 
-    
+    mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
+    chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
+
     # CodeSigning the files in the app bundle
     shopt -s globstar
     for file_path in ${tmpdir}/${appname}.app/**/*; do
@@ -224,9 +226,6 @@ fi
             fi
         fi
     done
-    
-    mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
-    chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
 
     cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
