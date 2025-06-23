@@ -10,6 +10,7 @@ appname="scalus"
 publishdir=""
 
 scalusmacdir=""
+isrelease=""
 
 PARAMS=""
 while(( "$#" )); do
@@ -209,27 +210,34 @@ fi
     cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
 
-    # CodeSigning the files in the app bundle
-    shopt -s globstar
-    for file_path in ${tmpdir}/${appname}.app/**/*; do
-        if [[ -f "$file_path" ]]; then # Check if it's a regular file
-            echo "Processing file: $file_path"
-            if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
-                echo "[INFO] Code signing succeeded for ${file_path}"
-                continue
-            else
-                codesign --remove-signature "${file_path}"
+    echo "IsRelease: ${isrelease}"
+    if [ ${isrelease} = "true" ]; then
+        # CodeSigning the files in the app bundle
+        shopt -s globstar
+        for file_path in ${tmpdir}/${appname}.app/**/*; do
+            if [[ -f "$file_path" ]]; then # Check if it's a regular file
+                echo "Processing file: $file_path"
                 if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
                     echo "[INFO] Code signing succeeded for ${file_path}"
                     continue
                 else
-                    echo "[ERROR] Code signing failed for ${file_path}"
-                    continue
-                fi                               
+                    codesign --remove-signature "${file_path}"
+                    if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
+                        echo "[INFO] Code signing succeeded for ${file_path}"
+                        continue
+                    else
+                        echo "[ERROR] Code signing failed for ${file_path}"
+                        continue
+                    fi                               
+                fi
             fi
-        fi
-    done
+        done
+    fi
 
+    chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
+
+    cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
+    chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
     here=`pwd`
     cd $tmpdir
     tar -cvf - ${appname}.app | gzip -c > ${pkgtarfile}
