@@ -8,7 +8,7 @@ outpath=""
 
 appname="scalus"
 publishdir=""
-
+isrelease=true
 scalusmacdir=""
 
 
@@ -210,8 +210,8 @@ fi
     cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
 
-    echo "IsRelease: $7"
-    if [ $7 -eq 1 ]; then
+    echo "IsRelease: $isrelease"
+    if [ "$isrelease" = true ]; then
         # CodeSigning the files in the app bundle
         shopt -s globstar
         for file_path in ${tmpdir}/${appname}.app/**/*; do
