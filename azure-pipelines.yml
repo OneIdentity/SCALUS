@@ -175,6 +175,7 @@ jobs:
          [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
          sudo security import $certpath -k /Library/Keychains/System.keychain -P $(AppleCertificate-Installer-Password) -A -t cert -f pkcs12
     displayName: 'Save Apple product signing certificate to PFX file'
+    condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |
         $kvSecretBytes = [System.Convert]::FromBase64String("$(AppleCertificate-Application-Cert)")
@@ -186,20 +187,21 @@ jobs:
         [System.IO.File]::WriteAllBytes($certpath, $protectedCertificateBytes)
         sudo security import $certpath -k /Library/Keychains/System.keychain -P $(AppleCertificate-Installer-Password) -A -t cert -f pkcs12
     displayName: 'Save Apple code signing certificate to PFX file'
+    condition: and(succeeded(), eq(variables.isRelease, true))
 
   - task: DeleteFiles@1
     displayName: 'Delete product signing certificate files'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)'
       Contents: '$(ProductSigningCertFileName)'
-    condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), eq(variables.isRelease, true))
 
   - task: DeleteFiles@1
     displayName: 'Delete code signing certificate files'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)'
       Contents: '$(CodeSigningCertFileName)'
-    condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), eq(variables.isRelease, true))
 
   - task: Bash@3
     inputs:
@@ -221,7 +223,8 @@ jobs:
       
   - powershell: |  
       sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
-    displayName: 'x64-ProductSigning'
+    displayName: 'x64-ProductSigning for pkg'
+    condition: and(succeeded(), eq(variables.isRelease, true))
     
   - script: |
         # Upload the pkg to the Apple Notary Service
@@ -231,15 +234,18 @@ jobs:
             --team-id "LDBTVAT43D" \
             --wait \
             $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg \
-    displayName: 'Upload and notarize'
+    displayName: 'Upload and notarize for pkg'
+    condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |
       sudo xcrun stapler staple $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
-    displayName: 'Staple'
+    displayName: 'Staple for pkg'
+    condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |  
       sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.tar.gz $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
-    displayName: 'x64-ProductSigning '
+    displayName: 'x64-ProductSigning for tar.gz'
+    condition: and(succeeded(), eq(variables.isRelease, true))
     
   - script: |
         # Upload the zip archive to the Apple Notary Service
@@ -249,15 +255,18 @@ jobs:
             --team-id "LDBTVAT43D" \
             --wait \
             $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz \
-    displayName: 'Upload and notarize'
+    displayName: 'Upload and notarize for tar.gz'
+    condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |
       sudo xcrun stapler staple $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
-    displayName: 'Staple'
+    displayName: 'Staple tar.gz file'
+    condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |
       spctl -vvv --assess --type install $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
-    displayName: 'Check if run with the system policies'
+    displayName: 'Check if run with the system policies for tar.gz'
+    condition: and(succeeded(), eq(variables.isRelease, true))
 
   - task: PublishPipelineArtifact@1
     inputs:
