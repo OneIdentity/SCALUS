@@ -205,6 +205,7 @@ fi
 
     
     # CodeSigning the files in the app bundle
+    shopt -s globstar
     for file_path in ${tmpdir}/${appname}.app/**/*; do
         if [[ -f "$file_path" ]]; then # Check if it's a regular file
             echo "Processing file: $file_path"
