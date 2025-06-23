@@ -115,6 +115,15 @@ echo "Building ${pkgfile}"
 
 tmpdir="${outpath}/tmp"
 
+function fn_Runit()
+{
+   if [ $FAKE -eq 1 ]; then 
+       echo "[INFO] RUN : $1"
+   else
+       `$1`
+   fi
+}
+
 function resetInfo()
 {
 
