@@ -115,15 +115,6 @@ echo "Building ${pkgfile}"
 
 tmpdir="${outpath}/tmp"
 
-function fn_Runit()
-{
-   if [ $FAKE -eq 1 ]; then 
-       echo "[INFO] RUN : $1"
-   else
-       `$1`
-   fi
-}
-
 function resetInfo()
 {
 
@@ -216,12 +207,12 @@ fi
     # CodeSigning the files in the app bundle
     for file in ${tmpdir}/${appname}.app/Contents/MacOS/*; do 
         if [ ! -d "${file}" ]; then 
-            if fn_Runit "codesign --force -s LDBTVAT43D -v ${file} --deep --strict --options=runtime --timestamp" > /dev/null 2>&1; then 
+            if codesign --force -s LDBTVAT43D -v "${file}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
                 echo "[INFO] Code signing succeeded for ${file}"
                 continue
             else
-                fn_Runit "codesign --remove-signature ${file}"
-                fn_Runit "codesign --force -s LDBTVAT43D -v ${file} --deep --strict --options=runtime --timestamp"
+                codesign --remove-signature "${file}"
+                codesign --force -s LDBTVAT43D -v "${file}" --deep --strict --options=runtime --timestamp
                 echo "[INFO] Code signing succeeded for ${file}"
                 continue               
             fi            
@@ -229,12 +220,12 @@ fi
     done
     for file in ${tmpdir}/${appname}.app/Contents/MacOS/Ui/Web/*; do 
         if [ ! -d "${file}" ]; then 
-            if fn_Runit "codesign --force -s LDBTVAT43D -v ${file} --deep --strict --options=runtime --timestamp" > /dev/null 2>&1; then 
+            if codesign --force -s LDBTVAT43D -v "${file}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
                 echo "[INFO] Code signing succeeded for ${file}"
                 continue
             else
-                fn_Runit "codesign --remove-signature ${file}"
-                fn_Runit "codesign --force -s LDBTVAT43D -v ${file} --deep --strict --options=runtime --timestamp"
+                codesign --remove-signature "${file}"
+                codesign --force -s LDBTVAT43D -v "${file}" --deep --strict --options=runtime --timestamp
                 echo "[INFO] Code signing succeeded for ${file}"
                 continue
             fi
