@@ -206,6 +206,9 @@ fi
     mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
 
+    cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
+    chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
+
     # CodeSigning the files in the app bundle
     shopt -s globstar
     for file_path in ${tmpdir}/${appname}.app/**/*; do
@@ -227,8 +230,6 @@ fi
         fi
     done
 
-    cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
-    chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
     here=`pwd`
     cd $tmpdir
     tar -cvf - ${appname}.app | gzip -c > ${pkgtarfile}
