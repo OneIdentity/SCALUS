@@ -158,6 +158,22 @@ jobs:
     inputs:
         version: '6.0.x'
 
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+          # Download, compile, and install Bash
+          # (Example commands - replace with specific instructions for your chosen Bash version)
+          wget https://ftp.gnu.org/gnu/bash/bash-5.2.tar.gz
+          tar -xzf bash-5.2.tar.gz
+          cd bash-5.2
+          ./configure
+          make
+          sudo make install
+
+          # Verify the Bash version
+          bash --version
+
   - task: AzureKeyVault@2
     inputs:  
       ConnectedServiceName: "OneIdentity.Infrastructure.SPPCodeSigning"
@@ -219,7 +235,7 @@ jobs:
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
-      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64 --scalusmacdir $(Pipeline.Workspace)/s/scalusmac'
+      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64 --scalusmacdir $(Pipeline.Workspace)/s/scalusmac --isrelease $(isRelease)'
       
   - powershell: |  
       sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
@@ -270,7 +286,6 @@ jobs:
 
   - powershell: |
       Move-Item -Path "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz" -Destination "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.tar.gz" -Force
-      | 
       Move-Item -Path "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg" -Destination "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg" -Force
     displayName: 'Replace signed files of tar.gz and pkg'
     condition: and(succeeded(), eq(variables.isRelease, true))
