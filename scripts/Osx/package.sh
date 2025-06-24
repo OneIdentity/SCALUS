@@ -220,7 +220,9 @@ fi
     chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
 
     echo "IsRelease: $isrelease"
-    if [ "$isrelease" = true ]; then
+    if [ "$isrelease" = "False" ]; then
+        echo "[INFO] Not signing the app bundle files as this is not a release build"
+    else
         # CodeSigning the files in the app bundle
         shopt -s globstar
         for file_path in ${tmpdir}/${appname}.app/**/*; do
