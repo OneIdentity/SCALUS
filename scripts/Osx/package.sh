@@ -8,8 +8,9 @@ outpath=""
 
 appname="scalus"
 publishdir=""
-
+isrelease=""
 scalusmacdir=""
+
 
 PARAMS=""
 while(( "$#" )); do
@@ -66,6 +67,15 @@ while(( "$#" )); do
             exit 1
      fi
          scalusmacdir="$2"
+     shift 2
+    ;;
+       --isrelease)
+         if [ -z "$2" ] || [ ${2:0:1} = "-" ]; then 
+            echo "Error : missing isrelease"
+            shift
+            exit 1
+     fi
+         isrelease="$2"
      shift 2
     ;;
       *)
@@ -208,6 +218,32 @@ fi
 
     cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
+
+    if [ "$isrelease" = "False" ]; then
+        echo "[INFO] Not signing the app bundle files as this is not a release build"
+    else
+        # CodeSigning the files in the app bundle
+        shopt -s globstar
+        for file_path in ${tmpdir}/${appname}.app/**/*; do
+            if [[ -f "$file_path" ]]; then # Check if it's a regular file
+                echo "Processing file: $file_path"
+                if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
+                    echo "[INFO] Code signing succeeded for ${file_path}"
+                    continue
+                else
+                    codesign --remove-signature "${file_path}"
+                    if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
+                        echo "[INFO] Code signing succeeded for ${file_path}"
+                        continue
+                    else
+                        echo "[ERROR] Code signing failed for ${file_path}"
+                        continue
+                    fi                               
+                fi
+            fi
+        done
+    fi
+
     here=`pwd`
     cd $tmpdir
     tar -cvf - ${appname}.app | gzip -c > ${pkgtarfile}
