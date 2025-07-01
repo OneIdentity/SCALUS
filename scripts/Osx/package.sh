@@ -10,7 +10,7 @@ appname="scalus"
 publishdir=""
 isrelease=""
 scalusmacdir=""
-
+filename=""
 
 PARAMS=""
 while(( "$#" )); do
@@ -181,6 +181,20 @@ function resetInfo()
     chmod a+r $filename
 }
 
+function resetCodeSigningInfo()
+{
+    ${filename}="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
+    if [ ! -f ${filename} ]; then 
+    echo "ERROR - missing file:${filename}"
+        exit 1
+    fi 
+    /bin/bash -c "defaults write ${filename} CFBundleVersion  -string \"${version}\""
+    /bin/bash -c "defaults write${filename} CFBundleInfoDictionaryVersion  -string \"${version}\""
+
+    echo "Code signing info file: ${filename}"
+    chmod a+r ${filename}
+}
+
 function make_app()
 {
     if [ -d ${tmpdir} ]; then 
@@ -200,6 +214,7 @@ fi
 
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
+    resetCodeSigningInfo
 
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
@@ -227,12 +242,13 @@ fi
         for file_path in ${tmpdir}/${appname}.app/**/*; do
             if [[ -f "$file_path" ]]; then # Check if it's a regular file
                 echo "Processing file: $file_path"
-                if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
+                if codesign --force --entitlements ${filename} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp then 
                     echo "[INFO] Code signing succeeded for ${file_path}"
                     continue
                 else
+                    echo "[INFO] Removing already signed signature for ${file_path}"
                     codesign --remove-signature "${file_path}"
-                    if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
+                    if codesign --force --entitlements ${filename} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
                         echo "[INFO] Code signing succeeded for ${file_path}"
                         continue
                     else
@@ -243,6 +259,11 @@ fi
             fi
         done
     fi
+    chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
+    chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
+    chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui
+    chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
+    chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
 
     here=`pwd`
     cd $tmpdir
