@@ -184,7 +184,12 @@ function resetInfo()
 
 function resetCodeSigningInfo()
 {
-    
+    cd ${scalusmacdir}
+    cd scripts/Osx/${appname}.app/Contents
+    ls
+
+    cp CodeSignInfo.plist ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
+    chmod a+r ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
     filenameCodeSigning="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
     echo "Code signing info file: ${filenameCodeSigning}"
     if [ ! -f ${filenameCodeSigning} ]; then 
@@ -220,7 +225,7 @@ fi
 
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
-    resetCodeSigningInfo
+    resetCodeSigningInfo    
 
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
