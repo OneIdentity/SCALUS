@@ -186,7 +186,7 @@ function resetCodeSigningInfo()
 {
     cd ${scalusmacdir}
     cd ..
-    cd /scripts/Osx/${appname}.app/Contents
+    cd scripts/Osx/${appname}.app/Contents
     ls
     cp CodeSignInfo.plist ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
     chmod a+r ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
