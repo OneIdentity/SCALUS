@@ -155,11 +155,11 @@ jobs:
     vmImage: 'macOS-latest'
   steps:
  - task: UseDotNet@2
-    displayName: 'Install .NET Core SDK'
-    inputs:
-      packageType: 'sdk'
-      version: '6.0.x'
-      includePreviewVersions: false
+   displayName: 'Install .NET Core SDK'
+   inputs:
+     packageType: 'sdk'
+     version: '6.0.x'
+     includePreviewVersions: false
 
   - task: Bash@3
     inputs:
