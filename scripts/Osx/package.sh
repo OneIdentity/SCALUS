@@ -127,8 +127,9 @@ tmpdir="${outpath}/tmp"
 
 function resetInfo()
 {
-
+    
     filename="${tmpdir}/${appname}.app/Contents/Info.plist"
+    echo "Reset info file: ${filename}"
     if [ ! -f ${filename} ]; then 
     echo "ERROR - missing file:${filename}"
         exit 1
@@ -183,15 +184,20 @@ function resetInfo()
 
 function resetCodeSigningInfo()
 {
+    
     filenameCodeSigning="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
+    echo "Code signing info file: ${filenameCodeSigning}"
     if [ ! -f ${filenameCodeSigning} ]; then 
-    echo "ERROR - missing file:${filenameCodeSigning}"
+        cd ${tmpdir}/${appname}.app/Contents
+        pwd
+        ls
+        echo "ERROR - missing file:${filenameCodeSigning}"
         exit 1
     fi 
     /bin/bash -c "defaults write ${filenameCodeSigning} CFBundleVersion  -string \"${version}\""
     /bin/bash -c "defaults write ${filenameCodeSigning} CFBundleInfoDictionaryVersion  -string \"${version}\""
 
-    echo "Code signing info file: ${filenameCodeSigning}"
+   
     chmod a+r ${filenameCodeSigning}
 }
 
