@@ -184,6 +184,11 @@ function resetInfo()
 
 function resetCodeSigningInfo()
 {
+    cd ${scalusmacdir}
+    cd ..
+    ls
+    cp CodeSignInfo.plist ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
+    chmod a+r ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
     filenameCodeSigning="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
     echo "Code signing info file: ${filenameCodeSigning}"
     if [ ! -f ${filenameCodeSigning} ]; then 
