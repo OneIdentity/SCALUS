@@ -183,7 +183,7 @@ function resetInfo()
 
 function resetCodeSigningInfo()
 {
-    ${filenameCodeSigning}="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
+    filenameCodeSigning="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
     if [ ! -f ${filenameCodeSigning} ]; then 
     echo "ERROR - missing file:${filenameCodeSigning}"
         exit 1
