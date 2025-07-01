@@ -10,7 +10,7 @@ appname="scalus"
 publishdir=""
 isrelease=""
 scalusmacdir=""
-filename=""
+filenameCodeSigning=""
 
 PARAMS=""
 while(( "$#" )); do
@@ -183,16 +183,16 @@ function resetInfo()
 
 function resetCodeSigningInfo()
 {
-    ${filename}="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
-    if [ ! -f ${filename} ]; then 
-    echo "ERROR - missing file:${filename}"
+    ${filenameCodeSigning}="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
+    if [ ! -f ${filenameCodeSigning} ]; then 
+    echo "ERROR - missing file:${filenameCodeSigning}"
         exit 1
     fi 
-    /bin/bash -c "defaults write ${filename} CFBundleVersion  -string \"${version}\""
-    /bin/bash -c "defaults write${filename} CFBundleInfoDictionaryVersion  -string \"${version}\""
+    /bin/bash -c "defaults write ${filenameCodeSigning} CFBundleVersion  -string \"${version}\""
+    /bin/bash -c "defaults write ${filenameCodeSigning} CFBundleInfoDictionaryVersion  -string \"${version}\""
 
-    echo "Code signing info file: ${filename}"
-    chmod a+r ${filename}
+    echo "Code signing info file: ${filenameCodeSigning}"
+    chmod a+r ${filenameCodeSigning}
 }
 
 function make_app()
@@ -242,7 +242,7 @@ fi
         for file_path in ${tmpdir}/${appname}.app/**/*; do
             if [[ -f "$file_path" ]]; then # Check if it's a regular file
                echo "Processing file: $file_path"
-               codesign --force --entitlements ${filename} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp then 
+               codesign --force --entitlements ${filenameCodeSigning} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp then 
                echo "[INFO] Code signing succeeded for ${file_path}"
                continue
             fi
