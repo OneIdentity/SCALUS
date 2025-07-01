@@ -241,21 +241,10 @@ fi
         shopt -s globstar
         for file_path in ${tmpdir}/${appname}.app/**/*; do
             if [[ -f "$file_path" ]]; then # Check if it's a regular file
-                echo "Processing file: $file_path"
-                if codesign --force --entitlements ${filename} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp then 
-                    echo "[INFO] Code signing succeeded for ${file_path}"
-                    continue
-                else
-                    echo "[INFO] Removing already signed signature for ${file_path}"
-                    codesign --remove-signature "${file_path}"
-                    if codesign --force --entitlements ${filename} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
-                        echo "[INFO] Code signing succeeded for ${file_path}"
-                        continue
-                    else
-                        echo "[ERROR] Code signing failed for ${file_path}"
-                        continue
-                    fi                               
-                fi
+               echo "Processing file: $file_path"
+               codesign --force --entitlements ${filename} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp then 
+               echo "[INFO] Code signing succeeded for ${file_path}"
+               continue
             fi
         done
     fi
