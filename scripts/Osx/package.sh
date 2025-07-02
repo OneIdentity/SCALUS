@@ -245,11 +245,14 @@ fi
     else
         # CodeSigning the files in the app bundle
         shopt -s globstar
-        codesign --force -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp 
+        codesign --force -s LDBTVAT43D --entitlements ${filenameCodeSigning} -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp 
+        
+        codesign -vvv --deep --strict "${tmpdir}/${appname}.app"
+        echo "[INFO] Code signing verified for ${tmpdir}/${appname}.app"
         for file_path in ${tmpdir}/${appname}.app/**/*; do
             if [[ -f "$file_path" ]]; then # Check if it's a regular file
                echo "Processing file: $file_path"
-               codesign --force --entitlements ${filenameCodeSigning} -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp then 
+               codesign --force -s LDBTVAT43D -v "${file_path}" --strict --options=runtime --timestamp then 
                echo "[INFO] Code signing succeeded for ${file_path}"
                continue
             fi
