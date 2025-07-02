@@ -245,18 +245,18 @@ fi
     else
         # CodeSigning the files in the app bundle
         shopt -s globstar
-        codesign --force -s LDBTVAT43D --entitlements ${filenameCodeSigning} -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp 
-        
+        codesign --force -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp 
+       
         codesign -vvv --deep --strict "${tmpdir}/${appname}.app"
         echo "[INFO] Code signing verified for ${tmpdir}/${appname}.app"
-        for file_path in ${tmpdir}/${appname}.app/**/*; do
-            if [[ -f "$file_path" ]]; then # Check if it's a regular file
-               echo "Processing file: $file_path"
-               codesign --force -s LDBTVAT43D -v "${file_path}" --strict --options=runtime --timestamp then 
-               echo "[INFO] Code signing succeeded for ${file_path}"
-               continue
-            fi
-        done
+        #for file_path in ${tmpdir}/${appname}.app/**/*; do
+            #if [[ -f "$file_path" ]]; then # Check if it's a regular file
+               #echo "Processing file: $file_path"
+               #codesign --force -s LDBTVAT43D -v "${file_path}" --strict --options=runtime --timestamp 
+               #echo "[INFO] Code signing succeeded for ${file_path}"
+               #continue
+            #fi
+        #done
     fi
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
