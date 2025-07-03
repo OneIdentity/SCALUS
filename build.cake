@@ -76,17 +76,6 @@ Task("Restore")
         DotNetRestore();
     });
 
-// Run dotnet restore to restore all package references.
-Task("RestoreOsx")
-    .Does(() =>
-    {
-        DotNetRestore(solution,
-            new DotNetRestoreSettings()
-            {
-                Runtime = runtime
-            });
-    });
-
 
 Task("WindowsInstall")
     .IsDependentOn("Publish")
@@ -208,20 +197,6 @@ Task("Build")
             });
     });
 
-Task("BuildOsx")
-    .IsDependentOn("RestoreOsx")
-    .Does(() =>
-    {
-       DotNetBuild(solution,
-            new DotNetBuildSettings()
-            {
-                Configuration = configuration,
-                OutputDirectory = builddir,
-                MSBuildSettings = new DotNetMSBuildSettings()
-                    .WithProperty("Edition", edition)
-            });
-    });
-
 
 Task("Clean")
     .Does(() =>
@@ -234,21 +209,6 @@ Task("Clean")
 
 Task("Test")
     .IsDependentOn("Build")
-    .Does(() =>
-    {
-        var projects = GetFiles("./test/**/*.csproj");
-        foreach(var project in projects)
-        {
-            DotNetTest(project.FullPath,
-                new DotNetTestSettings()
-            {
-                Configuration = configuration
-            });
-        }
-    });
-
-Task("TestOsx")
-    .IsDependentOn("BuildOsx")
     .Does(() =>
     {
         var projects = GetFiles("./test/**/*.csproj");
@@ -283,30 +243,8 @@ Task("Publish")
             });
     });
 
-Task("PublishOsx")
-    .IsDependentOn("TestOsx")
-    .Does(() =>
-    {
-       DotNetPublish(
-            "./src/OneIdentity.Scalus.csproj",
-            new DotNetPublishSettings()
-            {
-                Configuration = configuration,
-                DiagnosticOutput = true,
-                OutputDirectory = publishdir,
-                SelfContained = true,
-                Runtime = runtime,
-                Framework = "net6.0",
-                IncludeAllContentForSelfExtract = true,
-                PublishSingleFile = true,
-                MSBuildSettings = new DotNetMSBuildSettings()
-                    .WithProperty("Edition", edition)
-                    .WithProperty("NativeWindowing", isWindows ? "true" : "false")
-            });
-    });
-
 Task("OsxInstall")
-    .IsDependentOn("PublishOsx")
+    .IsDependentOn("Publish")
     .WithCriteria(isOsx)
     .Does(() =>
     {
