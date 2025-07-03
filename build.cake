@@ -196,7 +196,6 @@ Task("Build")
             {
                 Configuration = configuration,
                 OutputDirectory = builddir,
-                NoRestore = true,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)
             });
@@ -242,7 +241,6 @@ Task("Publish")
                 SelfContained = true,
                 Runtime = runtime,
                 Framework = "net6.0",
-                NoRestore = true,
                 IncludeAllContentForSelfExtract = true,
                 PublishSingleFile = true,
                 MSBuildSettings = new DotNetMSBuildSettings()
