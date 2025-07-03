@@ -74,7 +74,7 @@ Task("Restore")
     .Does(() =>
     {
         DotNetCoreRestore(solution,
-            new DotNetRestoreSettings()
+            new DotNetCoreRestoreSettings()
             {
                 Runtime = runtime
             });
@@ -192,7 +192,7 @@ Task("Build")
     .Does(() =>
     {
        DotNetCoreBuild(solution,
-            new DotNetBuildSettings()
+            new DotNetCoreBuildSettings()
             {
                 Configuration = configuration,
                 OutputDirectory = builddir,
@@ -236,7 +236,7 @@ Task("Publish")
     {
        DotNetCorePublish(
             "./src/OneIdentity.Scalus.csproj",
-            new DotNetPublishSettings()
+            new DotNetCorePublishSettings()
             {
                 Configuration = configuration,
                 DiagnosticOutput = true,
