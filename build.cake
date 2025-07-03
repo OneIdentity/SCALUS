@@ -240,6 +240,26 @@ Task("Publish")
                 OutputDirectory = publishdir,
                 SelfContained = true,
                 Runtime = runtime,
+                PublishSingleFile = true,
+                MSBuildSettings = new DotNetMSBuildSettings()
+                    .WithProperty("Edition", edition)
+                    .WithProperty("NativeWindowing", isWindows ? "true" : "false")
+            });
+    });
+
+Task("PublishOsx")
+    .IsDependentOn("Test")
+    .Does(() =>
+    {
+       DotNetPublish(
+            "./src/OneIdentity.Scalus.csproj",
+            new DotNetPublishSettings()
+            {
+                Configuration = configuration,
+                DiagnosticOutput = true,
+                OutputDirectory = publishdir,
+                SelfContained = true,
+                Runtime = runtime,
                 Framework = "net6.0",
                 IncludeAllContentForSelfExtract = true,
                 PublishSingleFile = true,
@@ -250,7 +270,7 @@ Task("Publish")
     });
 
 Task("OsxInstall")
-    .IsDependentOn("Publish")
+    .IsDependentOn("PublishOsx")
     .WithCriteria(isOsx)
     .Does(() =>
     {
