@@ -233,7 +233,7 @@ jobs:
       target: 'Default'
       verbosity: 'Verbose'
       version: '2.2.0'
-      arguments: '--runtime=osx-x64 --Edition=${{ parameters.edition }} --Version=$(version)'
+      arguments: '--runtime=osx.10.11-x64 --Edition=${{ parameters.edition }} --Version=$(version)'
 
   - task: Bash@3
     inputs:

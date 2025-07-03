@@ -1,7 +1,7 @@
 #!/bin/bash
 
 version="1.0"
-runtime="osx-x64"
+runtime="osx.10.11-x64"
 
 infile=""
 outpath=""
@@ -194,9 +194,6 @@ function resetCodeSigningInfo()
         echo "ERROR - missing file:${filenameCodeSigning}"
         exit 1
     fi 
-    /bin/bash -c "defaults write ${filenameCodeSigning} CFBundleVersion  -string \"${version}\""
-    /bin/bash -c "defaults write ${filenameCodeSigning} CFBundleInfoDictionaryVersion  -string \"${version}\""
-
    
     chmod a+r ${filenameCodeSigning}
 }
@@ -245,7 +242,7 @@ fi
     else
         # CodeSigning the files in the app bundle
         shopt -s globstar
-        codesign --force -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp 
+        codesign --force -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep  --entitlements "${filenameCodeSigning}" --strict --options=runtime --timestamp 
        
         codesign -vvv --deep --strict "${tmpdir}/${appname}.app"
         echo "[INFO] Code signing verified for ${tmpdir}/${appname}.app"
@@ -263,6 +260,7 @@ fi
     chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
     chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
+    chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
 
     here=`pwd`
     cd $tmpdir
