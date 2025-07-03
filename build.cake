@@ -73,7 +73,11 @@ if (isWindows)
 Task("Restore")
     .Does(() =>
     {
-        DotNetRestore();
+        DotNetRestore(solution,
+            new DotNetRestoreSettings()
+            {
+                Runtime = runtime
+            });
     });
 
 
@@ -193,6 +197,8 @@ Task("Build")
                 Configuration = configuration,
                 OutputDirectory = builddir,
                 NoRestore = true,
+                Runtime = runtime,
+                Framework = "net6.0",
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)
             });
