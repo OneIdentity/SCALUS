@@ -73,7 +73,7 @@ if (isWindows)
 Task("Restore")
     .Does(() =>
     {
-        DotNetRestore(solution,
+        DotNetCoreRestore(solution,
             new DotNetRestoreSettings()
             {
                 Runtime = runtime
@@ -191,7 +191,7 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-       DotNetBuild(solution,
+       DotNetCoreBuild(solution,
             new DotNetBuildSettings()
             {
                 Configuration = configuration,
@@ -234,7 +234,7 @@ Task("Publish")
     .IsDependentOn("Test")
     .Does(() =>
     {
-       DotNetPublish(
+       DotNetCorePublish(
             "./src/OneIdentity.Scalus.csproj",
             new DotNetPublishSettings()
             {
