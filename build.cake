@@ -236,7 +236,6 @@ Task("Publish")
                 OutputDirectory = publishdir,
                 SelfContained = true,
                 Runtime = runtime,
-                Framework = "net6.0",
                 PublishSingleFile = true,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)

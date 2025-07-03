@@ -2,17 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleIdentifier</key>
+    <key>CFBundleIdentifier</key>
 	<string>com.apple.security.codesign</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>1.0</string>
-	<key>CFBundleName</key>
+    <key>CFBundleName</key>
 	<string>codesign</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
-	<key>com.apple.security.cs.disable-library-validation</key>
-	<false/>
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.disable-executable-page-protection</key>
+    <true/>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+    <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+    <true/>
 </dict>
 </plist>
