@@ -1,7 +1,7 @@
 #!/bin/bash
 
 version="1.0"
-runtime="osx.10.11-x64"
+runtime="osx-x64"
 
 infile=""
 outpath=""

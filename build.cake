@@ -221,8 +221,8 @@ Task("Test")
         var projects = GetFiles("./test/**/*.csproj");
         foreach(var project in projects)
         {
-            DotNetTest(project.FullPath,
-                new DotNetTestSettings()
+            DotNetCoreTest(project.FullPath,
+                new DotNetCoreTestSettings()
             {
                 Configuration = configuration
             });
