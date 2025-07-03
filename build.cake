@@ -73,6 +73,13 @@ if (isWindows)
 Task("Restore")
     .Does(() =>
     {
+        DotNetRestore();
+    });
+
+// Run dotnet restore to restore all package references.
+Task("RestoreOsx")
+    .Does(() =>
+    {
         DotNetRestore(solution,
             new DotNetRestoreSettings()
             {
@@ -201,6 +208,20 @@ Task("Build")
             });
     });
 
+Task("BuildOsx")
+    .IsDependentOn("RestoreOsx")
+    .Does(() =>
+    {
+       DotNetBuild(solution,
+            new DotNetBuildSettings()
+            {
+                Configuration = configuration,
+                OutputDirectory = builddir,
+                MSBuildSettings = new DotNetMSBuildSettings()
+                    .WithProperty("Edition", edition)
+            });
+    });
+
 
 Task("Clean")
     .Does(() =>
@@ -213,6 +234,21 @@ Task("Clean")
 
 Task("Test")
     .IsDependentOn("Build")
+    .Does(() =>
+    {
+        var projects = GetFiles("./test/**/*.csproj");
+        foreach(var project in projects)
+        {
+            DotNetTest(project.FullPath,
+                new DotNetTestSettings()
+            {
+                Configuration = configuration
+            });
+        }
+    });
+
+Task("TestOsx")
+    .IsDependentOn("BuildOsx")
     .Does(() =>
     {
         var projects = GetFiles("./test/**/*.csproj");
@@ -248,7 +284,7 @@ Task("Publish")
     });
 
 Task("PublishOsx")
-    .IsDependentOn("Test")
+    .IsDependentOn("TestOsx")
     .Does(() =>
     {
        DotNetPublish(
