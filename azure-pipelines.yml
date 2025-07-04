@@ -110,7 +110,7 @@ jobs:
 
   - task: UseDotNet@2
     inputs:
-        version: '6.0.x'
+        version: '8.0.x'
 
   - task: Cake@2
     inputs:
@@ -118,11 +118,11 @@ jobs:
       target: 'Default'
       verbosity: 'Verbose'
       version: '2.2.0'
-      arguments: '--runtime=win10-x64 --Edition=${{ parameters.edition }} --Version=$(version) --SignFiles=$(isRelease) --SignToolPath="$(signToolPath)"'
+      arguments: '--runtime=win-x64 --Edition=${{ parameters.edition }} --Version=$(version) --SignFiles=$(isRelease) --SignToolPath="$(signToolPath)"'
 
   - task: PublishPipelineArtifact@1
     inputs:
-      targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
+      targetPath: '$(Pipeline.Workspace)/s/Output/Release/win-x64'
       artifact: 'Scalus-Win10'
       publishLocation: 'pipeline'
 
@@ -133,7 +133,7 @@ jobs:
   steps:
   - task: UseDotNet@2
     inputs:
-        version: '6.0.x'
+        version: '8.0.x'
 
   - task: Cake@2
     inputs:
@@ -158,7 +158,7 @@ jobs:
     displayName: 'Install .NET Core SDK'
     inputs:
       packageType: 'sdk'
-      version: '6.0.x'
+      version: '8.0.x'
       includePreviewVersions: false
 
   - task: Bash@3

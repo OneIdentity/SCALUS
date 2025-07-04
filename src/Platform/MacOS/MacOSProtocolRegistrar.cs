@@ -129,14 +129,17 @@ namespace OneIdentity.Scalus
         public static List<string> ParseList(string str)
         {
             var list = new List<string>();
-            var stripped = Regex.Replace(str, "[\\n\\r(]", string.Empty, RegexOptions.Singleline);
+            var pattern = "[\\n\\r(]";
+            var stripped = Regex.Replace(str, pattern, string.Empty, RegexOptions.Singleline);
+            var matchPattern = $"CFBundleURLSchemes\\s*=\\s*([^)]+)";
             var match = Regex.Match(stripped,
-                $"CFBundleURLSchemes\\s*=\\s*([^)]+)",
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+               matchPattern,
+               RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (match.Success)
             {
                 var schemes = match.Groups[1].Value;
-                schemes = Regex.Replace(schemes, "\\s+", string.Empty);
+                var patternSchemes = "\\s+";
+                schemes = Regex.Replace(schemes, patternSchemes, string.Empty);
                 list = schemes.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
             }
 

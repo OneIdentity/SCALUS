@@ -273,7 +273,7 @@ namespace OneIdentity.Scalus.UrlParser
 
         protected static (string host, string port) ParseHost(string host)
         {
-            var sep = host.LastIndexOf(":", StringComparison.Ordinal);
+            var sep = host.LastIndexOf(':');
             if (sep == -1)
             {
                 return (host, null);
@@ -402,7 +402,8 @@ namespace OneIdentity.Scalus.UrlParser
                 {
                     var guid = Guid.NewGuid().ToString();
                     var host = Dictionary[Token.TargetHost];
-                    host = Regex.Replace(host, "[.]", "~");
+                    var pattern = "[.]";
+                    host = Regex.Replace(host, pattern, "~");
                     var user = Dictionary[Token.TargetUser];
                     user = user.Replace('\\', '~');
                     tempFile = Path.Combine(Path.GetTempPath(),
@@ -410,16 +411,19 @@ namespace OneIdentity.Scalus.UrlParser
                 }
                 else
                 {
+#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
                     var host = Dictionary.ContainsKey(Token.Host) && !string.IsNullOrEmpty(Dictionary[Token.Host])
                         ? Dictionary[Token.Host]
                         : string.Empty;
                     var user = Dictionary.ContainsKey(Token.User) && !string.IsNullOrEmpty(Dictionary[Token.User])
                         ? Dictionary[Token.User]
                         : string.Empty;
+#pragma warning restore CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
                     if (!string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(user))
                     {
                         var guid = Guid.NewGuid().ToString();
-                        host = Regex.Replace(host, "[.]", "~");
+                        var pattern = "[.]";
+                        host = Regex.Replace(host, pattern, "~");
                         user = user.Replace('\\', '~');
 
                         tempFile = Path.Combine(

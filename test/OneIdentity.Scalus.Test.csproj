@@ -4,14 +4,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>signer.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <OutputType>WinExe</OutputType>
     <RootNamespace>OneIdentity.Scalus.Test</RootNamespace>
-    <RuntimeIdentifiers>linux-x64;osx-x64;win10-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x64;osx-x64;win-x64</RuntimeIdentifiers>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 

@@ -69,6 +69,7 @@ namespace OneIdentity.Scalus
                 str.Append(string.Format("   - {0,-16} : {1}{2}", key, val, Environment.NewLine));
             }
 
+#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             if (dictionary.ContainsKey(ParserConfigDefinitions.Token.GeneratedFile))
             {
                 var fname = dictionary[ParserConfigDefinitions.Token.GeneratedFile];
@@ -80,6 +81,7 @@ namespace OneIdentity.Scalus
                     str.Append(contents);
                 }
             }
+#pragma warning restore CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
 
             return str.ToString();
         }

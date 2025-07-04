@@ -25,7 +25,9 @@ namespace OneIdentity.Scalus.Test
         private string url;
         private string filename = Path.GetTempPath() + "tmpfile.rdp";
 
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         private IDictionary<Token, string> SetupData()
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             fulluser = $"vaultaddress={vault}@token={token}@{targetuser}@{targethost}";
             url = $"{prot}://{fulluser}@{host}";
