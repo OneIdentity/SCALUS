@@ -69,7 +69,9 @@ namespace OneIdentity.Scalus.UrlParser
         public const string UsernameKey = "username";
         public const string RdpPasswordHashKey = "password 51";
 
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         private readonly IDictionary<string, Tuple<bool, string>> msArgList1 = new Dictionary<string, Tuple<bool, string>>();
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
         private List<(string, Token)> rdpKeys = new List<(string, Token)>
         {
@@ -81,6 +83,7 @@ namespace OneIdentity.Scalus.UrlParser
 
         private Dictionary<string, string> defaultArgs = new Dictionary<string, string>();
 
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
         private Regex rdpPattern = new Regex("^[^:]+:\\/\\/(([^:=]+)(:|=).:([^&]*))");
         private Regex rdpPatt = new Regex("&");
 
@@ -186,7 +189,7 @@ namespace OneIdentity.Scalus.UrlParser
             }
 
             // tokens required are username and host
-
+#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
             {
                 Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
@@ -196,7 +199,7 @@ namespace OneIdentity.Scalus.UrlParser
             {
                 Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
             }
-
+#pragma warning restore CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             return Dictionary;
         }
 
@@ -231,11 +234,13 @@ namespace OneIdentity.Scalus.UrlParser
             {
                 var name = match.Groups[2].Value;
                 var val = match.Groups[3].Value + ":" + match.Groups[4].Value;
+#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
                 if (msArgList1.ContainsKey(name) && msArgList1[name].Item1)
                 {
                     val = msArgList1[name].Item2;
                     newline = name + ":" + val;
                 }
+#pragma warning restore CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             }
 
             return newline;
@@ -464,5 +469,6 @@ namespace OneIdentity.Scalus.UrlParser
 
             return string.Empty;
         }
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
     }
 }

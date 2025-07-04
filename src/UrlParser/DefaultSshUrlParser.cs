@@ -35,7 +35,9 @@ namespace OneIdentity.Scalus.UrlParser
     [ParserName("ssh")]
     internal class DefaultSshUrlParser : BaseParser
     {
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
         private Regex scpPattern = new Regex("(([^:]+)://)?((.+)@([^:]+)(:(\\d+))?)", RegexOptions.IgnoreCase);
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
         // This class parses a string in the format:
         //  - <protocol>://<user>@<host>[:<port>]
@@ -122,6 +124,7 @@ namespace OneIdentity.Scalus.UrlParser
                 ParseConfig();
             }
 
+#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             if (!Dictionary.ContainsKey(Token.User) || string.IsNullOrEmpty(Dictionary[Token.User]))
             {
                 Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
@@ -131,7 +134,7 @@ namespace OneIdentity.Scalus.UrlParser
             {
                 Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
             }
-
+#pragma warning restore CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             return Dictionary;
         }
 

@@ -22,6 +22,7 @@
 namespace OneIdentity.Scalus.Dto
 {
     using System.Collections.Generic;
+    using System.Reactive.Joins;
     using System.Text.RegularExpressions;
     using Newtonsoft.Json;
 
@@ -49,7 +50,8 @@ namespace OneIdentity.Scalus.Dto
                 return false;
             }
 
-            if (Regex.IsMatch(val, "^[a-zA-Z][a-zA-Z0-9-+.]+$"))
+            var pattern = "^[a-zA-Z][a-zA-Z0-9-+.]+$";
+            if (Regex.IsMatch(val, pattern))
             {
                 return true;
             }

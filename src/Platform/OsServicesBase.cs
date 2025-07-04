@@ -181,6 +181,8 @@ namespace OneIdentity.Scalus.Platform
         }
 
         [DllImport("libc")]
+#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
         private static extern uint geteuid();
+#pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
     }
 }

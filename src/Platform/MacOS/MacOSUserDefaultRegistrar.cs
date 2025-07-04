@@ -58,9 +58,11 @@ namespace OneIdentity.Scalus
                 return string.Empty;
             }
 
-            output = Regex.Replace(output, @"\t|\n|\r", string.Empty);
+            var pattern = @"\t|\n|\r";
+            output = Regex.Replace(output, pattern, string.Empty);
             Serilog.Log.Information($"Registered command is :{output}.");
-            return Regex.IsMatch(output, "none", RegexOptions.IgnoreCase) ? string.Empty : output;
+            var patternNone = "none";
+            return Regex.IsMatch(output, patternNone, RegexOptions.IgnoreCase) ? string.Empty : output;
         }
 
         public bool IsScalusRegistered(string protocol)
