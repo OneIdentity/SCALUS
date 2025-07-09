@@ -229,7 +229,7 @@ jobs:
 
   - task: Cake@2
     inputs:
-      script: 'build.cake'
+      script: 'buildCore.cake'
       target: 'Default'
       verbosity: 'Verbose'
       version: '2.2.0'
