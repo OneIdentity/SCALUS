@@ -248,7 +248,6 @@ Task("Publish")
                 SelfContained = true,
                 Runtime = runtime,
                 Framework = "net8.0",
-                ArgumentCustomization = args => args.Append("-p:PublishAot=true"),
                 PublishSingleFile = true,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)
