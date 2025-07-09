@@ -185,6 +185,7 @@ Task("MsiInstaller")
 
 
 Task("Build")
+    .IsDependentOn("Restore-NuGet-Packages")
     .IsDependentOn("Restore")
     .Does(() =>
     {
@@ -207,6 +208,15 @@ Task("Clean")
         CleanDirectory(publishdir);
     });
 
+
+Task("Restore-NuGet-Packages")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{ 
+    NuGetRestore(solution);
+    // Alternatively, for .NET Core projects:
+    // DotNetCoreRestore(solution);
+});
 
 Task("Test")
     .IsDependentOn("Build")
@@ -238,6 +248,7 @@ Task("Publish")
                 SelfContained = true,
                 Runtime = runtime,
                 Framework = "net8.0",
+                ArgumentCustomization = args => args.Append("-p:PublishAot=true"),
                 PublishSingleFile = true,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)

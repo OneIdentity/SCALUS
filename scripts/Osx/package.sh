@@ -246,15 +246,17 @@ fi
        
         codesign -vvv --deep --strict "${tmpdir}/${appname}.app"
         echo "[INFO] Code signing verified for ${tmpdir}/${appname}.app"
-        #for file_path in ${tmpdir}/${appname}.app/**/*; do
-            #if [[ -f "$file_path" ]]; then # Check if it's a regular file
-               #echo "Processing file: $file_path"
-               #codesign --force -s LDBTVAT43D -v "${file_path}" --strict --options=runtime --timestamp 
-               #echo "[INFO] Code signing succeeded for ${file_path}"
-               #continue
-            #fi
-        #done
+        for file_path in ${tmpdir}/${appname}.app/**/*; do
+            if [[ -f "$file_path" ]]; then # Check if it's a regular file
+               echo "Processing file: $file_path"
+               codesign --force -s LDBTVAT43D -v "${file_path}" --strict --options=runtime --timestamp  /dev/null 2>&1
+               codesign -vvv --deep --strict "${file_path}"
+               echo "[INFO] Code signing succeeded for ${file_path}"
+               continue
+            fi
+        done
     fi
+
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
     chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui
