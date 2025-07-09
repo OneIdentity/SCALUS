@@ -217,7 +217,9 @@ fi
 
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
-    resetCodeSigningInfo    
+    resetCodeSigningInfo  
+    cd $publishdir
+    ls
 
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
