@@ -222,6 +222,11 @@ jobs:
       Contents: '$(CodeSigningCertFileName)'
     condition: and(succeededOrFailed(), eq(variables.isRelease, true))
 
+  - task: NuGetToolInstaller@1
+    displayName: 'Use NuGet 6.0.0'
+    inputs:
+      versionSpec: 6.0.0
+
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/scalusmacBuild.sh'
