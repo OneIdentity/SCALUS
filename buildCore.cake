@@ -185,6 +185,7 @@ Task("MsiInstaller")
 
 
 Task("Build")
+    .IsDependentOn("Restore-NuGet-Packages")
     .IsDependentOn("Restore")
     .Does(() =>
     {
@@ -207,6 +208,15 @@ Task("Clean")
         CleanDirectory(publishdir);
     });
 
+
+Task("Restore-NuGet-Packages")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{ 
+    NuGetRestore(solution);
+    // Alternatively, for .NET Core projects:
+    // DotNetCoreRestore(solution);
+});
 
 Task("Test")
     .IsDependentOn("Build")
