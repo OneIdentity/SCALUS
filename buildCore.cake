@@ -188,7 +188,7 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-       DotNetCoreBuild((solution,
+       DotNetCoreBuild(solution,
             new DotNetCoreBuildSettings()
             {
                 Configuration = configuration,
