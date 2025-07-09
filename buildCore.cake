@@ -188,8 +188,8 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-       DotNetCoreBuild(solution,
-            new DotNetCoreBuildSettings()
+       DotNetBuild(solution,
+            new DotNetBuildSettings()
             {
                 Configuration = configuration,
                 OutputDirectory = builddir,
@@ -215,8 +215,8 @@ Task("Test")
         var projects = GetFiles("./test/**/*.csproj");
         foreach(var project in projects)
         {
-            DotNetCoreTest(project.FullPath,
-                new DotNetCoreTestSettings()
+            DotNetTest(project.FullPath,
+                new DotNetTestSettings()
             {
                 Configuration = configuration
             });
@@ -228,15 +228,16 @@ Task("Publish")
     .IsDependentOn("Test")
     .Does(() =>
     {
-       DotNetCorePublish(
+       DotNetPublish(
             "./src/OneIdentity.Scalus.csproj",
-            new DotNetCorePublishSettings()
+            new DotNetPublishSettings()
             {
                 Configuration = configuration,
                 DiagnosticOutput = true,
                 OutputDirectory = publishdir,
                 SelfContained = true,
                 Runtime = runtime,
+                Framework = "net6.0"
                 PublishSingleFile = true,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)
