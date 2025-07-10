@@ -247,7 +247,7 @@ fi
     else
         # CodeSigning the files in the app bundle
         shopt -s globstar
-        codesign --force -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep  --strict --options=runtime --timestamp 
+        codesign --force --entitlements ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep  --strict --options=runtime --timestamp 
        
         codesign -vvv --deep --strict "${tmpdir}/${appname}.app"
         echo "[INFO] Code signing verified for ${tmpdir}/${appname}.app"
