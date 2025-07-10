@@ -221,22 +221,25 @@ fi
     cd $publishdir
     ls
 
-    cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
+    cp $publishdir/* ${tmpdir}/${appname}.app/Contents/MacOS
+    chmod u=rwx,go=rx ${tmpdir}/${appname}.app/Contents/MacOS/*
+
+    cp -f $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS 
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
 
-    cp $scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
+    cp -f $scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
 
     mkdir -p ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui
 
-    cp -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
+    cp -f -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
 
     mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
 
-    cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
+    cp -f $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
 
     if [ "$isrelease" = "False" ]; then
