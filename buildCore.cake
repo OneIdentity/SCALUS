@@ -248,7 +248,7 @@ Task("Publish")
                 SelfContained = true,
                 Runtime = runtime,
                 Framework = "net8.0",
-                PublishSingleFile = true,
+                PublishSingleFile = false,
                 MSBuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("Edition", edition)
                     .WithProperty("NativeWindowing", isWindows ? "true" : "false")
