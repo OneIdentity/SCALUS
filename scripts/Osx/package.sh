@@ -260,7 +260,7 @@ fi
                continue
             fi
         done
-        xattr -rd com.apple.quarantine "${tmpdir}/${appname}.app"
+        xattr -rd com.apple.quarantine "${tmpdir}/${appname}.app"
     fi
 
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
