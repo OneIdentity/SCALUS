@@ -221,7 +221,10 @@ fi
     cd $publishdir
     ls
 
-    cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
+    cp $publishdir/ ${tmpdir}/${appname}.app/Contents/MacOS
+    chmod u=rwx,go=rx ${tmpdir}/${appname}.app/Contents/MacOS/*
+
+    cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS 
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
 
     cp $scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
