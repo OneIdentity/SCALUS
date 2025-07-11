@@ -110,7 +110,7 @@ jobs:
 
   - task: UseDotNet@2
     inputs:
-        version: '6.0.x'
+        version: '8.0.x'
 
   - task: Cake@2
     inputs:
@@ -118,11 +118,11 @@ jobs:
       target: 'Default'
       verbosity: 'Verbose'
       version: '2.2.0'
-      arguments: '--runtime=win10-x64 --Edition=${{ parameters.edition }} --Version=$(version) --SignFiles=$(isRelease) --SignToolPath="$(signToolPath)"'
+      arguments: '--runtime=win-x64 --Edition=${{ parameters.edition }} --Version=$(version) --SignFiles=$(isRelease) --SignToolPath="$(signToolPath)"'
 
   - task: PublishPipelineArtifact@1
     inputs:
-      targetPath: '$(Pipeline.Workspace)/s/Output/Release/win10-x64'
+      targetPath: '$(Pipeline.Workspace)/s/Output/Release/win-x64'
       artifact: 'Scalus-Win10'
       publishLocation: 'pipeline'
 
@@ -133,7 +133,7 @@ jobs:
   steps:
   - task: UseDotNet@2
     inputs:
-        version: '6.0.x'
+        version: '8.0.x'
 
   - task: Cake@2
     inputs:
@@ -155,8 +155,27 @@ jobs:
     vmImage: 'macOS-latest'
   steps:
   - task: UseDotNet@2
+    displayName: 'Install .NET Core SDK'
     inputs:
-        version: '6.0.x'
+      packageType: 'sdk'
+      version: '8.0.x'
+      includePreviewVersions: false
+
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+          # Download, compile, and install Bash
+          # (Example commands - replace with specific instructions for your chosen Bash version)
+          wget https://ftp.gnu.org/gnu/bash/bash-5.2.tar.gz
+          tar -xzf bash-5.2.tar.gz
+          cd bash-5.2
+          ./configure
+          make
+          sudo make install
+
+          # Verify the Bash version
+          bash --version
 
   - task: AzureKeyVault@2
     inputs:  
@@ -203,6 +222,11 @@ jobs:
       Contents: '$(CodeSigningCertFileName)'
     condition: and(succeededOrFailed(), eq(variables.isRelease, true))
 
+  - task: NuGetToolInstaller@1
+    displayName: 'Use NuGet 6.0.0'
+    inputs:
+      versionSpec: 6.0.0
+
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/scalusmacBuild.sh'
@@ -219,7 +243,7 @@ jobs:
   - task: Bash@3
     inputs:
       filePath: '$(Pipeline.Workspace)/s/scripts/Osx/package.sh'
-      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64 --scalusmacdir $(Pipeline.Workspace)/s/scalusmac'
+      arguments: '--version $(version) --runtime osx-x64 --infile $(Pipeline.Workspace)/s/scripts/Osx/applet --outpath $(Pipeline.Workspace)/s/Output/Release/osx-x64 --publishdir $(Pipeline.Workspace)/s/Publish/Release/osx-x64 --scalusmacdir $(Pipeline.Workspace)/s/scalusmac --isrelease $(isRelease)'
       
   - powershell: |  
       sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
@@ -249,7 +273,7 @@ jobs:
 
   - powershell: |
       Move-Item -Path "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg" -Destination "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg" -Force
-    displayName: 'Replace signed files'
+    displayName: 'Replace signed file'
     condition: and(succeeded(), eq(variables.isRelease, true))
 
   - task: PublishPipelineArtifact@1

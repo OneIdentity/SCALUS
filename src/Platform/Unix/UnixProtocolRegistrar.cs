@@ -28,6 +28,7 @@ namespace OneIdentity.Scalus
     using System.Reflection;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Xml.Linq;
     using OneIdentity.Scalus.Platform;
 
     public class UnixProtocolRegistrar : IProtocolRegistrar
@@ -97,7 +98,8 @@ namespace OneIdentity.Scalus
             var lines = File.ReadAllLines(path);
             foreach (var line in lines)
             {
-                var match = Regex.Match(line, $"^\\s*{MimeType}\\s*=\\s*(.*)", RegexOptions.IgnoreCase);
+                var pattern = $"^\\s*{MimeType}\\s*=\\s*(.*)";
+                var match = Regex.Match(line, pattern, RegexOptions.IgnoreCase);
                 if (match.Success)
                 {
                     var mlist = match.Groups[1].Value?.Split(';');
@@ -106,7 +108,8 @@ namespace OneIdentity.Scalus
                         var prot = string.Empty;
                         if (!string.IsNullOrEmpty(one))
                         {
-                            match = Regex.Match(one, $"{SchemeHandler}(\\S+)");
+                            var patternMatch = $"{SchemeHandler}(\\S+)";
+                            match = Regex.Match(one, patternMatch);
                             if (match.Success)
                             {
                                 prot = match.Groups[1].Value;
@@ -273,10 +276,11 @@ namespace OneIdentity.Scalus
             if (exitCode == 0)
             {
                 var lines = stdOut.Split("\n");
-                if (lines.Any())
+                if (lines.Length != 0)
                 {
                     var path = lines[0];
-                    var match = Regex.Match(path, "\\s*Checking\\s*(\\S+)", RegexOptions.IgnoreCase);
+                    var pattern = "\\s*Checking\\s*(\\S+)";
+                    var match = Regex.Match(path, pattern, RegexOptions.IgnoreCase);
                     if (match.Success)
                     {
                         filepath = match.Groups[1].Value;

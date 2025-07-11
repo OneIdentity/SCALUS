@@ -8,8 +8,9 @@ outpath=""
 
 appname="scalus"
 publishdir=""
-
+isrelease=""
 scalusmacdir=""
+filenameCodeSigning=""
 
 PARAMS=""
 while(( "$#" )); do
@@ -68,6 +69,15 @@ while(( "$#" )); do
          scalusmacdir="$2"
      shift 2
     ;;
+       --isrelease)
+         if [ -z "$2" ] || [ ${2:0:1} = "-" ]; then 
+            echo "Error : missing isrelease"
+            shift
+            exit 1
+     fi
+         isrelease="$2"
+     shift 2
+    ;;
       *)
         shift
         ;;
@@ -115,19 +125,11 @@ echo "Building ${pkgfile}"
 
 tmpdir="${outpath}/tmp"
 
-function fn_Runit()
-{
-   if [ $FAKE -eq 1 ]; then 
-       echo "[INFO] RUN : $1"
-   else
-       `$1`
-   fi
-}
-
 function resetInfo()
 {
-
+    
     filename="${tmpdir}/${appname}.app/Contents/Info.plist"
+    echo "Reset info file: ${filename}"
     if [ ! -f ${filename} ]; then 
     echo "ERROR - missing file:${filename}"
         exit 1
@@ -180,6 +182,22 @@ function resetInfo()
     chmod a+r $filename
 }
 
+function resetCodeSigningInfo()
+{
+    cd ${scalusmacdir}
+    cd ..
+    cd scripts/Osx/${appname}.app/Contents
+    cp CodeSignInfo.plist ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
+    chmod a+r ${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist
+    filenameCodeSigning="${tmpdir}/${appname}.app/Contents/CodeSignInfo.plist"
+    if [ ! -f ${filenameCodeSigning} ]; then 
+        echo "ERROR - missing file:${filenameCodeSigning}"
+        exit 1
+    fi 
+   
+    chmod a+r ${filenameCodeSigning}
+}
+
 function make_app()
 {
     if [ -d ${tmpdir} ]; then 
@@ -199,23 +217,29 @@ fi
 
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
+    resetCodeSigningInfo  
+    cd $publishdir
+    ls
 
-    cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
+    cp $publishdir/* ${tmpdir}/${appname}.app/Contents/MacOS
+    chmod u=rwx,go=rx ${tmpdir}/${appname}.app/Contents/MacOS/*
+
+    cp -f $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS 
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
 
-    cp $scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
+    cp -f $scalusmacdir/.build/release/scalusmac ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalusmac
 
     mkdir -p ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+rx ${tmpdir}/${appname}.app/Contents/MacOS/Ui
 
-    cp -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
+    cp -f -R $publishdir/Ui/ ${tmpdir}/${appname}.app/Contents/MacOS/Ui
     chmod a+r ${tmpdir}/${appname}.app/Contents/MacOS/Ui/*
-    
+
     mkdir -p ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+rx ${tmpdir}/${appname}.app/Contents/Resources/Examples
 
-    cp $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
+    cp -f $publishdir/examples/*  ${tmpdir}/${appname}.app/Contents/Resources/examples
     chmod a+r ${tmpdir}/${appname}.app/Contents/Resources/examples/*
 
     # CodeSigning the files in the app bundle
