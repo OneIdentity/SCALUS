@@ -210,7 +210,7 @@ jobs:
 
   - task: Cake@2
     inputs:
-      script: 'build.cake'
+      script: 'buildMac.cake'
       target: 'Default'
       verbosity: 'Verbose'
       version: '2.2.0'
@@ -223,7 +223,7 @@ jobs:
       
   - powershell: |  
       sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
-    displayName: 'x64-ProductSigning for pkg'
+    displayName: 'x64-ProductSigning'
     condition: and(succeeded(), eq(variables.isRelease, true))
     
   - script: |
@@ -234,45 +234,22 @@ jobs:
             --team-id "LDBTVAT43D" \
             --wait \
             $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg \
-    displayName: 'Upload and notarize for pkg'
+    displayName: 'Upload and notarize'
     condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |
       sudo xcrun stapler staple $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
-    displayName: 'Staple for pkg'
-    condition: and(succeeded(), eq(variables.isRelease, true))
-
-  - powershell: |  
-      sudo productsign --sign 'LDBTVAT43D' $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.tar.gz $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
-    displayName: 'x64-ProductSigning for tar.gz'
-    condition: and(succeeded(), eq(variables.isRelease, true))
-    
-  - script: |
-        # Upload the zip archive to the Apple Notary Service
-        xcrun notarytool submit \
-            --apple-id "One.Identity.Apple.Developer@oneidentity.com" \
-            --password "$(Apple-App-Specific-Password)" \
-            --team-id "LDBTVAT43D" \
-            --wait \
-            $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz \
-    displayName: 'Upload and notarize for tar.gz'
+    displayName: 'Staple'
     condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |
-      sudo xcrun stapler staple $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
-    displayName: 'Staple tar.gz file'
+      spctl -vvv --assess --type install $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg
+    displayName: 'Check if run with the system policies'
     condition: and(succeeded(), eq(variables.isRelease, true))
 
   - powershell: |
-      spctl -vvv --assess --type install $(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz
-    displayName: 'Check if run with the system policies for tar.gz'
-    condition: and(succeeded(), eq(variables.isRelease, true))
-
-  - powershell: |
-      Move-Item -Path "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.tar.gz" -Destination "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.tar.gz" -Force
-      | 
       Move-Item -Path "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64_Signed.pkg" -Destination "$(Pipeline.Workspace)/s/Output/Release/osx-x64/scalus-$(version)-osx-x64.pkg" -Force
-    displayName: 'Replace signed files of tar.gz and pkg'
+    displayName: 'Replace signed files'
     condition: and(succeeded(), eq(variables.isRelease, true))
 
   - task: PublishPipelineArtifact@1
