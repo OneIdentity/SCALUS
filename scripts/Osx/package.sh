@@ -223,25 +223,13 @@ fi
         echo "[INFO] Not signing the app bundle files as this is not a release build"
     else
         # CodeSigning the files in the app bundle
-        shopt -s globstar
-        for file_path in ${tmpdir}/${appname}.app/**/*; do
-            if [[ -f "$file_path" ]]; then # Check if it's a regular file
-                echo "Processing file: $file_path"
-                if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
-                    echo "[INFO] Code signing succeeded for ${file_path}"
-                    continue
-                else
-                    codesign --remove-signature "${file_path}"
-                    if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
-                        echo "[INFO] Code signing succeeded for ${file_path}"
-                        continue
-                    else
-                        echo "[ERROR] Code signing failed for ${file_path}"
-                        continue
-                    fi                               
-                fi
-            fi
-        done
+        echo "[INFO] Signing the app bundle files"
+        codesign --force -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp
+        codesign --vvv --deep --strict "${tmpdir}/${appname}.app" 
+        if [ $? -ne 0 ]; then
+            echo "*** Failed to sign the app bundle"
+            exit 1
+        fi
     fi
 
     here=`pwd`
