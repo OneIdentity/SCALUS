@@ -225,7 +225,7 @@ fi
         # CodeSigning the files in the app bundle
         echo "[INFO] Signing the app bundle files"
         codesign --force -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp
-        codesign --vvv --deep --strict "${tmpdir}/${appname}.app" 
+        codesign -vvv --deep --strict "${tmpdir}/${appname}.app" 
         if [ $? -ne 0 ]; then
             echo "*** Failed to sign the app bundle"
             exit 1
