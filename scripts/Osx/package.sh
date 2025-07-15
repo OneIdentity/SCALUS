@@ -11,7 +11,6 @@ publishdir=""
 isrelease=""
 scalusmacdir=""
 
-
 PARAMS=""
 while(( "$#" )); do
     case "$1" in
@@ -200,6 +199,15 @@ fi
 
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
+    
+    entitlementfilename="${tmpdir}/${appname}.app/Contents/Entitlement.plist"
+    if [ ! -f ${entitlementfilename} ]; then 
+        echo "ERROR - missing file:${entitlementfilename}"
+        exit 1
+    else 
+        echo "[INFO] Using Entitlement file: ${entitlementfilename}"
+        chmod a+r $entitlementfilename
+    fi    
 
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
@@ -224,7 +232,7 @@ fi
     else
         # CodeSigning the files in the app bundle
         echo "[INFO] Signing the app bundle files"
-        codesign --force --entitlements "${tmpdir}/${appname}.app/Contents/Entitlements.plist" -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp
+        codesign --force --entitlements "${entitlementfilename}" -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp
         codesign -vvv --deep --strict "${tmpdir}/${appname}.app" 
         if [ $? -ne 0 ]; then
             echo "*** Failed to sign the app bundle"
