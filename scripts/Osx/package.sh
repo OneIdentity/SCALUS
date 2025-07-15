@@ -200,7 +200,7 @@ fi
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
     
-    entitlementfilename="${tmpdir}/${appname}.app/Contents/Entitlements.plist"
+    entitlementfilename="${tmpdir}/${appname}.app/Contents/entitlements.plist"
     if [ ! -f ${entitlementfilename} ]; then 
         echo "ERROR - missing file:${entitlementfilename}"
         exit 1
