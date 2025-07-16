@@ -185,7 +185,8 @@ function resetEntitlements()
     cd ${scalusmacdir}
     cd ..
     cd scripts/Osx/${appname}.app/Contents
-    cp CodeSignInfo.plist ${tmpdir}/${appname}.app/Contents/entitlements.plist   
+    ls
+    cp entitlements.plist ${tmpdir}/${appname}.app/Contents/entitlements.plist   
     if [ ! -f ${tmpdir}/${appname}.app/Contents/entitlements.plist ]; then 
         echo "ERROR - missing file: ${tmpdir}/${appname}.app/Contents/entitlements.plist"
         exit 1
