@@ -180,6 +180,19 @@ function resetInfo()
     chmod a+r $filename
 }
 
+function resetEntitlements()
+{
+    cd ${scalusmacdir}
+    cd ..
+    cd scripts/Osx/${appname}.app/Contents
+    cp CodeSignInfo.plist ${tmpdir}/${appname}.app/Contents/entitlements.plist   
+    if [ ! -f ${tmpdir}/${appname}.app/Contents/entitlements.plist ]; then 
+        echo "ERROR - missing file: ${tmpdir}/${appname}.app/Contents/entitlements.plist"
+        exit 1
+    fi 
+    chmod a+r ${tmpdir}/${appname}.app/Contents/entitlements.plist
+}
+
 function make_app()
 {
     if [ -d ${tmpdir} ]; then 
@@ -199,15 +212,7 @@ fi
 
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
-    
-    entitlementfilename="${tmpdir}/${appname}.app/Contents/entitlements.plist"
-    if [ ! -f ${entitlementfilename} ]; then 
-        echo "ERROR - missing file:${entitlementfilename}"
-        exit 1
-    else 
-        echo "[INFO] Using Entitlement file: ${entitlementfilename}"
-        chmod a+r $entitlementfilename
-    fi    
+    resetEntitlements
 
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
@@ -232,7 +237,7 @@ fi
     else
         # CodeSigning the files in the app bundle
         echo "[INFO] Signing the app bundle files"
-        codesign --force --entitlements "${entitlementfilename}" -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp
+        codesign --force --entitlements "${tmpdir}/${appname}.app/Contents/entitlements.plist" -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp
         codesign -vvv --deep --strict "${tmpdir}/${appname}.app" 
         if [ $? -ne 0 ]; then
             echo "*** Failed to sign the app bundle"
