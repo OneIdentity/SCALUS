@@ -158,22 +158,6 @@ jobs:
     inputs:
         version: '6.0.x'
 
-  - task: Bash@3
-    inputs:
-      targetType: 'inline'
-      script: |
-          # Download, compile, and install Bash
-          # (Example commands - replace with specific instructions for your chosen Bash version)
-          wget https://ftp.gnu.org/gnu/bash/bash-5.2.tar.gz
-          tar -xzf bash-5.2.tar.gz
-          cd bash-5.2
-          ./configure
-          make
-          sudo make install
-
-          # Verify the Bash version
-          bash --version
-
   - task: AzureKeyVault@2
     inputs:  
       ConnectedServiceName: "OneIdentity.Infrastructure.SPPCodeSigning"
