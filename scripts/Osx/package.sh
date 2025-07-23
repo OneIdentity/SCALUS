@@ -11,7 +11,6 @@ publishdir=""
 isrelease=""
 scalusmacdir=""
 
-
 PARAMS=""
 while(( "$#" )); do
     case "$1" in
@@ -181,6 +180,20 @@ function resetInfo()
     chmod a+r $filename
 }
 
+function resetEntitlements()
+{
+    cd ${scalusmacdir}
+    cd ..
+    cd scripts/Osx/${appname}.app/Contents
+    ls
+    cp entitlements.plist ${tmpdir}/${appname}.app/Contents/entitlements.plist   
+    if [ ! -f ${tmpdir}/${appname}.app/Contents/entitlements.plist ]; then 
+        echo "ERROR - missing file: ${tmpdir}/${appname}.app/Contents/entitlements.plist"
+        exit 1
+    fi 
+    chmod a+r ${tmpdir}/${appname}.app/Contents/entitlements.plist
+}
+
 function make_app()
 {
     if [ -d ${tmpdir} ]; then 
@@ -200,6 +213,7 @@ fi
 
     osacompile -o ${tmpdir}/${appname}.app ${infile}
     resetInfo
+    resetEntitlements
 
     cp $publishdir/scalus ${tmpdir}/${appname}.app/Contents/MacOS
     chmod u=rwx,go=rx  ${tmpdir}/${appname}.app/Contents/MacOS/scalus
@@ -223,25 +237,15 @@ fi
         echo "[INFO] Not signing the app bundle files as this is not a release build"
     else
         # CodeSigning the files in the app bundle
-        shopt -s globstar
-        for file_path in ${tmpdir}/${appname}.app/**/*; do
-            if [[ -f "$file_path" ]]; then # Check if it's a regular file
-                echo "Processing file: $file_path"
-                if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
-                    echo "[INFO] Code signing succeeded for ${file_path}"
-                    continue
-                else
-                    codesign --remove-signature "${file_path}"
-                    if codesign --force -s LDBTVAT43D -v "${file_path}" --deep --strict --options=runtime --timestamp > /dev/null 2>&1; then 
-                        echo "[INFO] Code signing succeeded for ${file_path}"
-                        continue
-                    else
-                        echo "[ERROR] Code signing failed for ${file_path}"
-                        continue
-                    fi                               
-                fi
-            fi
-        done
+        echo "[INFO] Signing the app bundle files"
+        codesign --force --entitlements "${tmpdir}/${appname}.app/Contents/entitlements.plist" -s LDBTVAT43D -v "${tmpdir}/${appname}.app" --deep --strict --options=runtime --timestamp
+        codesign -vvv --deep --strict "${tmpdir}/${appname}.app" 
+        echo "[INFO] Removing extended attributes from the app bundle"
+        xattr -c "${tmpdir}/${appname}.app"
+        if [ $? -ne 0 ]; then
+            echo "*** Failed to sign the app bundle"
+            exit 1
+        fi
     fi
 
     here=`pwd`
