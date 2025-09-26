@@ -34,6 +34,13 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
 
+  - task: VSBuild@1
+    inputs:
+      solution: '$(solution)'
+      msbuildArgs: '/p:Edition="${{ parameters.edition }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+
   # Need to set which version of .NET Core we are working against
   - task: UseDotNet@2
     displayName: 'Install .NET Core SDK'
@@ -41,13 +48,6 @@ jobs:
       packageType: 'sdk'
       version: '6.0.x'
       includePreviewVersions: false
-
-  - task: VSBuild@1
-    inputs:
-      solution: '$(solution)'
-      msbuildArgs: '/p:Edition="${{ parameters.edition }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
 
   - task: VSTest@2
     inputs:
