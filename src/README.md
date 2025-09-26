@@ -76,7 +76,7 @@ SCALUS command-line usage:
 
 ```
 Session Client Application Launch Uri System (SCALUS)
-Copyright (c) 2022 One Identity LLC
+Copyright (c) 2025 One Identity LLC
 
   info          Show information about the current SCALUS configuration
   launch        Launch an app configured for the specified URL

@@ -64,7 +64,7 @@ namespace OneIdentity.Scalus
         private void HandleErrors<T>(ParserResult<T> parserResult, IEnumerable<Error> errs)
         {
             var header = "Session Client Application Launch Uri System (SCALUS)";
-            var copyright = "Copyright (c) 2021 One Identity LLC";
+            var copyright = "Copyright (c) 2025 One Identity LLC";
 
             // Handle version
             if (errs.IsVersion())

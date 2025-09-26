@@ -34,6 +34,14 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
 
+  # Need to set which version of .NET Core we are working against
+  - task: UseDotNet@2
+    displayName: 'Install .NET Core SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '6.0.x'
+      includePreviewVersions: false
+
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
