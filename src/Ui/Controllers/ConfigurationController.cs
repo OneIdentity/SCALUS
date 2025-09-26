@@ -189,7 +189,7 @@ namespace OneIdentity.Scalus.Ui.Controllers
         {
             var validationErrors = new List<string>();
             config.Validate(validationErrors);
-            return Ok(validationErrors.ToArray());
+            return Ok(validationErrors.Count == 0 ? Array.Empty<string>() : validationErrors.ToArray());
         }
     }
 }
