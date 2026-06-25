@@ -177,6 +177,12 @@ namespace OneIdentity.Scalus.UrlParser
                 }
 
                 Parse(result);
+
+                // Ensure port defaults to 3389 if not specified in the URL
+                if (!Dictionary.ContainsKey(Token.Port) || string.IsNullOrEmpty(Dictionary[Token.Port]))
+                {
+                    Dictionary[Token.Port] = "3389";
+                }
             }
             else
             {
@@ -360,7 +366,7 @@ namespace OneIdentity.Scalus.UrlParser
                     continue;
                 }
 
-                dict[line[0]] = line[1] + ":" + line[2];
+                dict[line[0]] = string.Join(":", line, 1, line.Length - 1);
             }
 
             return dict;

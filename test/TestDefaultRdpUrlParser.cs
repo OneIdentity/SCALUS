@@ -175,6 +175,50 @@ namespace OneIdentity.Scalus.Test
             }
         }
 
+        [Fact]
+        public void TestRdpTemplateWithPortInServerPortOnly()
+        {
+            var template = Path.GetTempFileName();
+            // Test that a custom template with %Host% (no port) in full address
+            // and %Port% in server port works correctly — the port should be in
+            // server port only, not in full address.
+
+            var lines = new List<string>
+            {
+                $"full address:s:%{Token.Host}%",
+                $"server port:i:%{Token.Port}%",
+                $"username:s:%{Token.User}%",
+            };
+            File.WriteAllLines(template, lines);
+
+            using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig { UseTemplateFile = template }))
+            {
+                var url = "rdp://full+address=s:myhostname:33891&username=s:testuser/";
+                var dictionary = sut.Parse(url);
+                Assert.Equal("myhostname", dictionary[Token.Host]);
+                Assert.Equal("33891", dictionary[Token.Port]);
+                Assert.Equal("testuser", dictionary[Token.User]);
+
+                var tempfile = dictionary[Token.GeneratedFile];
+                var fileLines = File.ReadAllLines(tempfile);
+                var count = 0;
+                var names = new List<string>();
+
+                foreach (var one in fileLines)
+                {
+                    // full address should have host only (no port) since template uses %Host% without %Port%
+                    if (check(one, "full address", "s:myhostname", names, ref count)) continue;
+                    if (check(one, "server port", "i:33891", names, ref count)) continue;
+                    if (check(one, "username", "s:testuser", names, ref count)) continue;
+                }
+                Assert.Equal(3, count);
+                Assert.Equal(count, fileLines.Length);
+            }
+            if (File.Exists(template))
+            {
+                File.Delete(template);
+            }
+        }
 
         [Fact]
         public void TestRdpTemplate2()
