@@ -26,5 +26,7 @@ namespace OneIdentity.Scalus.Ui
     [Verb("ui", isDefault: true, HelpText = "Run the configuration UI")]
     public class Options : IVerb
     {
+        [Option("debug", Required = false, HelpText = "Keep the console window visible for troubleshooting.")]
+        public bool Debug { get; set; }
     }
 }

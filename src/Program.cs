@@ -24,6 +24,7 @@ namespace OneIdentity.Scalus
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Threading;
@@ -37,8 +38,20 @@ namespace OneIdentity.Scalus
 
     internal class Program
     {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool FreeConsole();
+
         private static int Main(string[] args)
         {
+            // On Windows, detach from the console for 'launch' and 'ui' verbs so no console
+            // window is visible. When launched from a browser/Explorer, the console window
+            // (which was created just for this process) is destroyed. (GitHub issue #131)
+            // CLI commands (info, register, --help, etc.) keep the console as normal.
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && ShouldHideConsole(args))
+            {
+                FreeConsole();
+            }
+
             bool community = false;
 #if COMMUNITY_EDITION
             community = true;
@@ -115,6 +128,24 @@ namespace OneIdentity.Scalus
                 // Failed to open the semaphore, so we can't signal it.
                 // The launcher will time out after 15 seconds.
             }
+        }
+
+        private static bool ShouldHideConsole(string[] args)
+        {
+            if (args.Length == 0)
+            {
+                // No verb defaults to 'ui'
+                return true;
+            }
+
+            // --debug flag keeps the console visible for troubleshooting
+            if (args.Any(a => string.Equals(a, "--debug", StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            return string.Equals(args[0], "launch", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(args[0], "ui", StringComparison.OrdinalIgnoreCase);
         }
 
         private static void HandleUnexpectedError(Exception ex)

@@ -31,5 +31,8 @@ namespace OneIdentity.Scalus.Launch
 
         [Option('p', "preview", Required = false, HelpText = "Show me what will launch, but dont run it. This will also report the token values and show the contents of the generated file, if applicable.")]
         public bool Preview { get; set; }
+
+        [Option("debug", Required = false, HelpText = "Keep the console window visible for troubleshooting.")]
+        public bool Debug { get; set; }
     }
 }
