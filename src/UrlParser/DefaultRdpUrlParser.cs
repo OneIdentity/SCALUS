@@ -292,15 +292,9 @@ namespace OneIdentity.Scalus.UrlParser
             var res = services.Execute("powershell",
                 new List<string>
                 {
-                    "New-SelfSignedCertificate",
-                    "-Subject",
-                    "SCALUS",
-                    "-NotAfter",
-                    "(Get-Date).AddYears(5)",
-                    "-KeyUsage",
-                    "DigitalSignature",
-                    "-CertStoreLocation",
-                    "Cert:\\CurrentUser\\My",
+                    "-NoProfile",
+                    "-Command",
+                    "New-SelfSignedCertificate -Subject SCALUS -NotAfter (Get-Date).AddYears(5) -KeyUsage DigitalSignature -CertStoreLocation Cert:\\CurrentUser\\My",
                 },
                 out output,
                 out err);
