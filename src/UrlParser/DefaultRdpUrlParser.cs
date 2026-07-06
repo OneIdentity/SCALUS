@@ -294,7 +294,7 @@ namespace OneIdentity.Scalus.UrlParser
                 {
                     "-NoProfile",
                     "-Command",
-                    "New-SelfSignedCertificate -Subject SCALUS -NotAfter (Get-Date).AddYears(5) -KeyUsage DigitalSignature -CertStoreLocation Cert:\\CurrentUser\\My",
+                    "Import-Module PKI; New-SelfSignedCertificate -Subject SCALUS -NotAfter (Get-Date).AddYears(5) -KeyUsage DigitalSignature -CertStoreLocation Cert:\\CurrentUser\\My",
                 },
                 out output,
                 out err);
