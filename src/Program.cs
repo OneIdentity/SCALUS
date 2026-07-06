@@ -158,6 +158,16 @@ namespace OneIdentity.Scalus
                 return false;
             }
 
+            // Don't hide the console when the user explicitly requests help/version output.
+            if (args.Any(a =>
+                    string.Equals(a, "--help", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(a, "-h", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(a, "--version", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(a, "-v", StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
             return string.Equals(args[0], "launch", StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(args[0], "ui", StringComparison.OrdinalIgnoreCase);
         }
