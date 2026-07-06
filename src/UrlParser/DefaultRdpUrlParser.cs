@@ -178,11 +178,11 @@ namespace OneIdentity.Scalus.UrlParser
 
                 Parse(result);
 
-                // Ensure port defaults to 3389 if not specified in the URL
-                if (!Dictionary.ContainsKey(Token.Port) || string.IsNullOrEmpty(Dictionary[Token.Port]))
-                {
-                    Dictionary[Token.Port] = "3389";
-                }
+// Ensure port defaults to 3389 if not specified in the URL
+if (!Dictionary.TryGetValue(Token.Port, out var port) || string.IsNullOrEmpty(port) || string.Equals(port, "-1", StringComparison.Ordinal))
+{
+    Dictionary[Token.Port] = "3389";
+}
             }
             else
             {
