@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Program.cs" company="One Identity Inc.">
 //   This software is licensed under the Apache 2.0 open source license.
 //   https://github.com/OneIdentity/SCALUS/blob/master/LICENSE
@@ -38,6 +38,8 @@ namespace OneIdentity.Scalus
 
     internal class Program
     {
+        private static bool consoleHidden;
+
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool FreeConsole();
 
@@ -50,6 +52,12 @@ namespace OneIdentity.Scalus
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && ShouldHideConsole(args))
             {
                 FreeConsole();
+                consoleHidden = true;
+
+                // Redirect stdout/stderr to nowhere so that subsequent Console.WriteLine
+                // and Serilog console sinks don't throw on the invalid handle.
+                Console.SetOut(TextWriter.Null);
+                Console.SetError(TextWriter.Null);
             }
 
             bool community = false;
@@ -64,7 +72,13 @@ namespace OneIdentity.Scalus
             try
             {
                 // Register components with autofac
-                var logger = new LoggerConfiguration().WriteTo.Console(theme: ConsoleTheme.None).CreateLogger();
+                var logConfig = new LoggerConfiguration().WriteTo.File(ConfigurationManager.LogFile, shared: true);
+                if (!consoleHidden)
+                {
+                    logConfig.WriteTo.Console(theme: ConsoleTheme.None);
+                }
+
+                var logger = logConfig.CreateLogger();
                 using var container = Ioc.RegisterApplication(logger);
                 using var lifetimeScope = container.BeginLifetimeScope();
                 services = lifetimeScope.Resolve<IOsServices>();
@@ -217,7 +231,7 @@ namespace OneIdentity.Scalus
                 config.MinimumLevel.ControlledBy(new Serilog.Core.LoggingLevelSwitch(ConfigurationManager.MinLogLevel.Value));
             }
 
-            if (ConfigurationManager.LogToConsole)
+            if (!consoleHidden && ConfigurationManager.LogToConsole)
             {
                 config.WriteTo.Console();
             }
