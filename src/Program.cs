@@ -152,8 +152,10 @@ namespace OneIdentity.Scalus
                 return true;
             }
 
-            // --debug flag keeps the console visible for troubleshooting
-            if (args.Any(a => string.Equals(a, "--debug", StringComparison.OrdinalIgnoreCase)))
+            // --debug or -p/--preview flags keep the console visible for troubleshooting
+            if (args.Any(a => string.Equals(a, "--debug", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(a, "--preview", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(a, "-p", StringComparison.OrdinalIgnoreCase)))
             {
                 return false;
             }
