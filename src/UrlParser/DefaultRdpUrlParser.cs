@@ -92,7 +92,11 @@ namespace OneIdentity.Scalus.UrlParser
         public void GetDefaults()
         {
             var str = GetResource("Default.rdp");
-            var list = str?.Split(Environment.NewLine);
+
+            // The embedded resource is stored with LF-only line endings, but Environment.NewLine
+            // is "\r\n" on Windows. Splitting on Environment.NewLine alone would silently fail to
+            // split the content at all, collapsing the whole file into a single bogus entry.
+            var list = str?.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
 
             defaultArgs = ParseTemplate(list);
             return;
