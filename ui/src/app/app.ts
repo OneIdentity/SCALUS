@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UiBadgeComponent } from './shared/ui/badge.component';
 import { UiButtonComponent } from './shared/ui/button.component';
@@ -44,6 +44,7 @@ const SAFEGUARD_TOKENS = ['%Token%', '%Vault%', '%TargetUser%', '%TargetHost%', 
 })
 export class App implements OnInit {
   @ViewChildren('applicationMenu') applicationMenus!: QueryList<ElementRef<HTMLDetailsElement>>;
+  @ViewChild('applicationEditorBody') applicationEditorBody?: ElementRef<HTMLElement>;
 
   tab: Tab = 'protocols';
   config: ScalusConfig = { Protocols: [], Applications: [] };
@@ -160,6 +161,14 @@ export class App implements OnInit {
   get scopeLabel(): string { return this.scope === 'all' ? 'all-users' : 'current-user'; }
 
   get registeredCount(): number { return this.config.Protocols.filter(p => this.isRegistered(p.Protocol)).length; }
+  get sortedProtocols(): ProtocolMapping[] {
+    return [...this.config.Protocols].sort((left, right) =>
+      left.Protocol.localeCompare(right.Protocol, undefined, { sensitivity: 'base' }));
+  }
+  get sortedApplications(): ApplicationConfig[] {
+    return [...this.config.Applications].sort((left, right) =>
+      left.Name.localeCompare(right.Name, undefined, { sensitivity: 'base' }));
+  }
   get conflictCount(): number { return this.config.Protocols.filter(p => this.isConflict(p.Protocol)).length; }
   get handlerStatus(): string {
     const total = this.config.Protocols.length;
@@ -450,10 +459,18 @@ export class App implements OnInit {
     this.editorMode = 'new';
     this.editorOriginalId = null;
     this.editor = { Id: '', Name: '', Description: '', Platforms: [this.platform], Protocol: 'rdp', Parser: { ParserId: 'rdp', Options: [], TemplateContent: DEFAULT_RDP_TEMPLATE, TemplateExtension: '.rdp' }, Exec: '', Args: ['%GeneratedFile%'] };
-    this.editorOpen = true; this.editorDirty = false; this.editorErrors = [];
+    this.openApplicationEditor();
   }
   editApplication(app: ApplicationConfig): void {
-    this.editorMode = 'edit'; this.editorOriginalId = app.Id; this.editor = JSON.parse(JSON.stringify(app)); this.editorOpen = true; this.editorDirty = false; this.editorErrors = [];
+    this.editorMode = 'edit'; this.editorOriginalId = app.Id; this.editor = JSON.parse(JSON.stringify(app)); this.openApplicationEditor();
+  }
+  private openApplicationEditor(): void {
+    this.editorOpen = true;
+    this.editorDirty = false;
+    this.editorErrors = [];
+    queueMicrotask(() => {
+      if (this.applicationEditorBody) this.applicationEditorBody.nativeElement.scrollTop = 0;
+    });
   }
   async closeEditor(): Promise<void> {
     if (!this.editorDirty || await this.askConfirm({
@@ -594,12 +611,22 @@ export class App implements OnInit {
   tokenTip(token: string): string {
     return this.tokenTips[token.replace(/%/g, '').toLowerCase()] ?? token;
   }
+  insertTokenFromPointer(event: PointerEvent, token: string, target: HTMLTextAreaElement): void {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    this.insertToken(token, target);
+  }
+  insertTokenFromKeyboard(event: MouseEvent, token: string, target: HTMLTextAreaElement): void {
+    if (event.detail === 0) this.insertToken(token, target);
+  }
   insertToken(token: string, target: HTMLTextAreaElement): void {
     const start = target.selectionStart ?? target.value.length;
     const end = target.selectionEnd ?? target.value.length;
-    target.value = target.value.slice(0, start) + token + target.value.slice(end);
-    target.dispatchEvent(new Event('input'));
-    target.focus(); target.selectionStart = target.selectionEnd = start + token.length;
+    const value = target.value.slice(0, start) + token + target.value.slice(end);
+    this.setArgsText(value);
+    target.value = this.argsText();
+    target.focus();
+    target.selectionStart = target.selectionEnd = Math.min(start + token.length, target.value.length);
   }
   commandPreview(): string {
     if (!this.editor) return '';
@@ -612,15 +639,19 @@ export class App implements OnInit {
     app.Name = (app.Name || '').trim();
     app.Id = (app.Id || '').trim() || this.uniqueId(app.Name || 'application');
     const localErrors = this.validateEditor(app);
-    if (localErrors.length) { this.editorErrors = localErrors; return; }
-    this.editorErrors = await this.bridge.validate({ ...this.config, Applications: this.upsertApplication(this.config.Applications, app, this.editorOriginalId) });
-    if (this.editorErrors.length) return;
+    if (localErrors.length) { this.showEditorErrors(localErrors); return; }
+    const validationErrors = await this.bridge.validate({ ...this.config, Applications: this.upsertApplication(this.config.Applications, app, this.editorOriginalId) });
+    if (validationErrors.length) { this.showEditorErrors(validationErrors); return; }
+    this.editorErrors = [];
     this.config.Applications = this.upsertApplication(this.config.Applications, app, this.editorOriginalId);
     if (this.editorOriginalId && this.editorOriginalId !== app.Id) {
       this.config.Protocols.forEach(p => { if (p.AppId === this.editorOriginalId) p.AppId = app.Id; });
     }
     await this.saveCurrentConfig('Application saved.');
     this.editorOpen = false;
+  }
+  private showEditorErrors(errors: string[]): void {
+    this.editorErrors = errors;
   }
   private validateEditor(app: ApplicationConfig): string[] {
     const errors: string[] = [];

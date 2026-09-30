@@ -148,4 +148,109 @@ describe('App', () => {
       { label: 'VNC Viewer · URL', value: 'vnc-viewer' }
     ]);
   });
+
+  it('sorts the protocol list by scheme without changing configuration order', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.config = {
+      Protocols: [
+        { Protocol: 'vnc', AppId: null },
+        { Protocol: 'RDP', AppId: null },
+        { Protocol: 'custom', AppId: null }
+      ],
+      Applications: []
+    };
+
+    expect(app.sortedProtocols.map(protocol => protocol.Protocol)).toEqual(['custom', 'RDP', 'vnc']);
+    expect(app.config.Protocols.map(protocol => protocol.Protocol)).toEqual(['vnc', 'RDP', 'custom']);
+  });
+
+  it('sorts the application list by name without changing configuration order', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    const applications = [
+      { Id: 'zulu', Name: 'Zulu', Platforms: ['Windows' as const], Protocol: 'ssh', Parser: { ParserId: 'ssh', Options: [] }, Exec: 'zulu.exe' },
+      { Id: 'alpha', Name: 'alpha', Platforms: ['Windows' as const], Protocol: 'rdp', Parser: { ParserId: 'rdp', Options: [] }, Exec: 'alpha.exe' }
+    ];
+    app.config.Applications = applications;
+
+    expect(app.sortedApplications.map(application => application.Name)).toEqual(['alpha', 'Zulu']);
+    expect(app.config.Applications).toEqual(applications);
+  });
+
+  it('scrolls the application editor to the top when opening a tile', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const app = fixture.componentInstance;
+    app.editApplication(app.config.Applications[0]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const editorBody = fixture.nativeElement.querySelector('.drawer-body') as HTMLElement;
+    editorBody.scrollTop = 300;
+
+    app.editorOpen = false;
+    app.editApplication(app.config.Applications[0]);
+    await fixture.whenStable();
+
+    expect(editorBody.scrollTop).toBe(0);
+  });
+
+  it('shows application validation errors in the fixed drawer footer', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const app = fixture.componentInstance;
+    app.newApplication();
+    fixture.detectChanges();
+
+    await app.saveEditor();
+    fixture.detectChanges();
+
+    expect(app.editorErrors).toContain('Name is required.');
+    expect(fixture.nativeElement.querySelector('.drawer-error')).not.toBeNull();
+  });
+
+  it('inserts a token chip at the arguments cursor and updates the editor', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const app = fixture.componentInstance;
+    app.editApplication(app.config.Applications[0]);
+    fixture.detectChanges();
+    const args = fixture.nativeElement.querySelector('#app-args') as HTMLTextAreaElement;
+    args.value = '--host=\n--port=';
+    app.setArgsText(args.value);
+    args.focus();
+    args.setSelectionRange(7, 7);
+
+    app.insertToken('%Host%', args);
+
+    expect(app.editor?.Args).toEqual(['--host=%Host%', '--port=']);
+    expect(args.value).toBe('--host=%Host%\n--port=');
+    expect(args.selectionStart).toBe(13);
+    expect(app.editorDirty).toBeTrue();
+  });
+
+  it('inserts a token on pointer down without waiting for click', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const app = fixture.componentInstance;
+    app.editApplication(app.config.Applications[0]);
+    fixture.detectChanges();
+    const args = fixture.nativeElement.querySelector('#app-args') as HTMLTextAreaElement;
+    const chip = fixture.nativeElement.querySelector('.token-chip') as HTMLButtonElement;
+    args.value = '--host=';
+    app.setArgsText(args.value);
+    args.focus();
+    args.setSelectionRange(args.value.length, args.value.length);
+
+    chip.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
+
+    expect(args.value).toContain(chip.textContent?.trim());
+    expect(app.editor?.Args?.[0]).toBe(args.value);
+  });
 });
