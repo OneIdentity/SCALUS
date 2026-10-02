@@ -41,6 +41,7 @@ namespace OneIdentity.Scalus
         public List<string> SaveConfiguration(ScalusConfig configuration)
         {
             ValidationErrors = new List<string>();
+            MigrateLegacyTemplates(configuration);
 
             // TODO: Save the file and keep the comments and formatting
             // I think this can be done by switching the config file to
@@ -50,7 +51,7 @@ namespace OneIdentity.Scalus
 
             if (ValidateAndSave(configuration))
             {
-                Load(configFile);
+                Config = Load(configFile);
             }
 
             if (ValidationErrors.Count > 0)

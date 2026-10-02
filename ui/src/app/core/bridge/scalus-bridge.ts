@@ -12,6 +12,10 @@ export interface ParserConfig {
   TemplateExtension?: string | null;
   LineEnding?: TemplateLineEnding;
   Encoding?: TemplateEncoding;
+  /** Legacy SCALUS 1.x field retained only until the host migrates the template. */
+  UseDefaultTemplate?: boolean;
+  /** Legacy SCALUS 1.x field retained only until the host migrates the template. */
+  UseTemplateFile?: string | null;
   PostProcessingExec?: string;
   PostProcessingArgs?: string[];
   /** Host this launch in the user's preferred terminal (SSH/telnet clients). */
@@ -73,9 +77,14 @@ export interface RegistrationStatus {
   Command?: string | null;
 }
 
+export interface SaveConfigResult {
+  errors: string[];
+  config: ScalusConfig;
+}
+
 export interface ScalusBridge {
   getConfig(): Promise<ScalusConfig>;
-  saveConfig(config: ScalusConfig): Promise<{ errors: string[] }>;
+  saveConfig(config: ScalusConfig): Promise<SaveConfigResult>;
   validate(config: ScalusConfig): Promise<string[]>;
   getRegistrations(): Promise<string[]>;
   getRegistrationStatus(scope: RegistrationScope): Promise<RegistrationStatus[]>;

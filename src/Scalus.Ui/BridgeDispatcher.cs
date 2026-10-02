@@ -109,7 +109,7 @@ namespace OneIdentity.Scalus.Ui
         private object SaveConfig(ScalusConfig config)
         {
             var errors = this.services.GetRequiredService<IScalusApiConfiguration>().SaveConfiguration(config);
-            return new { errors };
+            return new { errors, config = errors.Count == 0 ? GetConfig() : config };
         }
 
         private List<string> Validate(ScalusConfig config)

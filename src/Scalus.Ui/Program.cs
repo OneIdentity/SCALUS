@@ -87,7 +87,7 @@ namespace OneIdentity.Scalus.Ui
             var baseDir = AppContext.BaseDirectory;
             var indexPath = Path.Combine(baseDir, "wwwroot", "index.html");
             var iconPath = Path.Combine(baseDir, "scalus.ico");
-            var windowSettingsPath = Path.Combine(ConfigurationManager.ProdAppPath, "ui-window.json");
+            var windowSettingsPath = Path.Combine(ConfigurationManager.ProdAppPath, UiWindowSettings.FileName);
             var windowSettings = UiWindowSettings.Load(windowSettingsPath);
             var restoredWidth = windowSettings.Width;
             var restoredHeight = windowSettings.Height;

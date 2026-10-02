@@ -178,6 +178,40 @@ describe('App', () => {
     expect(app.config.Applications).toEqual(applications);
   });
 
+  it('adopts the migrated configuration returned after a legacy full import', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    const bridge = TestBed.inject(MockBridge);
+    spyOn(bridge, 'importFromFile').and.resolveTo(JSON.stringify({
+      Protocols: [],
+      Applications: [{
+        Id: 'legacy-rdp',
+        Name: 'Legacy RDP',
+        Platforms: ['Windows'],
+        Protocol: 'rdp',
+        Parser: { ParserId: 'rdp', UseTemplateFile: 'legacy.rdp' },
+        Exec: 'mstsc.exe',
+        Args: ['%GeneratedFile%']
+      }]
+    }));
+    spyOn(bridge, 'saveConfig').and.callFake(async config => {
+      const migrated = structuredClone(config);
+      migrated.Applications[0].Parser.TemplateContent = 'full address:s:%Host%';
+      migrated.Applications[0].Parser.TemplateExtension = '.rdp';
+      delete migrated.Applications[0].Parser.UseTemplateFile;
+      return { errors: [], config: migrated };
+    });
+
+    const importing = app.importReplace();
+    await Promise.resolve();
+    app.resolveConfirm(true);
+    await importing;
+
+    expect(app.config.Applications[0].Parser.TemplateContent).toContain('%Host%');
+    expect(app.config.Applications[0].Parser.TemplateExtension).toBe('.rdp');
+    expect(app.config.Applications[0].Parser.UseTemplateFile).toBeUndefined();
+  });
+
   it('scrolls the application editor to the top when opening a tile', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

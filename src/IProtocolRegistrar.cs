@@ -21,6 +21,7 @@
 
 namespace OneIdentity.Scalus
 {
+    using System.Collections.Generic;
     using OneIdentity.Scalus.Platform;
 
     public interface IProtocolRegistrar
@@ -42,5 +43,10 @@ namespace OneIdentity.Scalus
         bool Register(string protocol);
 
         bool ReplaceRegistration(string protocol);
+    }
+
+    internal interface IRegisteredProtocolSource
+    {
+        IEnumerable<string> GetRegisteredProtocols();
     }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { cloneConfig, FIELD_DESCRIPTIONS, normalizeConfig, SEED_CONFIG, TOKENS } from './seed-data';
-import { Capabilities, LaunchRecord, Platform, RegistrationScope, RegistrationStatus, RegistrationWriteResult, ScalusBridge, ScalusConfig, StartupAction, TerminalOption } from './scalus-bridge';
+import { Capabilities, LaunchRecord, Platform, RegistrationScope, RegistrationStatus, RegistrationWriteResult, SaveConfigResult, ScalusBridge, ScalusConfig, StartupAction, TerminalOption } from './scalus-bridge';
 
 // A demo timeline so the Logs view is populated in mock/browser mode.
 const NOW = Date.now();
@@ -63,10 +63,10 @@ export class MockBridge implements ScalusBridge {
 
   async getConfig(): Promise<ScalusConfig> { return cloneConfig(this.config); }
 
-  async saveConfig(config: ScalusConfig): Promise<{ errors: string[] }> {
+  async saveConfig(config: ScalusConfig): Promise<SaveConfigResult> {
     const errors = await this.validate(config);
     if (!errors.length) this.config = cloneConfig(config);
-    return { errors };
+    return { errors, config: cloneConfig(this.config) };
   }
 
   async validate(config: ScalusConfig): Promise<string[]> {

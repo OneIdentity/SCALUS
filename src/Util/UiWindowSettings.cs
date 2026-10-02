@@ -28,6 +28,7 @@ namespace OneIdentity.Scalus.Util
 
     internal sealed class UiWindowSettings
     {
+        public const string FileName = "ui-window.json";
         public const int DefaultWidth = 1240;
         public const int DefaultHeight = 840;
         public const int MinimumWidth = 960;

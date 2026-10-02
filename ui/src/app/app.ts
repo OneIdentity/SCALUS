@@ -755,7 +755,10 @@ export class App implements OnInit {
   private async saveCurrentConfig(success: string): Promise<void> {
     const result = await this.bridge.saveConfig(cloneConfig(this.config));
     this.editorErrors = result.errors;
-    if (!result.errors.length) this.flash(success);
+    if (!result.errors.length) {
+      this.config = result.config;
+      this.flash(success);
+    }
   }
   private uniqueId(seed: string): string {
     const base = (seed || 'application').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'application';

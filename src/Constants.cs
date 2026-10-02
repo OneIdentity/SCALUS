@@ -120,7 +120,11 @@ namespace OneIdentity.Scalus
             var binPath = GetLauncherBinaryPath().Trim();
             if (binPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || binPath.EndsWith(".so", StringComparison.OrdinalIgnoreCase))
             {
-                binPath = $"\"{DotNetPath()}\" {binPath}";
+                binPath = $"\"{DotNetPath()}\" \"{binPath}\"";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                binPath = $"\"{binPath}\"";
             }
             else
             {

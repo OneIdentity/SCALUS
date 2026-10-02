@@ -1,4 +1,5 @@
 import { MockBridge } from './mock-bridge';
+import { normalizeConfig } from './seed-data';
 
 describe('MockBridge', () => {
   it('is seeded with protocol and application data', async () => {
@@ -30,5 +31,25 @@ describe('MockBridge', () => {
     await bridge.register('ssh', 'user');
     const ssh = (await bridge.getRegistrationStatus('user')).find(s => s.Protocol === 'ssh');
     expect(ssh?.State).toBe('registered');
+  });
+
+  it('preserves legacy template fields while normalizing a SCALUS 1 configuration', () => {
+    const config = normalizeConfig({
+      protocols: [],
+      applications: [{
+        id: 'legacy-rdp',
+        name: 'Legacy RDP',
+        protocol: 'rdp',
+        parser: {
+          parserId: 'rdp',
+          useDefaultTemplate: false,
+          useTemplateFile: 'C:\\templates\\legacy.rdp'
+        },
+        exec: 'mstsc.exe'
+      }]
+    });
+
+    expect(config?.Applications[0].Parser.UseDefaultTemplate).toBeFalse();
+    expect(config?.Applications[0].Parser.UseTemplateFile).toBe('C:\\templates\\legacy.rdp');
   });
 });

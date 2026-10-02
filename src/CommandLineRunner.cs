@@ -23,6 +23,7 @@ namespace OneIdentity.Scalus
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Threading;
     using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +47,11 @@ namespace OneIdentity.Scalus
         public static int Run(string[] args)
         {
             ConfigureLogging();
-            CheckConfig();
+            if (!IsMachineUnregister(args))
+            {
+                CheckConfig();
+            }
+
             try
             {
                 var logger = new LoggerConfiguration().WriteTo.Console(theme: ConsoleTheme.None).CreateLogger();
@@ -93,6 +98,12 @@ namespace OneIdentity.Scalus
                 // The launcher will time out after 15 seconds.
             }
         }
+
+        private static bool IsMachineUnregister(string[] args) =>
+            args != null &&
+            args.Any(arg => string.Equals(arg, "unregister", StringComparison.OrdinalIgnoreCase)) &&
+            args.Any(arg => string.Equals(arg, "--root", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(arg, "-r", StringComparison.OrdinalIgnoreCase));
 
         private static void HandleUnexpectedError(Exception ex)
         {
