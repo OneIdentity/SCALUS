@@ -13,8 +13,7 @@
     Version   - product version (e.g. 1.1.0.123)
   Required extensions: WixToolset.UI.wixext
 -->
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <Package Name="SCALUS"
            Manufacturer="One Identity"
@@ -32,34 +31,121 @@
     <Icon Id="icon.ico" SourceFile="$(var.tmpdir)\icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
-    <!-- WixUI_Minimal chrome. -->
+    <!-- WixUI_Minimal chrome with an additional uninstall-options dialog. -->
     <WixVariable Id="WixUILicenseRtf" Value="$(var.tmpdir)\license.rtf" />
     <WixVariable Id="WixUIBannerBmp" Value="$(var.tmpdir)\banner.bmp" />
     <WixVariable Id="WixUIDialogBmp" Value="$(var.tmpdir)\dialog.bmp" />
-    <ui:WixUI Id="WixUI_Minimal" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch SCALUS" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="REMOVE_CONFIGURATION" Value="1" Secure="yes" />
 
     <CustomAction Id="LaunchScalusUi" Return="asyncNoWait" Impersonate="yes"
                   Execute="immediate" Directory="INSTALLDIR"
                   ExeCommand="&quot;[INSTALLDIR]ui\scalus-ui.exe&quot;" />
-    <UI>
+    <!-- Windows Settings runs its direct Uninstall action with reduced UI, which cannot show
+         custom dialogs. Set ARPNOREMOVE only in the execute sequence so ARP directs users through
+         Modify, while leaving the maintenance UI's Remove button enabled. -->
+    <CustomAction Id="SetArpNoRemove" Property="ARPNOREMOVE" Value="1" />
+    <UI Id="ScalusUI">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+      <DialogRef Id="WelcomeDlg" />
+      <DialogRef Id="WelcomeEulaDlg" />
+
+      <Dialog Id="UninstallOptionsDlg" Width="370" Height="270" Title="[ProductName] Setup">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44"
+                 Text="WixUI_Bmp_Banner" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="340" Height="15"
+                 Transparent="yes" NoPrefix="yes"
+                 Text="{\WixUI_Font_Title}Uninstall options" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="320" Height="15"
+                 Transparent="yes" NoPrefix="yes"
+                 Text="Choose whether to remove your SCALUS configuration data." />
+        <Control Id="RemoveConfiguration" Type="CheckBox" X="25" Y="75" Width="320" Height="30"
+                 Property="REMOVE_CONFIGURATION" CheckBoxValue="1"
+                 Text="Remove configuration data (SCALUS.json and window settings)" />
+        <Control Id="ConfigurationNote" Type="Text" X="25" Y="110" Width="320" Height="30"
+                 NoPrefix="yes"
+                 Text="Clear this option to preserve your configuration for a future installation. Log files are always preserved." />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17"
+                 Text="&amp;Back" HideCondition="REMOVE = &quot;ALL&quot;">
+          <Publish Event="NewDialog" Value="MaintenanceTypeDlg" />
+        </Control>
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17"
+                 Default="yes" Text="&amp;Next">
+          <Publish Event="NewDialog" Value="VerifyReadyDlg" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17"
+                 Cancel="yes" Text="Cancel">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
       <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchScalusUi"
                Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999" />
+
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog"
+               Value="UninstallOptionsDlg" Condition="WixUI_InstallMode = &quot;Remove&quot;" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog"
+               Value="MaintenanceTypeDlg" Order="2"
+               Condition="NOT (WixUI_InstallMode = &quot;Remove&quot;)" />
+
+      <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog"
+               Value="MaintenanceTypeDlg" />
+      <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog"
+               Value="VerifyReadyDlg" />
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog"
+               Value="UninstallOptionsDlg" />
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog"
+               Value="MaintenanceWelcomeDlg" />
+
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg"
+               Condition="Installed AND PATCH" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg"
+               Order="3" Condition="Installed AND PATCH" />
+
+      <InstallUISequence>
+        <Show Dialog="override WelcomeDlg" Before="WelcomeEulaDlg"
+              Condition="Installed AND PATCH" />
+        <Show Dialog="UninstallOptionsDlg" Before="ProgressDlg"
+              Condition="Installed AND (REMOVE = &quot;ALL&quot;) AND NOT UPGRADINGPRODUCTCODE" />
+      </InstallUISequence>
+
     </UI>
+    <UIRef Id="WixUI_Common" />
 
     <!-- Deregister protocol handlers on uninstall (not on upgrade). -->
     <CustomAction Id="UninstallScalusUser" Return="check" Impersonate="yes" Execute="deferred"
+                  Directory="INSTALLDIR"
+                  ExeCommand="&quot;[INSTALLDIR]scalus.exe&quot; unregister" />
+    <CustomAction Id="UninstallScalusUserAndConfiguration" Return="check" Impersonate="yes" Execute="deferred"
                   Directory="INSTALLDIR"
                   ExeCommand="&quot;[INSTALLDIR]scalus.exe&quot; unregister --remove-configuration" />
     <CustomAction Id="UninstallScalusMachine" Return="check" Impersonate="no" Execute="deferred"
                   Directory="INSTALLDIR"
                   ExeCommand="&quot;[INSTALLDIR]scalus.exe&quot; unregister --root" />
     <InstallExecuteSequence>
+      <Custom Action="SetArpNoRemove" Before="RegisterProduct"
+              Condition="NOT (REMOVE=&quot;ALL&quot;)" />
       <Custom Action="UninstallScalusMachine" After="InstallInitialize"
               Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
       <Custom Action="UninstallScalusUser" After="UninstallScalusMachine"
-              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;) AND (REMOVE_CONFIGURATION &lt;&gt; &quot;1&quot;)" />
+      <Custom Action="UninstallScalusUserAndConfiguration" After="UninstallScalusUser"
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;) AND (REMOVE_CONFIGURATION = &quot;1&quot;)" />
     </InstallExecuteSequence>
 
     <Feature Id="DefaultFeature" Title="SCALUS" Level="1">

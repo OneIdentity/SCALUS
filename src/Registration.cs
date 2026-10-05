@@ -197,7 +197,6 @@ namespace OneIdentity.Scalus
 
         public bool UnRegister(IEnumerable<string> protocols, bool rootMode = false, bool useSudo = false)
         {
-            Serilog.Log.Debug("Attempting to unregister protocols to clean up.");
             foreach (var protocol in protocols)
             {
                 if (!ProtocolMapping.ValidateProtocol(protocol, out string err))
