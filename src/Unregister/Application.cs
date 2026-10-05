@@ -70,7 +70,10 @@ namespace OneIdentity.Scalus.Unregister
                     GetRegisteredProtocols());
 
             Registration.UnRegister(protocols, Options.RootMode, Options.UseSudo);
-            if (Options.RemoveConfiguration)
+            if (ShouldRemoveConfiguration(
+                Options.RemoveConfiguration,
+                Options.PromptRemoveConfiguration,
+                WindowsConfigurationRemovalPrompt.Confirm))
             {
                 DeleteUserSettings(
                     ConfigurationManager.ScalusJson,
@@ -79,6 +82,12 @@ namespace OneIdentity.Scalus.Unregister
 
             return 0;
         }
+
+        internal static bool ShouldRemoveConfiguration(
+            bool removeConfiguration,
+            bool promptRemoveConfiguration,
+            Func<bool> confirm) =>
+            removeConfiguration || (promptRemoveConfiguration && confirm());
 
         internal static void DeleteUserSettings(string configurationPath, string windowSettingsPath)
         {

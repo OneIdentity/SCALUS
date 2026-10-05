@@ -58,5 +58,21 @@ namespace OneIdentity.Scalus.Test
             Assert.False(Directory.Exists(directory));
         }
 
+        [Fact]
+        public void PromptedConfigurationRemovalUsesUserChoice()
+        {
+            Assert.True(Unregister.Application.ShouldRemoveConfiguration(false, true, () => true));
+            Assert.False(Unregister.Application.ShouldRemoveConfiguration(false, true, () => false));
+        }
+
+        [Fact]
+        public void ExplicitConfigurationRemovalDoesNotPrompt()
+        {
+            Assert.True(Unregister.Application.ShouldRemoveConfiguration(
+                true,
+                false,
+                () => throw new InvalidOperationException("Prompt should not be called")));
+        }
+
     }
 }

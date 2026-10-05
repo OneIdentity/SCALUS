@@ -37,6 +37,8 @@ namespace OneIdentity.Scalus.Unregister
 
         public bool RemoveConfiguration { get; set; }
 
+        public bool PromptRemoveConfiguration { get; set; }
+
         public Command CreateCommand(Action<object> onParsed)
         {
             var protocols = new Option<string[]>("--protocols", "-p")
@@ -48,12 +50,14 @@ namespace OneIdentity.Scalus.Unregister
             var sudo = new Option<bool>("--sudo", "-s") { Description = "use (passwordless) sudo to update system files on supported platforms" };
             var quiet = new Option<bool>("--quiet", "-q") { Hidden = true };
             var removeConfiguration = new Option<bool>("--remove-configuration") { Hidden = true };
+            var promptRemoveConfiguration = new Option<bool>("--prompt-remove-configuration") { Hidden = true };
             var command = new Command("unregister", "Unregister SCALUS for URL handling");
             command.Add(protocols);
             command.Add(root);
             command.Add(sudo);
             command.Add(quiet);
             command.Add(removeConfiguration);
+            command.Add(promptRemoveConfiguration);
             command.SetAction(result =>
             {
                 onParsed(new Options
@@ -63,6 +67,7 @@ namespace OneIdentity.Scalus.Unregister
                     UseSudo = result.GetValue(sudo),
                     Quiet = result.GetValue(quiet),
                     RemoveConfiguration = result.GetValue(removeConfiguration),
+                    PromptRemoveConfiguration = result.GetValue(promptRemoveConfiguration),
                 });
                 return 0;
             });

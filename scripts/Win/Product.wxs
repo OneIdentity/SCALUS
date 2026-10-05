@@ -49,7 +49,10 @@
     </UI>
 
     <!-- Deregister protocol handlers on uninstall (not on upgrade). -->
-    <CustomAction Id="UninstallScalusUser" Return="check" Impersonate="yes" Execute="deferred"
+    <CustomAction Id="UninstallScalusUserInteractive" Return="check" Impersonate="yes" Execute="deferred"
+                  Directory="INSTALLDIR"
+                  ExeCommand="&quot;[INSTALLDIR]scalus.exe&quot; unregister --prompt-remove-configuration" />
+    <CustomAction Id="UninstallScalusUserSilent" Return="check" Impersonate="yes" Execute="deferred"
                   Directory="INSTALLDIR"
                   ExeCommand="&quot;[INSTALLDIR]scalus.exe&quot; unregister --remove-configuration" />
     <CustomAction Id="UninstallScalusMachine" Return="check" Impersonate="no" Execute="deferred"
@@ -58,8 +61,10 @@
     <InstallExecuteSequence>
       <Custom Action="UninstallScalusMachine" After="InstallInitialize"
               Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
-      <Custom Action="UninstallScalusUser" After="UninstallScalusMachine"
-              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+      <Custom Action="UninstallScalusUserInteractive" After="UninstallScalusMachine"
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;) AND (UILevel &gt;= 3)" />
+      <Custom Action="UninstallScalusUserSilent" After="UninstallScalusUserInteractive"
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;) AND ((NOT UILevel) OR (UILevel &lt; 3))" />
     </InstallExecuteSequence>
 
     <Feature Id="DefaultFeature" Title="SCALUS" Level="1">
