@@ -6,12 +6,12 @@ description: Use when working on the SCALUS Angular UI or adding/altering a host
 # SCALUS UI Bridge
 
 Read this when working in `ui/` or connecting the UI to C#. The desktop config app
-is an **Angular 20 SPA hosted in a Photino window**. It calls into `Scalus.Core`
+is an **Angular 22.2 SPA hosted in a Photino window**. It calls into `Scalus.Core`
 through a **message bridge — never HTTP, never a local web server.**
 
 ## The stack
 
-- `ui/` — Angular 20 workspace (TypeScript 5.9, Node 22). `Scalus.Ui.csproj`
+- `ui/` — Angular 22.2 workspace (TypeScript 6.0, Node 22). `Scalus.Ui.csproj`
   builds it (`npm ci` + `npm run build` → `ui/dist/scalus-ui/browser`) and stages
   it into the host's `wwwroot`.
 - `src/Scalus.Ui/` — the Photino .NET host. `Program.cs` opens the window and loads

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+
+import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UiBadgeComponent } from './shared/ui/badge.component';
 import { UiButtonComponent } from './shared/ui/button.component';
@@ -38,8 +38,9 @@ const SAFEGUARD_TOKENS = ['%Token%', '%Vault%', '%TargetUser%', '%TargetHost%', 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, UiBadgeComponent, UiButtonComponent, UiCardComponent, UiComboComponent, UiDrawerComponent, UiModalComponent, UiSegmentedControlComponent, UiSelectComponent, UiToggleComponent],
+  imports: [FormsModule, UiBadgeComponent, UiButtonComponent, UiCardComponent, UiComboComponent, UiDrawerComponent, UiModalComponent, UiSegmentedControlComponent, UiSelectComponent, UiToggleComponent],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
