@@ -31,10 +31,13 @@ namespace OneIdentity.Scalus.Test
             var templatesDir = Path.Combine(FixturesDir, "templates");
             var raw = File.ReadAllText(Path.Combine(FixturesDir, "legacy-config.json"));
 
-            // The fixture stores template paths as "__FIXTURES__\WinRdpTemplate.rdp"; point them at the
-            // real files copied next to the test assembly. JSON-escape the backslashes in the path.
-            var jsonSafeDir = templatesDir.Replace("\\", "\\\\");
-            return raw.Replace("__FIXTURES__", jsonSafeDir);
+            // Resolve the complete fixture filenames so the legacy mix of Windows and Unix
+            // separators does not produce an invalid path on the current test host.
+            var rdpPath = Path.Combine(templatesDir, "WinRdpTemplate.rdp").Replace("\\", "\\\\");
+            var remminaPath = Path.Combine(templatesDir, "ssh.remmina").Replace("\\", "\\\\");
+            return raw
+                .Replace("__FIXTURES__\\\\WinRdpTemplate.rdp", rdpPath)
+                .Replace("__FIXTURES__/ssh.remmina", remminaPath);
         }
 
         private static ScalusConfig LoadLegacyConfigWithResolvedPaths() =>

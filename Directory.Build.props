@@ -12,14 +12,12 @@
                       MUST match this value (the CI version step asserts it)
                       so the tag and the tree never drift.
       BuildNumber   - the 4th, incrementing component. Defaults to 0 for local
-                      and non-release builds (the non-release build number that
-                      is checked in). CI overrides it with the incrementing
-                      pipeline build id for trunk builds, and omits it for
-                      tagged release builds.
+                      builds. CI supplies its bounded buildCounter for trunk
+                      builds and omits it for tagged release builds.
 
     Effective versions:
       local dev build   ->  2.0.0.0            (BuildNumber = 0)
-      CI trunk build    ->  2.0.0.&lt;buildid&gt;    (incrementing, installer-safe)
+      CI trunk build    ->  2.0.0.&lt;counter&gt;    (incrementing)
       CI release (tag)  ->  2.0.0              (clean semver from vX.Y.Z)
 
     A caller may also pass a fully-formed version with -p:Version=x.y.z (the CI
@@ -35,8 +33,9 @@
     <Version>$(VersionPrefix).$(BuildNumber)</Version>
   </PropertyGroup>
 
-  <!-- Fan the resolved version out to every assembly-identity attribute so the
-       CLI, the UI and the core library all report the same number. -->
+  <!-- Fan the resolved version out to every assembly-identity attribute. CI
+       uses a bounded pipeline counter for the fourth component so the version
+       remains valid for CLR assemblies and Windows file metadata. -->
   <PropertyGroup>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>

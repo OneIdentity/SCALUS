@@ -50,6 +50,25 @@ fi
 publishdir="$rootdir/Publish/$configuration/$runtime"
 uidir="$publishdir/ui"
 exdir="$publishdir/examples"
+publish_properties=("-p:Version=$version")
+
+if [ "$runtime" = "linux-arm64" ]; then
+    case "$(uname -m)" in
+        aarch64|arm64)
+            ;;
+        *)
+            arm64_objcopy="$(command -v aarch64-linux-gnu-objcopy || true)"
+            if [ -z "$arm64_objcopy" ]; then
+                echo "Error: linux-arm64 cross-publishing requires aarch64-linux-gnu-objcopy (install binutils-aarch64-linux-gnu)." >&2
+                exit 1
+            fi
+
+            # NativeAOT otherwise selects the host objcopy, which cannot split or
+            # strip debug symbols from the generated ARM64 ELF binary.
+            publish_properties+=("-p:ObjCopyName=$arm64_objcopy")
+            ;;
+    esac
+fi
 
 echo "==> Publishing SCALUS $version for $runtime ($configuration)"
 rm -rf "$publishdir"
@@ -62,7 +81,7 @@ dotnet publish "src/Cli/Scalus.Cli.csproj" \
     --configuration "$configuration" \
     --runtime "$runtime" \
     --self-contained true \
-    -p:Version="$version" \
+    "${publish_properties[@]}" \
     --output "$publishdir"
 
 # 2. Photino configuration GUI. Self-contained but NOT single-file/AOT: the

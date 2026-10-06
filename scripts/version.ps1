@@ -14,12 +14,14 @@
 #       a release can never ship mislabeled relative to the tree it was built from.
 #
 #   Trunk / PR / manual build (any non-tag ref)
-#       -> Version    = X.Y.Z.<BuildId>  (incrementing 4th component, installer-safe)
+#       -> Version    = X.Y.Z.<BuildCounter>  (incrementing product version)
 #       -> IsPrerelease = true
 #
-# Installer versions are ALWAYS purely numeric (WiX/fpm reject semver pre-release
+# Package versions are ALWAYS purely numeric (WiX/fpm reject semver pre-release
 # suffixes); "prerelease" is conveyed downstream by the IsPrerelease flag + the
-# GitHub release marking, not by a "-pre" suffix in the version string.
+# GitHub release marking, not by a "-pre" suffix in the version string. Azure's
+# pipeline counter is used instead of Build.BuildId so the fourth component
+# remains valid for CLR assembly and Windows file versions.
 #
 # Emits these pipeline variables (via ##vso logging commands):
 #   Version        - the full version to pass to publish (-Version / -p:Version)
@@ -27,12 +29,13 @@
 #   IsTagBuild     - "true" | "false"
 #   ReleaseTag     - the tag (e.g. v2.0.0) on a tag build, else empty
 #
-# Usage: scripts/version.ps1 [-SourceBranch <ref>] [-BuildId <n>]
-#   Defaults come from the Azure DevOps env vars BUILD_SOURCEBRANCH / BUILD_BUILDID.
+# Usage: scripts/version.ps1 [-SourceBranch <ref>] [-BuildCounter <n>]
+#   SourceBranch defaults from BUILD_SOURCEBRANCH. BuildCounter is passed from
+#   the pipeline's counter expression.
 [CmdletBinding()]
 param(
     [string]$SourceBranch = $env:BUILD_SOURCEBRANCH,
-    [string]$BuildId = $env:BUILD_BUILDID
+    [string]$BuildCounter = $env:BUILDCOUNTER
 )
 
 $ErrorActionPreference = "Stop"
@@ -48,8 +51,6 @@ $base = $match.Matches[0].Groups[1].Value.Trim()
 if ($base -notmatch '^\d+\.\d+\.\d+$') {
     throw "VersionPrefix '$base' in Directory.Build.props must be a 3-part version (X.Y.Z)."
 }
-
-if ([string]::IsNullOrWhiteSpace($BuildId)) { $BuildId = "0" }
 
 # 2. Decide the build kind from the ref.
 $isTagBuild = $false
@@ -77,12 +78,17 @@ if ($SourceBranch -like "refs/tags/*") {
 }
 else {
     # Trunk / PR / manual: incrementing 4-part numeric, marked prerelease.
-    $version = "$base.$BuildId"
+    if ([string]::IsNullOrWhiteSpace($BuildCounter)) { $BuildCounter = "0" }
+    if ($BuildCounter -notmatch '^\d+$' -or [int64]$BuildCounter -gt 65535) {
+        throw "BuildCounter '$BuildCounter' must be an integer from 0 through 65535."
+    }
+
+    $version = "$base.$BuildCounter"
 }
 
 # 3. Report + publish as pipeline variables.
 Write-Host "SourceBranch : $SourceBranch"
-Write-Host "BuildId      : $BuildId"
+Write-Host "BuildCounter : $BuildCounter"
 Write-Host "VersionPrefix: $base"
 Write-Host "Version      : $version"
 Write-Host "IsTagBuild   : $isTagBuild"
