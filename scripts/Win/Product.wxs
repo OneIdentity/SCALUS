@@ -37,12 +37,28 @@
     <WixVariable Id="WixUIBannerBmp" Value="$(var.tmpdir)\banner.bmp" />
     <WixVariable Id="WixUIDialogBmp" Value="$(var.tmpdir)\dialog.bmp" />
     <ui:WixUI Id="WixUI_Minimal" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch SCALUS" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+
+    <CustomAction Id="LaunchScalusUi" Return="asyncNoWait" Impersonate="yes"
+                  Execute="immediate" Directory="INSTALLDIR"
+                  ExeCommand="&quot;[INSTALLDIR]ui\scalus-ui.exe&quot;" />
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchScalusUi"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
 
     <!-- Deregister protocol handlers on uninstall (not on upgrade). -->
-    <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred"
-                  Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister" />
+    <CustomAction Id="UninstallScalusUser" Return="check" Impersonate="yes" Execute="deferred"
+                  Directory="INSTALLDIR"
+                  ExeCommand="&quot;[INSTALLDIR]scalus.exe&quot; unregister --remove-configuration" />
+    <CustomAction Id="UninstallScalusMachine" Return="check" Impersonate="no" Execute="deferred"
+                  Directory="INSTALLDIR"
+                  ExeCommand="&quot;[INSTALLDIR]scalus.exe&quot; unregister --root" />
     <InstallExecuteSequence>
-      <Custom Action="UninstallScalus" After="InstallInitialize"
+      <Custom Action="UninstallScalusMachine" After="InstallInitialize"
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+      <Custom Action="UninstallScalusUser" After="UninstallScalusMachine"
               Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
     </InstallExecuteSequence>
 

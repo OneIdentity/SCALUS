@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UiBadgeComponent } from './shared/ui/badge.component';
 import { UiButtonComponent } from './shared/ui/button.component';
@@ -43,6 +43,9 @@ const SAFEGUARD_TOKENS = ['%Token%', '%Vault%', '%TargetUser%', '%TargetHost%', 
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
+  @ViewChildren('applicationMenu') applicationMenus!: QueryList<ElementRef<HTMLDetailsElement>>;
+  @ViewChild('applicationEditorBody') applicationEditorBody?: ElementRef<HTMLElement>;
+
   tab: Tab = 'protocols';
   config: ScalusConfig = { Protocols: [], Applications: [] };
   registrations = new Map<string, RegistrationStatus>();
@@ -158,6 +161,14 @@ export class App implements OnInit {
   get scopeLabel(): string { return this.scope === 'all' ? 'all-users' : 'current-user'; }
 
   get registeredCount(): number { return this.config.Protocols.filter(p => this.isRegistered(p.Protocol)).length; }
+  get sortedProtocols(): ProtocolMapping[] {
+    return [...this.config.Protocols].sort((left, right) =>
+      left.Protocol.localeCompare(right.Protocol, undefined, { sensitivity: 'base' }));
+  }
+  get sortedApplications(): ApplicationConfig[] {
+    return [...this.config.Applications].sort((left, right) =>
+      left.Name.localeCompare(right.Name, undefined, { sensitivity: 'base' }));
+  }
   get conflictCount(): number { return this.config.Protocols.filter(p => this.isConflict(p.Protocol)).length; }
   get handlerStatus(): string {
     const total = this.config.Protocols.length;
@@ -313,10 +324,7 @@ export class App implements OnInit {
   appById(id?: string | null): ApplicationConfig | undefined { return this.config.Applications.find(app => app.Id === id); }
   appOptionsFor(protocol: ProtocolMapping): { label: string; value: string }[] {
     const family = this.protocolFamily(protocol.Protocol);
-    // The protocol suffix only disambiguates when a custom protocol (family 'any')
-    // can list apps of mixed parser types. On the built-in rdp/ssh/telnet rows the
-    // row itself already names the protocol, so the suffix is just noise.
-    const showParser = family === 'any';
+    const showParser = !this.isBuiltIn(protocol.Protocol);
     return this.config.Applications
       .filter(app => this.appMatchesFamily(app, family))
       .filter(app => app.Platforms?.includes(this.platform))
@@ -325,7 +333,7 @@ export class App implements OnInit {
         value: app.Id,
       }));
   }
-  protocolFamily(protocol: string): string { return BUILT_IN_PROTOCOLS.has(protocol) ? protocol : 'any'; }
+  protocolFamily(protocol: string): string { return protocol.trim().toLowerCase(); }
   // Suggestions for the Protocol combobox: the built-in schemes plus any custom
   // schemes already declared in this config. The field stays free-text so a brand
   // new scheme can still be typed.
@@ -338,8 +346,10 @@ export class App implements OnInit {
     return [...seen].sort();
   }
   appMatchesFamily(app: ApplicationConfig, family: string): boolean {
-    if (family === 'any') return true;
-    return app.Parser.ParserId === family || app.Protocol === family;
+    const normalizedFamily = family.trim().toLowerCase();
+    const appProtocol = app.Protocol?.trim().toLowerCase();
+    if (!BUILT_IN_PROTOCOLS.has(normalizedFamily)) return appProtocol === normalizedFamily;
+    return app.Parser.ParserId?.trim().toLowerCase() === normalizedFamily || appProtocol === normalizedFamily;
   }
   isBuiltIn(protocol: string): boolean { return BUILT_IN_PROTOCOLS.has(protocol); }
   registrationState(protocol: string): 'registered' | 'conflict' | 'unregistered' { return this.registrations.get(protocol)?.State ?? 'unregistered'; }
@@ -426,15 +436,19 @@ export class App implements OnInit {
     this.closeProtocolModal();
   }
   async removeProtocol(protocol: ProtocolMapping): Promise<void> {
-    if (this.isRegistered(protocol.Protocol)) {
-      const reAdd = this.isBuiltIn(protocol.Protocol) ? ' You can add it back later with “New protocol”.' : '';
-      const ok = await this.askConfirm({
-        title: `Remove ${protocol.Protocol}://?`,
-        message: `${protocol.Protocol}:// is currently registered as an OS handler. Removing it unregisters the handler and deletes the protocol from SCALUS.${reAdd}`,
-        confirmLabel: 'Unregister & remove',
-        variant: 'danger'
-      });
-      if (!ok) return;
+    const registered = this.isRegistered(protocol.Protocol);
+    const reAdd = this.isBuiltIn(protocol.Protocol) ? ' You can add it back later with “New protocol”.' : '';
+    const ok = await this.askConfirm({
+      title: `Remove ${protocol.Protocol}://?`,
+      message: registered
+        ? `${protocol.Protocol}:// is currently registered as an OS handler. Removing it unregisters the handler and deletes the protocol from SCALUS.${reAdd}`
+        : `This deletes ${protocol.Protocol}:// from SCALUS.${reAdd}`,
+      confirmLabel: registered ? 'Unregister & remove' : 'Remove protocol',
+      variant: 'danger'
+    });
+    if (!ok) return;
+
+    if (registered) {
       await this.toggleRegistration(protocol, false);
     }
     this.config.Protocols = this.config.Protocols.filter(p => p !== protocol);
@@ -444,11 +458,19 @@ export class App implements OnInit {
   newApplication(): void {
     this.editorMode = 'new';
     this.editorOriginalId = null;
-    this.editor = { Id: this.uniqueId('new-app'), Name: '', Description: '', Platforms: [this.platform], Protocol: 'rdp', Parser: { ParserId: 'rdp', Options: [], TemplateContent: DEFAULT_RDP_TEMPLATE, TemplateExtension: '.rdp' }, Exec: '', Args: ['%GeneratedFile%'] };
-    this.editorOpen = true; this.editorDirty = false; this.editorErrors = [];
+    this.editor = { Id: '', Name: '', Description: '', Platforms: [this.platform], Protocol: 'rdp', Parser: { ParserId: 'rdp', Options: [], TemplateContent: DEFAULT_RDP_TEMPLATE, TemplateExtension: '.rdp' }, Exec: '', Args: ['%GeneratedFile%'] };
+    this.openApplicationEditor();
   }
   editApplication(app: ApplicationConfig): void {
-    this.editorMode = 'edit'; this.editorOriginalId = app.Id; this.editor = JSON.parse(JSON.stringify(app)); this.editorOpen = true; this.editorDirty = false; this.editorErrors = [];
+    this.editorMode = 'edit'; this.editorOriginalId = app.Id; this.editor = JSON.parse(JSON.stringify(app)); this.openApplicationEditor();
+  }
+  private openApplicationEditor(): void {
+    this.editorOpen = true;
+    this.editorDirty = false;
+    this.editorErrors = [];
+    queueMicrotask(() => {
+      if (this.applicationEditorBody) this.applicationEditorBody.nativeElement.scrollTop = 0;
+    });
   }
   async closeEditor(): Promise<void> {
     if (!this.editorDirty || await this.askConfirm({
@@ -589,16 +611,26 @@ export class App implements OnInit {
   tokenTip(token: string): string {
     return this.tokenTips[token.replace(/%/g, '').toLowerCase()] ?? token;
   }
+  insertTokenFromPointer(event: PointerEvent, token: string, target: HTMLTextAreaElement): void {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    this.insertToken(token, target);
+  }
+  insertTokenFromKeyboard(event: MouseEvent, token: string, target: HTMLTextAreaElement): void {
+    if (event.detail === 0) this.insertToken(token, target);
+  }
   insertToken(token: string, target: HTMLTextAreaElement): void {
     const start = target.selectionStart ?? target.value.length;
     const end = target.selectionEnd ?? target.value.length;
-    target.value = target.value.slice(0, start) + token + target.value.slice(end);
-    target.dispatchEvent(new Event('input'));
-    target.focus(); target.selectionStart = target.selectionEnd = start + token.length;
+    const value = target.value.slice(0, start) + token + target.value.slice(end);
+    this.setArgsText(value);
+    target.value = this.argsText();
+    target.focus();
+    target.selectionStart = target.selectionEnd = Math.min(start + token.length, target.value.length);
   }
   commandPreview(): string {
     if (!this.editor) return '';
-    const sample: Record<string, string> = { '%Host%': 'sps.example.com', '%Port%': '3389', '%User%': 'gwuser\\account~svc-admin%asset~db01%token~a1b2c3', '%GeneratedFile%': 'C:\\Users\\dan\\AppData\\Local\\Temp\\scalus-8f21.rdp', '%OriginalUrl%': 'rdp://â€¦', '%RelativeUrl%': 'full address:s:sps.example.com', '%Token%': 'a1b2c3', '%TargetHost%': 'db01.internal' };
+    const sample: Record<string, string> = { '%Host%': 'sps.example.com', '%Port%': '3389', '%User%': 'gwuser\\account~svc-admin%asset~db01%token~a1b2c3', '%GeneratedFile%': 'C:\\Users\\you\\AppData\\Local\\Temp\\scalus-8f21.rdp', '%OriginalUrl%': 'rdp://â€¦', '%RelativeUrl%': 'full address:s:sps.example.com', '%Token%': 'a1b2c3', '%TargetHost%': 'db01.internal' };
     return `${this.editor.Exec || 'client.exe'} ${(this.editor.Args || []).join(' ')}`.replace(/%[A-Za-z]+%/g, token => sample[token] || token);
   }
   async saveEditor(): Promise<void> {
@@ -607,15 +639,19 @@ export class App implements OnInit {
     app.Name = (app.Name || '').trim();
     app.Id = (app.Id || '').trim() || this.uniqueId(app.Name || 'application');
     const localErrors = this.validateEditor(app);
-    if (localErrors.length) { this.editorErrors = localErrors; return; }
-    this.editorErrors = await this.bridge.validate({ ...this.config, Applications: this.upsertApplication(this.config.Applications, app, this.editorOriginalId) });
-    if (this.editorErrors.length) return;
+    if (localErrors.length) { this.showEditorErrors(localErrors); return; }
+    const validationErrors = await this.bridge.validate({ ...this.config, Applications: this.upsertApplication(this.config.Applications, app, this.editorOriginalId) });
+    if (validationErrors.length) { this.showEditorErrors(validationErrors); return; }
+    this.editorErrors = [];
     this.config.Applications = this.upsertApplication(this.config.Applications, app, this.editorOriginalId);
     if (this.editorOriginalId && this.editorOriginalId !== app.Id) {
       this.config.Protocols.forEach(p => { if (p.AppId === this.editorOriginalId) p.AppId = app.Id; });
     }
     await this.saveCurrentConfig('Application saved.');
     this.editorOpen = false;
+  }
+  private showEditorErrors(errors: string[]): void {
+    this.editorErrors = errors;
   }
   private validateEditor(app: ApplicationConfig): string[] {
     const errors: string[] = [];
@@ -638,13 +674,46 @@ export class App implements OnInit {
     this.config.Applications.push(copy);
     await this.saveCurrentConfig(`Duplicated as ${copy.Name}.`);
   }
+  closeApplicationMenus(): void {
+    this.applicationMenus?.forEach(menu => menu.nativeElement.open = false);
+  }
+  toggleApplicationMenu(menu: HTMLDetailsElement, event: MouseEvent): void {
+    event.preventDefault();
+    const open = !menu.open;
+    this.closeApplicationMenus();
+    menu.open = open;
+  }
+  @HostListener('document:mousedown', ['$event'])
+  closeApplicationMenusOnOutsideClick(event: MouseEvent): void {
+    const target = event.target as Node;
+    if (!this.applicationMenus?.some(menu => menu.nativeElement.contains(target))) {
+      this.closeApplicationMenus();
+    }
+  }
   async removeApplication(app: ApplicationConfig): Promise<void> {
-    for (const p of this.config.Protocols.filter(p => p.AppId === app.Id)) {
+    const assignedProtocols = this.config.Protocols.filter(p => p.AppId === app.Id);
+    const registeredProtocols = assignedProtocols.filter(p => this.isRegistered(p.Protocol));
+    const assignments = assignedProtocols.length
+      ? ` It is assigned to ${assignedProtocols.map(p => `${p.Protocol}://`).join(', ')}; those assignments will be cleared.`
+      : '';
+    const registrations = registeredProtocols.length
+      ? ` Registered handlers will also be unregistered.`
+      : '';
+    const ok = await this.askConfirm({
+      title: `Remove ${app.Name}?`,
+      message: `This permanently removes the application from SCALUS.${assignments}${registrations}`,
+      confirmLabel: 'Remove application',
+      variant: 'danger'
+    });
+    if (!ok) return;
+
+    for (const p of assignedProtocols) {
       if (this.isRegistered(p.Protocol)) await this.toggleRegistration(p, false);
       p.AppId = null;
     }
     this.config.Applications = this.config.Applications.filter(a => a.Id !== app.Id);
     await this.saveCurrentConfig('Application removed.');
+    if (this.editor?.Id === app.Id) this.editorOpen = false;
   }
   async exportApplication(app: ApplicationConfig): Promise<void> {
     const payload = { schemaVersion: 1, kind: 'application', Applications: [app] };
@@ -686,7 +755,10 @@ export class App implements OnInit {
   private async saveCurrentConfig(success: string): Promise<void> {
     const result = await this.bridge.saveConfig(cloneConfig(this.config));
     this.editorErrors = result.errors;
-    if (!result.errors.length) this.flash(success);
+    if (!result.errors.length) {
+      this.config = result.config;
+      this.flash(success);
+    }
   }
   private uniqueId(seed: string): string {
     const base = (seed || 'application').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'application';

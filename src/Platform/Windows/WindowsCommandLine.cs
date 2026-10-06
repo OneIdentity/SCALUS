@@ -22,9 +22,7 @@
 namespace OneIdentity.Scalus
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Text;
 
     // Helpers for reasoning about a registered handler command line. A registration is
     // only "ours" when one of its tokens resolves to a SCALUS launcher (scalus or
@@ -43,55 +41,43 @@ namespace OneIdentity.Scalus
                 return false;
             }
 
-            string installDir;
+            string installRoot;
             try
             {
-                installDir = NormalizeDirectory(Constants.GetBinaryDir());
+                installRoot = GetInstallRoot(Constants.GetBinaryDir());
             }
             catch (Exception)
             {
                 return false;
             }
 
-            if (string.IsNullOrEmpty(installDir))
+            if (string.IsNullOrEmpty(installRoot))
             {
                 return false;
             }
 
-            foreach (var token in SplitCommandLine(command))
+            var executable = GetExecutable(command);
+            if (string.IsNullOrEmpty(executable))
             {
-                string full;
-                try
-                {
-                    full = Path.GetFullPath(token);
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-
-                if (!IsScalusLauncherName(Path.GetFileNameWithoutExtension(full)))
-                {
-                    continue;
-                }
-
-                string dir;
-                try
-                {
-                    dir = NormalizeDirectory(Path.GetDirectoryName(full));
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-
-                if (string.Equals(dir, installDir, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            string full;
+            try
+            {
+                full = Path.GetFullPath(executable);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            if (!IsScalusLauncherName(Path.GetFileNameWithoutExtension(full)))
+            {
+                return false;
+            }
+
+            return IsLauncherInInstall(full, installRoot);
         }
 
         public static bool InvokesBinary(string command, string binaryPath)
@@ -101,29 +87,28 @@ namespace OneIdentity.Scalus
                 return false;
             }
 
-            foreach (var token in SplitCommandLine(command))
+            var executable = GetExecutable(command);
+            if (string.IsNullOrEmpty(executable))
             {
-                string full;
-                try
-                {
-                    full = Path.GetFullPath(token);
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-
-                if (string.Equals(full, binaryPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            try
+            {
+                return string.Equals(
+                    Path.GetFullPath(executable),
+                    Path.GetFullPath(binaryPath),
+                    StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
-        // Returns the executable token (the first argument) of a registered command line, or
-        // null when the command is empty. Used to describe a conflicting foreign handler.
+        // Returns the executable portion of a registered command. Older SCALUS versions wrote
+        // an unquoted path, so recover the complete path through its .exe suffix instead of
+        // treating the first whitespace-delimited segment (for example C:\Program) as the app.
         public static string GetExecutable(string command)
         {
             if (string.IsNullOrEmpty(command))
@@ -131,48 +116,75 @@ namespace OneIdentity.Scalus
                 return null;
             }
 
-            foreach (var token in SplitCommandLine(command))
+            var trimmed = command.TrimStart();
+            if (trimmed.Length == 0)
             {
-                return token;
+                return null;
             }
 
-            return null;
+            if (trimmed[0] == '"')
+            {
+                var closingQuote = trimmed.IndexOf('"', 1);
+                return closingQuote > 1 ? trimmed.Substring(1, closingQuote - 1) : null;
+            }
+
+            var executableEnd = trimmed.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+            if (executableEnd >= 0)
+            {
+                return trimmed.Substring(0, executableEnd + 4);
+            }
+
+            var firstWhitespace = -1;
+            for (var i = 0; i < trimmed.Length; i++)
+            {
+                if (char.IsWhiteSpace(trimmed[i]))
+                {
+                    firstWhitespace = i;
+                    break;
+                }
+            }
+
+            return firstWhitespace < 0 ? trimmed : trimmed.Substring(0, firstWhitespace);
         }
 
-        public static IEnumerable<string> SplitCommandLine(string command)
+        internal static bool IsLauncherInInstall(string launcherPath, string binaryDirectory)
         {
-            var current = new StringBuilder();
-            var inQuotes = false;
-
-            foreach (var ch in command)
+            if (string.IsNullOrEmpty(launcherPath) || string.IsNullOrEmpty(binaryDirectory))
             {
-                if (ch == '"')
-                {
-                    inQuotes = !inQuotes;
-                }
-                else if (char.IsWhiteSpace(ch) && !inQuotes)
-                {
-                    if (current.Length > 0)
-                    {
-                        yield return current.ToString();
-                        current.Clear();
-                    }
-                }
-                else
-                {
-                    current.Append(ch);
-                }
+                return false;
             }
 
-            if (current.Length > 0)
+            try
             {
-                yield return current.ToString();
+                var root = GetInstallRoot(binaryDirectory);
+                var full = Path.GetFullPath(launcherPath);
+                var cli = Path.Combine(root, "scalus.exe");
+                var ui = Path.Combine(root, "ui", "scalus-ui.exe");
+                var colocatedUi = Path.Combine(root, "scalus-ui.exe");
+                return string.Equals(full, cli, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(full, ui, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(full, colocatedUi, StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
         private static bool IsScalusLauncherName(string name) =>
             string.Equals(name, "scalus", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(name, "scalus-ui", StringComparison.OrdinalIgnoreCase);
+
+        private static string GetInstallRoot(string binaryDirectory)
+        {
+            var directory = NormalizeDirectory(binaryDirectory);
+            if (string.Equals(Path.GetFileName(directory), "ui", StringComparison.OrdinalIgnoreCase))
+            {
+                directory = NormalizeDirectory(Path.GetDirectoryName(directory));
+            }
+
+            return directory;
+        }
 
         private static string NormalizeDirectory(string path)
         {

@@ -21,12 +21,28 @@
 
 namespace OneIdentity.Scalus.Unregister
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using OneIdentity.Scalus.Util;
+
     internal class Application : IApplication
     {
-        public Application(Options options, IRegistration registration, IUserInteraction userInteraction)
+        private static readonly string[] BuiltInProtocols = { "ssh", "rdp", "telnet" };
+
+        public Application(
+            Options options,
+            IRegistration registration,
+            IUserInteraction userInteraction,
+            IScalusApiConfiguration configuration,
+            IEnumerable<IProtocolRegistrar> registrars)
         {
             Options = options;
             Registration = registration;
+            UserInteraction = userInteraction;
+            Configuration = configuration;
+            Registrars = registrars;
         }
 
         private Options Options { get; }
@@ -35,6 +51,10 @@ namespace OneIdentity.Scalus.Unregister
 
         private IUserInteraction UserInteraction { get; }
 
+        private IScalusApiConfiguration Configuration { get; }
+
+        private IEnumerable<IProtocolRegistrar> Registrars { get; }
+
         public int Run()
         {
             if (Options.Quiet)
@@ -42,8 +62,66 @@ namespace OneIdentity.Scalus.Unregister
                 UserInteraction.Silence();
             }
 
-            Registration.UnRegister(Options.Protocols, Options.RootMode, Options.UseSudo);
+            var requestedProtocols = Options.Protocols?.ToArray();
+            var protocols = requestedProtocols != null && requestedProtocols.Length > 0
+                ? requestedProtocols
+                : GetProtocols(
+                    GetConfiguredProtocols(),
+                    GetRegisteredProtocols());
+
+            Registration.UnRegister(protocols, Options.RootMode, Options.UseSudo);
+            if (Options.RemoveConfiguration)
+            {
+                DeleteUserSettings(
+                    ConfigurationManager.ScalusJson,
+                    Path.Combine(ConfigurationManager.ProdAppPath, UiWindowSettings.FileName));
+            }
+
             return 0;
+        }
+
+        internal static void DeleteUserSettings(string configurationPath, string windowSettingsPath)
+        {
+            DeleteFile(configurationPath);
+            DeleteFile(windowSettingsPath);
+        }
+
+        internal static string[] GetProtocols(
+            IEnumerable<string> configuredProtocols,
+            IEnumerable<string> registeredProtocols = null) =>
+            BuiltInProtocols
+                .Concat(configuredProtocols ?? Array.Empty<string>())
+                .Concat(registeredProtocols ?? Array.Empty<string>())
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+        private IEnumerable<string> GetConfiguredProtocols() =>
+            Options.RootMode
+                ? Array.Empty<string>()
+                : Configuration.GetConfiguration().Protocols?.Select(p => p.Protocol);
+
+        private IEnumerable<string> GetRegisteredProtocols()
+        {
+            foreach (var registrar in Registrars)
+            {
+                registrar.RootMode = Options.RootMode;
+                if (registrar is IRegisteredProtocolSource source)
+                {
+                    foreach (var protocol in source.GetRegisteredProtocols())
+                    {
+                        yield return protocol;
+                    }
+                }
+            }
+        }
+
+        private static void DeleteFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
         }
     }
 }

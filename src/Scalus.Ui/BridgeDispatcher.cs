@@ -31,7 +31,7 @@ namespace OneIdentity.Scalus.Ui
     /// </summary>
     internal sealed class BridgeDispatcher
     {
-        private static readonly string[] BuiltInProtocols = { "rdp", "ssh" };
+        private static readonly string[] BuiltInProtocols = { "rdp", "ssh", "telnet" };
 
         // The front-end consumes PascalCase property names, so the response envelope keeps the
         // default (no naming policy) shape. Anonymous envelope types can't be source-generated,
@@ -109,7 +109,7 @@ namespace OneIdentity.Scalus.Ui
         private object SaveConfig(ScalusConfig config)
         {
             var errors = this.services.GetRequiredService<IScalusApiConfiguration>().SaveConfiguration(config);
-            return new { errors };
+            return new { errors, config = errors.Count == 0 ? GetConfig() : config };
         }
 
         private List<string> Validate(ScalusConfig config)

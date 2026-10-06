@@ -29,7 +29,7 @@ namespace OneIdentity.Scalus
 
     [SupportedOSPlatform("windows")]
 
-    internal class WindowsProtocolRegistrar : IProtocolRegistrar
+    internal class WindowsProtocolRegistrar : IProtocolRegistrar, IRegisteredProtocolSource
     {
         private static readonly string AppName = "SCALUS Protocol Handler";
         private static readonly string Clsid = "scalus.URLHandler.1";
@@ -74,6 +74,9 @@ namespace OneIdentity.Scalus
 
             return GetClsidCommand();
         }
+
+        public System.Collections.Generic.IEnumerable<string> GetRegisteredProtocols() =>
+            RegistryUtils.GetValueNames(GetAppPath() + CapabilitiesUrlAssociationsFragment);
 
         public bool Register(string protocol)
         {

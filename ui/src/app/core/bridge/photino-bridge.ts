@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Capabilities, LaunchRecord, Platform, RegistrationScope, RegistrationStatus, RegistrationWriteResult, ScalusBridge, ScalusConfig, StartupAction, TerminalOption } from './scalus-bridge';
+import { Capabilities, LaunchRecord, Platform, RegistrationScope, RegistrationStatus, RegistrationWriteResult, SaveConfigResult, ScalusBridge, ScalusConfig, StartupAction, TerminalOption } from './scalus-bridge';
 
 type PhotinoExternal = {
   sendMessage(message: string): void;
@@ -40,7 +40,7 @@ export class PhotinoBridge implements ScalusBridge {
   }
 
   getConfig(): Promise<ScalusConfig> { return this.call('getConfig'); }
-  saveConfig(config: ScalusConfig): Promise<{ errors: string[] }> { return this.call('saveConfig', config); }
+  saveConfig(config: ScalusConfig): Promise<SaveConfigResult> { return this.call('saveConfig', config); }
   validate(config: ScalusConfig): Promise<string[]> { return this.call('validate', config); }
   getRegistrations(): Promise<string[]> { return this.call('getRegistrations'); }
   getRegistrationStatus(scope: RegistrationScope): Promise<RegistrationStatus[]> { return this.call('getRegistrationStatus', scope); }

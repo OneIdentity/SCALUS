@@ -210,6 +210,8 @@ export function normalizeApplication(raw: any): ApplicationConfig | null {
       TemplateExtension: parserGet('TemplateExtension') ?? undefined,
       LineEnding: parserGet('LineEnding') ?? undefined,
       Encoding: parserGet('Encoding') ?? undefined,
+      UseDefaultTemplate: parserGet('UseDefaultTemplate') ?? undefined,
+      UseTemplateFile: parserGet('UseTemplateFile') ?? undefined,
       PostProcessingExec: parserGet('PostProcessingExec') ?? undefined,
       PostProcessingArgs: parserGet('PostProcessingArgs') ?? undefined,
       RunInTerminal: parserGet('RunInTerminal') ?? undefined

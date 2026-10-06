@@ -35,22 +35,25 @@ namespace OneIdentity.Scalus.Unregister
 
         public bool Quiet { get; set; }
 
+        public bool RemoveConfiguration { get; set; }
+
         public Command CreateCommand(Action<object> onParsed)
         {
             var protocols = new Option<string[]>("--protocols", "-p")
             {
-                Description = "A space-separated list of URL protocols to handle (Default: ssh rdp telnet)",
+                Description = "A space-separated list of URL protocols to unregister (Default: all configured protocols)",
                 AllowMultipleArgumentsPerToken = true,
-                DefaultValueFactory = _ => new[] { "ssh", "rdp", "telnet" },
             };
             var root = new Option<bool>("--root", "-r") { Description = "Update system files as well as user files" };
             var sudo = new Option<bool>("--sudo", "-s") { Description = "use (passwordless) sudo to update system files on supported platforms" };
             var quiet = new Option<bool>("--quiet", "-q") { Hidden = true };
+            var removeConfiguration = new Option<bool>("--remove-configuration") { Hidden = true };
             var command = new Command("unregister", "Unregister SCALUS for URL handling");
             command.Add(protocols);
             command.Add(root);
             command.Add(sudo);
             command.Add(quiet);
+            command.Add(removeConfiguration);
             command.SetAction(result =>
             {
                 onParsed(new Options
@@ -59,6 +62,7 @@ namespace OneIdentity.Scalus.Unregister
                     RootMode = result.GetValue(root),
                     UseSudo = result.GetValue(sudo),
                     Quiet = result.GetValue(quiet),
+                    RemoveConfiguration = result.GetValue(removeConfiguration),
                 });
                 return 0;
             });

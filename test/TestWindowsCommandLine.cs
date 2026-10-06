@@ -39,6 +39,25 @@ namespace OneIdentity.Scalus.Test
         }
 
         [Fact]
+        public void MatchesLegacyUnquotedBinaryPathContainingSpaces()
+        {
+            var binary = @"C:\Program Files\SCALUS\ui\scalus-ui.exe";
+            var command = $"{binary} launch -u \"%1\"";
+
+            Assert.True(WindowsCommandLine.InvokesBinary(command, binary));
+            Assert.Equal(binary, WindowsCommandLine.GetExecutable(command));
+        }
+
+        [Fact]
+        public void ReadsQuotedBinaryPathContainingSpaces()
+        {
+            var binary = @"C:\Program Files\SCALUS\ui\scalus-ui.exe";
+            var command = $"\"{binary}\" launch -u \"%1\"";
+
+            Assert.Equal(binary, WindowsCommandLine.GetExecutable(command));
+        }
+
+        [Fact]
         public void ComparisonIsCaseInsensitive()
         {
             var command = $"{DevBinary.ToUpperInvariant()} launch -u \"%1\"";
@@ -88,6 +107,32 @@ namespace OneIdentity.Scalus.Test
         {
             var command = "\"C:\\Program Files\\PuTTY\\putty.exe\" -telnet \"%1\"";
             Assert.False(WindowsCommandLine.InvokesThisBinary(command));
+        }
+
+        [Fact]
+        public void PackagedCliRecognizesUiHandlerInItsInstall()
+        {
+            const string root = @"C:\Program Files\SCALUS";
+            Assert.True(WindowsCommandLine.IsLauncherInInstall(
+                root + @"\ui\scalus-ui.exe",
+                root));
+        }
+
+        [Fact]
+        public void PackagedUiRecognizesCliHandlerInItsInstall()
+        {
+            const string root = @"C:\Program Files\SCALUS";
+            Assert.True(WindowsCommandLine.IsLauncherInInstall(
+                root + @"\scalus.exe",
+                root + @"\ui"));
+        }
+
+        [Fact]
+        public void PackagedCliRejectsUiHandlerFromDifferentInstall()
+        {
+            Assert.False(WindowsCommandLine.IsLauncherInInstall(
+                @"D:\Old SCALUS\ui\scalus-ui.exe",
+                @"C:\Program Files\SCALUS"));
         }
     }
 }

@@ -197,6 +197,7 @@ namespace OneIdentity.Scalus
 
         public bool UnRegister(IEnumerable<string> protocols, bool rootMode = false, bool useSudo = false)
         {
+            Serilog.Log.Debug("Attempting to unregister protocols to clean up.");
             foreach (var protocol in protocols)
             {
                 if (!ProtocolMapping.ValidateProtocol(protocol, out string err))
@@ -220,18 +221,24 @@ namespace OneIdentity.Scalus
 
                     if (registrar.IsScalusRegistered(protocol))
                     {
+                        Serilog.Log.Debug($"{protocol}: {registrar.Name}: scalus is registered, attempting to unregister...");
                         if (!registrar.Unregister(protocol))
                         {
+                            Serilog.Log.Error($"{protocol}: {registrar.Name}: Failed to unregister SCALUS with {registrar.Name} as the default protocol handler. Try running this program again with administrator privileges.");
                             UserInteraction.Error($"{protocol}: Unable to remove scalus from {registrar.Name}. Try running this program again with administrator privileges.");
                             return false;
                         }
+
+                        Serilog.Log.Debug($"{protocol}: {registrar.Name}: scalus unregistered successfully.");
                     }
                     else
                     {
+                        Serilog.Log.Debug($"{protocol}: {registrar.Name}: scalus is not registered, nothing to do.");
                         UserInteraction.Message($"{protocol}: {registrar.Name}: nothing to do (scalus is not registered) ...");
                     }
                 }
 
+                Serilog.Log.Debug($"{protocol}: Finished unregistering SCALUS for protocol {protocol}.");
                 UserInteraction.Message($"{protocol}: Finished unregistering SCALUS for protocol {protocol}.");
             }
 

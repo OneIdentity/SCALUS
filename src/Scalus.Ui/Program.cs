@@ -87,6 +87,10 @@ namespace OneIdentity.Scalus.Ui
             var baseDir = AppContext.BaseDirectory;
             var indexPath = Path.Combine(baseDir, "wwwroot", "index.html");
             var iconPath = Path.Combine(baseDir, "scalus.ico");
+            var windowSettingsPath = Path.Combine(ConfigurationManager.ProdAppPath, UiWindowSettings.FileName);
+            var windowSettings = UiWindowSettings.Load(windowSettingsPath);
+            var restoredWidth = windowSettings.Width;
+            var restoredHeight = windowSettings.Height;
             var container = Ioc.RegisterApplication(Log.Logger);
             var dispatcher = new BridgeDispatcher(container, showLogs);
 
@@ -95,11 +99,12 @@ namespace OneIdentity.Scalus.Ui
             var window = new PhotinoWindow()
                 .SetTitle("SCALUS")
                 .SetUseOsDefaultSize(false)
-                .SetSize(1240, 840)
-                .SetMinSize(960, 640)
+                .SetSize(windowSettings.Width, windowSettings.Height)
+                .SetMinSize(UiWindowSettings.MinimumWidth, UiWindowSettings.MinimumHeight)
                 .Center()
                 .SetContextMenuEnabled(false)
-                .SetDevToolsEnabled(true);
+                .SetDevToolsEnabled(true)
+                .SetMaximized(windowSettings.Maximized);
 
             if (File.Exists(iconPath))
             {
@@ -112,6 +117,21 @@ namespace OneIdentity.Scalus.Ui
                 var self = (PhotinoWindow)sender;
                 var response = dispatcher.Dispatch(message);
                 self.SendWebMessage(response);
+            });
+            window.RegisterSizeChangedHandler((sender, size) =>
+            {
+                var self = (PhotinoWindow)sender;
+                if (!self.Maximized)
+                {
+                    restoredWidth = size.Width;
+                    restoredHeight = size.Height;
+                }
+            });
+            window.RegisterWindowClosingHandler((sender, _) =>
+            {
+                var self = (PhotinoWindow)sender;
+                UiWindowSettings.Save(windowSettingsPath, restoredWidth, restoredHeight, self.Maximized);
+                return false;
             });
 
             window.Load(indexPath);

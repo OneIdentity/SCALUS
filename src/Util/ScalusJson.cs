@@ -38,6 +38,7 @@ namespace OneIdentity.Scalus.Util
     [JsonSerializable(typeof(ScalusConfig))]
     [JsonSerializable(typeof(VerifyResult))]
     [JsonSerializable(typeof(LaunchRecord))]
+    [JsonSerializable(typeof(UiWindowSettings))]
     internal partial class ScalusJsonContext : JsonSerializerContext
     {
     }
@@ -65,11 +66,17 @@ namespace OneIdentity.Scalus.Util
         public static string Serialize(LaunchRecord record) =>
             JsonSerializer.Serialize(record, TypeInfo<LaunchRecord>(Disk));
 
+        public static string Serialize(UiWindowSettings settings) =>
+            JsonSerializer.Serialize(settings, TypeInfo<UiWindowSettings>(Disk));
+
         public static ScalusConfig Deserialize(string json, bool strict = false) =>
             JsonSerializer.Deserialize(json, TypeInfo<ScalusConfig>(strict ? DiskStrict : Disk));
 
         public static LaunchRecord DeserializeLaunchRecord(string json) =>
             JsonSerializer.Deserialize(json, TypeInfo<LaunchRecord>(Disk));
+
+        public static UiWindowSettings DeserializeUiWindowSettings(string json) =>
+            JsonSerializer.Deserialize(json, TypeInfo<UiWindowSettings>(Disk));
 
         private static JsonTypeInfo<T> TypeInfo<T>(JsonSerializerOptions options) =>
             (JsonTypeInfo<T>)options.GetTypeInfo(typeof(T));
