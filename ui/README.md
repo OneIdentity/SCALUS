@@ -4,7 +4,7 @@ The Angular front end for the SCALUS desktop configuration app. It is hosted in 
 native [Photino](https://www.tryphotino.io/) window by the `Scalus.Ui` .NET
 project — there is **no** browser or local web server involved at runtime.
 
-- Angular 20 (standalone components), TypeScript 5.9.
+- Angular 22.2 (standalone components), TypeScript 6.0.
 - Talks to the .NET host through a small **bridge** rather than HTTP.
 - Builds to static assets that the host serves from `wwwroot`.
 

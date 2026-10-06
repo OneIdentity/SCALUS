@@ -34,7 +34,7 @@ SCALUS/
 │   ├── Cli/Scalus.Cli.csproj     # `scalus` — NativeAOT launcher/CLI apphost
 │   └── Scalus.Ui/Scalus.Ui.csproj# `scalus-ui` — Photino desktop host
 │       └── BridgeDispatcher.cs   # Handles UI bridge calls (the UI<->C# contract)
-├── ui/                           # Angular 20 front end (see ui/README.md)
+├── ui/                           # Angular 22.2 front end (see ui/README.md)
 │   └── src/app/core/bridge/      # ScalusBridge interface + Photino/Mock impls
 ├── test/                         # OneIdentity.Scalus.Test.csproj (xUnit)
 ├── scripts/                      # Build/publish/package + version derivation

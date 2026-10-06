@@ -6,10 +6,12 @@
     </div>
 
     <nav class="nav">
-      <button *ngFor="let item of nav" type="button" class="nav-item" [class.active]="tab === item.id" (click)="setTab(item.id)">
-        <svg viewBox="0 0 256 256"><path [attr.d]="iconPath(item.icon)" /></svg>
-        {{ item.label }}
-      </button>
+      @for (item of nav; track item.id) {
+        <button type="button" class="nav-item" [class.active]="tab === item.id" (click)="setTab(item.id)">
+          <svg viewBox="0 0 256 256"><path [attr.d]="iconPath(item.icon)" /></svg>
+          {{ item.label }}
+        </button>
+      }
     </nav>
 
     <div class="spacer"></div>
@@ -29,19 +31,31 @@
       <div class="content">
         <p class="lead">For each link type, pick the application that opens it and whether a handler is registered with the OS. Define the applications on the <strong>Applications</strong> tab.</p>
         <div class="scope-bar">
-          <div class="scope-info"><div class="scope-title">Registration scope <ui-badge *ngIf="scope === 'all'" tone="warn">{{ elevationText }}</ui-badge></div><div class="scope-note" [innerHTML]="scope === 'all' ? 'Handlers are registered <strong>machine-wide</strong> for every account on this computer, overridden by per-user handlers.' : 'Handlers are registered for <strong>your account only</strong> — no elevated privileges needed.'"></div></div>
-          <ui-segmented-control [options]="scopeOptions" [value]="scope" (valueChange)="setScope($event)"></ui-segmented-control>
-        </div>
-        <div class="section-head"><h3>Active handlers</h3></div>
-        <p class="section-note">SCALUS registers <strong>itself</strong> as the OS handler for each scheme, then launches the application you select here. A <strong>conflict</strong> means another program currently holds that OS registration — turning the handler on replaces it with SCALUS.</p>
-        <div class="proto-list">
-          <article *ngFor="let protocol of sortedProtocols" class="proto-row" [class.custom]="!isBuiltIn(protocol.Protocol)">
-            <div class="proto-icon" [class.rdp]="protocol.Protocol === 'rdp'" [class.ssh]="protocol.Protocol === 'ssh'" [class.telnet]="protocol.Protocol === 'telnet'" [class.custom-icon]="!isBuiltIn(protocol.Protocol)"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(protocolIcon(protocol.Protocol))" /></svg></div>
-            <div class="proto-sentence"><div class="line1"><code>{{ protocol.Protocol }}://</code><span class="arrow">→</span><ng-container *ngIf="appById(protocol.AppId) as app; else noApp"><strong [title]="app.Name + ' (' + execLeaf(app.Exec) + ')'"><span class="dn">{{ app.Name }}</span><span class="exec">({{ execLeaf(app.Exec) }})</span></strong></ng-container><ng-template #noApp><em>No application assigned</em></ng-template><ui-badge *ngIf="!isBuiltIn(protocol.Protocol)" tone="muted">Custom</ui-badge></div><div class="line2">{{ protocolLine(protocol) }}</div></div>
-            <ui-select class="app-select-host" [options]="appOptionsFor(protocol)" [value]="protocol.AppId" placeholder="Choose an application…" (valueChange)="onAppForProtocol(protocol, $event)"></ui-select>
-            <div class="handler"><ui-toggle [checked]="isRegistered(protocol.Protocol)" [disabled]="!protocol.AppId" (changed)="toggleRegistration(protocol, $event)"></ui-toggle><div class="handler-label"><span class="t">Register handler</span><span class="s" [class.on]="isRegistered(protocol.Protocol)" [class.conflict]="isConflict(protocol.Protocol)">{{ handlerStatusLine(protocol) }}<span *ngIf="isConflict(protocol.Protocol)" class="warn-tri" [title]="conflictTooltip(protocol.Protocol)" tabindex="0" role="img" [attr.aria-label]="conflictTooltip(protocol.Protocol)"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('warning')" /></svg></span></span></div></div>
-            <button class="row-remove" type="button" [attr.aria-label]="'Remove ' + protocol.Protocol + ' protocol'" title="Remove protocol" (click)="removeProtocol(protocol)">×</button>
-          </article>
+          <div class="scope-info"><div class="scope-title">Registration scope @if (scope === 'all') {
+            <ui-badge tone="warn">{{ elevationText }}</ui-badge>
+            }</div><div class="scope-note" [innerHTML]="scope === 'all' ? 'Handlers are registered <strong>machine-wide</strong> for every account on this computer, overridden by per-user handlers.' : 'Handlers are registered for <strong>your account only</strong> — no elevated privileges needed.'"></div></div>
+            <ui-segmented-control [options]="scopeOptions" [value]="scope" (valueChange)="setScope($event)"></ui-segmented-control>
+          </div>
+          <div class="section-head"><h3>Active handlers</h3></div>
+          <p class="section-note">SCALUS registers <strong>itself</strong> as the OS handler for each scheme, then launches the application you select here. A <strong>conflict</strong> means another program currently holds that OS registration — turning the handler on replaces it with SCALUS.</p>
+          <div class="proto-list">
+            @for (protocol of sortedProtocols; track protocol.Protocol) {
+              <article class="proto-row" [class.custom]="!isBuiltIn(protocol.Protocol)">
+                <div class="proto-icon" [class.rdp]="protocol.Protocol === 'rdp'" [class.ssh]="protocol.Protocol === 'ssh'" [class.telnet]="protocol.Protocol === 'telnet'" [class.custom-icon]="!isBuiltIn(protocol.Protocol)"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(protocolIcon(protocol.Protocol))" /></svg></div>
+                <div class="proto-sentence"><div class="line1"><code>{{ protocol.Protocol }}://</code><span class="arrow">→</span>@if (appById(protocol.AppId); as app) {
+                <strong [title]="app.Name + ' (' + execLeaf(app.Exec) + ')'"><span class="dn">{{ app.Name }}</span><span class="exec">({{ execLeaf(app.Exec) }})</span></strong>
+              } @else {
+                <em>No application assigned</em>
+                }@if (!isBuiltIn(protocol.Protocol)) {
+                <ui-badge tone="muted">Custom</ui-badge>
+                }</div><div class="line2">{{ protocolLine(protocol) }}</div></div>
+                <ui-select class="app-select-host" [options]="appOptionsFor(protocol)" [value]="protocol.AppId" placeholder="Choose an application…" (valueChange)="onAppForProtocol(protocol, $event)"></ui-select>
+                <div class="handler"><ui-toggle [checked]="isRegistered(protocol.Protocol)" [disabled]="!protocol.AppId" (changed)="toggleRegistration(protocol, $event)"></ui-toggle><div class="handler-label"><span class="t">Register handler</span><span class="s" [class.on]="isRegistered(protocol.Protocol)" [class.conflict]="isConflict(protocol.Protocol)">{{ handlerStatusLine(protocol) }}@if (isConflict(protocol.Protocol)) {
+                <span class="warn-tri" [title]="conflictTooltip(protocol.Protocol)" tabindex="0" role="img" [attr.aria-label]="conflictTooltip(protocol.Protocol)"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('warning')" /></svg></span>
+              }</span></div></div>
+              <button class="row-remove" type="button" [attr.aria-label]="'Remove ' + protocol.Protocol + ' protocol'" title="Remove protocol" (click)="removeProtocol(protocol)">×</button>
+            </article>
+          }
         </div>
       </div>
     </section>
@@ -49,64 +63,81 @@
     <section class="screen" [class.active]="tab === 'applications'">
       <header class="topbar"><div><div class="crumb">Configuration</div><h2>Applications</h2></div><ui-button variant="primary" (click)="newApplication()">+ New application</ui-button></header>
       <div class="content"><p class="lead">The clients SCALUS can launch. Each maps a protocol to an executable and the arguments built from the incoming link.</p>
-        <div class="app-grid">
-          <article *ngFor="let app of sortedApplications" class="app-card" (click)="editApplication(app)">
+      <div class="app-grid">
+        @for (app of sortedApplications; track app.Id) {
+          <article class="app-card" (click)="editApplication(app)">
             <div class="row1"><div class="aicon"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(protocolIcon(app.Parser.ParserId))" /></svg></div><div class="app-title"><div class="aname">{{ app.Name }}</div><div class="ameta">{{ app.Parser.ParserId }}:// · {{ app.Platforms.join(', ') }}</div></div><ui-badge [tone]="appStatus(app).tone">{{ appStatus(app).label }}</ui-badge><details #applicationMenu class="menu" (click)="$event.stopPropagation()"><summary aria-label="Application actions" (click)="toggleApplicationMenu(applicationMenu, $event)">⋮</summary><div class="menu-panel"><button (click)="closeApplicationMenus(); editApplication(app)">Edit…</button><button (click)="closeApplicationMenus(); exportApplication(app)">Export / share…</button><button (click)="closeApplicationMenus(); duplicateApplication(app)">Duplicate</button><button class="danger" (click)="closeApplicationMenus(); removeApplication(app)">Remove</button></div></details></div>
-            <p>{{ app.Description || 'No description yet.' }}</p><div class="cmd">{{ execLeaf(app.Exec) }} {{ (app.Args || []).join(' ') }}</div><div class="tags"><ui-badge tone="muted">{{ app.Parser.ParserId }} parser</ui-badge><ui-badge *ngIf="app.Parser.TemplateContent" tone="muted">generated file</ui-badge><ui-badge *ngIf="app.Parser.RunInTerminal" tone="muted">terminal window</ui-badge></div>
-          </article>
+            <p>{{ app.Description || 'No description yet.' }}</p><div class="cmd">{{ execLeaf(app.Exec) }} {{ (app.Args || []).join(' ') }}</div><div class="tags"><ui-badge tone="muted">{{ app.Parser.ParserId }} parser</ui-badge>@if (app.Parser.TemplateContent) {
+            <ui-badge tone="muted">generated file</ui-badge>
+            }@if (app.Parser.RunInTerminal) {
+            <ui-badge tone="muted">terminal window</ui-badge>
+          }</div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="screen" [class.active]="tab === 'settings'">
+  <header class="topbar"><div><div class="crumb">Configuration</div><h2>Settings</h2></div></header>
+  <div class="content"><p class="lead">Machine-wide preferences that apply across every launcher.</p>
+  <ui-card>
+    <div class="setting-row">
+      <div class="setting-icon"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('terminal')" /></svg></div>
+      <div class="setting-body">
+        <h4>Preferred terminal</h4>
+        <p class="setting-sub">Which terminal window hosts command-line sessions such as SSH. <strong>Automatic</strong> picks the best terminal installed — on Windows that means Windows Terminal when it is available, otherwise the classic console.</p>
+        <ui-select class="setting-select" [options]="terminalOptions()" [value]="preferredTerminal" (valueChange)="setPreferredTerminal($event)"></ui-select>
+        <div class="setting-note">
+          @if (sshAppsUsingTerminal.length) {
+            Applies to <strong>{{ sshAppsUsingTerminal.length }}</strong> terminal-hosted {{ sshAppsUsingTerminal.length === 1 ? 'application' : 'applications' }} ({{ termAppNames }}).
+          } @else {
+            No applications currently launch in a terminal window. Turn on <em>Run in a terminal window</em> in an application’s parser settings to use this preference.
+          }
         </div>
       </div>
-    </section>
-
-    <section class="screen" [class.active]="tab === 'settings'">
-      <header class="topbar"><div><div class="crumb">Configuration</div><h2>Settings</h2></div></header>
-      <div class="content"><p class="lead">Machine-wide preferences that apply across every launcher.</p>
-        <ui-card>
-          <div class="setting-row">
-            <div class="setting-icon"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('terminal')" /></svg></div>
-            <div class="setting-body">
-              <h4>Preferred terminal</h4>
-              <p class="setting-sub">Which terminal window hosts command-line sessions such as SSH. <strong>Automatic</strong> picks the best terminal installed — on Windows that means Windows Terminal when it is available, otherwise the classic console.</p>
-              <ui-select class="setting-select" [options]="terminalOptions()" [value]="preferredTerminal" (valueChange)="setPreferredTerminal($event)"></ui-select>
-              <div class="setting-note">
-                <ng-container *ngIf="sshAppsUsingTerminal.length; else noTermApps">Applies to <strong>{{ sshAppsUsingTerminal.length }}</strong> terminal-hosted {{ sshAppsUsingTerminal.length === 1 ? 'application' : 'applications' }} ({{ termAppNames }}).</ng-container>
-                <ng-template #noTermApps>No applications currently launch in a terminal window. Turn on <em>Run in a terminal window</em> in an application’s parser settings to use this preference.</ng-template>
-              </div>
-            </div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-icon"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('list')" /></svg></div>
-            <div class="setting-body">
-              <h4>Log level</h4>
-              <p class="setting-sub">How much detail SCALUS records for each launch. <strong>Debug</strong> is the default and captures enough to diagnose a failed launch. Raise to <strong>Verbose</strong> only when chasing a stubborn problem; lower to <strong>Warning</strong> or <strong>Error</strong> for quieter logs.</p>
-              <ui-select class="setting-select" [options]="logLevels" [value]="logLevel" (valueChange)="setLogLevel($event)"></ui-select>
-              <div class="setting-note">Takes effect on the next launch. Records are written to the SCALUS logs folder and shown in the <strong>Logs</strong> tab.</div>
-            </div>
-          </div>
-        </ui-card>
+    </div>
+    <div class="setting-row">
+      <div class="setting-icon"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('list')" /></svg></div>
+      <div class="setting-body">
+        <h4>Log level</h4>
+        <p class="setting-sub">How much detail SCALUS records for each launch. <strong>Debug</strong> is the default and captures enough to diagnose a failed launch. Raise to <strong>Verbose</strong> only when chasing a stubborn problem; lower to <strong>Warning</strong> or <strong>Error</strong> for quieter logs.</p>
+        <ui-select class="setting-select" [options]="logLevels" [value]="logLevel" (valueChange)="setLogLevel($event)"></ui-select>
+        <div class="setting-note">Takes effect on the next launch. Records are written to the SCALUS logs folder and shown in the <strong>Logs</strong> tab.</div>
       </div>
-    </section>
+    </div>
+  </ui-card>
+</div>
+</section>
 
-    <section class="screen" [class.active]="tab === 'logs'">
-      <header class="topbar">
-        <div><div class="crumb">Diagnostics</div><h2>Logs</h2></div>
-        <div class="topbar-actions">
-          <ui-button variant="ghost" (click)="loadLaunchRecords()">Refresh</ui-button>
-          <ui-button variant="ghost" (click)="openLogsFolder()">Open logs folder</ui-button>
-          <ui-button variant="primary" (click)="exportForIssue()">Export for issue…</ui-button>
-        </div>
-      </header>
-      <div class="content">
-        <p class="lead">Every session launch — successful or failed — is recorded here with the exact command and generated file, so a bad launch can be diagnosed or attached to an issue. Choose how much detail is captured on the <strong>Settings</strong> tab.</p>
-        <div class="logs-note" *ngIf="logsLoading">Loading recent launches…</div>
-        <div class="logs-note error" *ngIf="logsError && !logsLoading">{{ logsError }}</div>
-        <div class="logs-empty" *ngIf="!logsLoading && !logsError && launchRecordsLoaded && !launchRecords.length">
-          <div class="logs-empty-icon"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('list')" /></svg></div>
-          <h3>No launches recorded yet</h3>
-          <p>Open a session link and SCALUS will record what happened — the resolved command, the generated file, and the outcome.</p>
-        </div>
-        <div class="log-list" *ngIf="!logsLoading && launchRecords.length">
-          <button *ngFor="let r of launchRecords" type="button" class="log-row" (click)="selectLaunch(r)">
+<section class="screen" [class.active]="tab === 'logs'">
+  <header class="topbar">
+    <div><div class="crumb">Diagnostics</div><h2>Logs</h2></div>
+    <div class="topbar-actions">
+      <ui-button variant="ghost" (click)="loadLaunchRecords()">Refresh</ui-button>
+      <ui-button variant="ghost" (click)="openLogsFolder()">Open logs folder</ui-button>
+      <ui-button variant="primary" (click)="exportForIssue()">Export for issue…</ui-button>
+    </div>
+  </header>
+  <div class="content">
+    <p class="lead">Every session launch — successful or failed — is recorded here with the exact command and generated file, so a bad launch can be diagnosed or attached to an issue. Choose how much detail is captured on the <strong>Settings</strong> tab.</p>
+    @if (logsLoading) {
+      <div class="logs-note">Loading recent launches…</div>
+    }
+    @if (logsError && !logsLoading) {
+      <div class="logs-note error">{{ logsError }}</div>
+    }
+    @if (!logsLoading && !logsError && launchRecordsLoaded && !launchRecords.length) {
+      <div class="logs-empty">
+        <div class="logs-empty-icon"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('list')" /></svg></div>
+        <h3>No launches recorded yet</h3>
+        <p>Open a session link and SCALUS will record what happened — the resolved command, the generated file, and the outcome.</p>
+      </div>
+    }
+    @if (!logsLoading && launchRecords.length) {
+      <div class="log-list">
+        @for (r of launchRecords; track r.LaunchId) {
+          <button type="button" class="log-row" (click)="selectLaunch(r)">
             <span class="log-dot" [class.ok]="launchOutcomeTone(r)==='ok'" [class.warn]="launchOutcomeTone(r)==='warn'" [class.muted]="launchOutcomeTone(r)==='muted'"></span>
             <span class="log-main">
               <span class="log-title">{{ launchTitle(r) }}</span>
@@ -115,77 +146,135 @@
             <ui-badge [tone]="launchOutcomeTone(r)">{{ launchOutcomeLabel(r) }}</ui-badge>
             <span class="log-time">{{ launchTime(r) }}</span>
           </button>
-        </div>
+        }
       </div>
-    </section>
+    }
+  </div>
+</section>
 
-    <section class="screen" [class.active]="tab === 'io'">
-      <header class="topbar"><div><div class="crumb">Configuration</div><h2>Import / Export</h2></div></header>
-      <div class="content"><p class="lead">Move configuration between machines or share a single launcher with a colleague. Exports never contain credentials — the Safeguard proxy owns those.</p>
-        <div class="io-cols"><ui-card><div class="io-head"><span class="io-badge full"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('grid')" /></svg></span><div><h4>Full configuration</h4><div class="io-sub">Every protocol and application, as one file</div></div></div><p>Best for backing up a machine or standing up an identical setup elsewhere.</p><div class="io-actions"><ui-button variant="primary" (click)="exportAll()">Export everything…</ui-button><ui-button variant="ghost" (click)="importReplace()">Import & replace…</ui-button></div><div class="io-note">Importing a full file <strong>replaces</strong> everything after you confirm a summary.</div></ui-card>
-        <ui-card><div class="io-head"><span class="io-badge item"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('square')" /></svg></span><div><h4>Individual applications</h4><div class="io-sub">Bring in just one launcher without touching the rest</div></div></div><p>Import a single application a colleague shared with you. Name clashes are renamed on merge.</p><div class="io-actions"><ui-button variant="ghost" (click)="importApplication()">Import an application…</ui-button></div><div class="io-note">To export one, open its <span class="kbd">⋮</span> menu on the <strong>Applications</strong> screen and choose <em>Export</em>.</div></ui-card></div>
-      </div>
-    </section>
+<section class="screen" [class.active]="tab === 'io'">
+  <header class="topbar"><div><div class="crumb">Configuration</div><h2>Import / Export</h2></div></header>
+  <div class="content"><p class="lead">Move configuration between machines or share a single launcher with a colleague. Exports never contain credentials — the Safeguard proxy owns those.</p>
+  <div class="io-cols"><ui-card><div class="io-head"><span class="io-badge full"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('grid')" /></svg></span><div><h4>Full configuration</h4><div class="io-sub">Every protocol and application, as one file</div></div></div><p>Best for backing up a machine or standing up an identical setup elsewhere.</p><div class="io-actions"><ui-button variant="primary" (click)="exportAll()">Export everything…</ui-button><ui-button variant="ghost" (click)="importReplace()">Import & replace…</ui-button></div><div class="io-note">Importing a full file <strong>replaces</strong> everything after you confirm a summary.</div></ui-card>
+  <ui-card><div class="io-head"><span class="io-badge item"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('square')" /></svg></span><div><h4>Individual applications</h4><div class="io-sub">Bring in just one launcher without touching the rest</div></div></div><p>Import a single application a colleague shared with you. Name clashes are renamed on merge.</p><div class="io-actions"><ui-button variant="ghost" (click)="importApplication()">Import an application…</ui-button></div><div class="io-note">To export one, open its <span class="kbd">⋮</span> menu on the <strong>Applications</strong> screen and choose <em>Export</em>.</div></ui-card></div>
+</div>
+</section>
 
-    <section class="screen" [class.active]="tab === 'about'">
-      <header class="topbar"><div><div class="crumb">Configuration</div><h2>About SCALUS</h2></div></header>
-      <div class="content"><ui-card><h4>Session Client Application Launch Uri System</h4><p>Registers this machine as the handler for session-launch links and opens the right client with the right parameters.</p><dl class="kv"><dt>Version</dt><dd>{{ version }}</dd><dt>Runtime</dt><dd>.NET 10 · NativeAOT dispatcher</dd><dt>UI host</dt><dd>Photino webview</dd><dt>Platform</dt><dd>{{ platform }}</dd><dt>Registered handlers</dt><dd><ui-badge [tone]="handlerTone">{{ registeredCount }} of {{ config.Protocols.length }}</ui-badge></dd></dl></ui-card><ui-card><h4>Diagnostics</h4><pre>{{ info }}</pre></ui-card></div>
-    </section>
-  </main>
+<section class="screen" [class.active]="tab === 'about'">
+  <header class="topbar"><div><div class="crumb">Configuration</div><h2>About SCALUS</h2></div></header>
+  <div class="content"><ui-card><h4>Session Client Application Launch Uri System</h4><p>Registers this machine as the handler for session-launch links and opens the right client with the right parameters.</p><dl class="kv"><dt>Version</dt><dd>{{ version }}</dd><dt>Runtime</dt><dd>.NET 10 · NativeAOT dispatcher</dd><dt>UI host</dt><dd>Photino webview</dd><dt>Platform</dt><dd>{{ platform }}</dd><dt>Registered handlers</dt><dd><ui-badge [tone]="handlerTone">{{ registeredCount }} of {{ config.Protocols.length }}</ui-badge></dd></dl></ui-card><ui-card><h4>Diagnostics</h4><pre>{{ info }}</pre></ui-card></div>
+</section>
+</main>
 </div>
 
 <ui-drawer [open]="editorOpen" (close)="closeEditor()">
-  <ng-container *ngIf="editor as e">
+  @if (editor; as e) {
     <div class="drawer-head"><div><h3>{{ e.Name || 'New application' }}</h3><div class="sub">{{ editorMode === 'new' ? 'New launch definition' : 'Launch definition · ' + e.Platforms.join(', ') }}</div></div><button class="btn-icon" type="button" (click)="closeEditor()" aria-label="Close">×</button></div>
     <div #applicationEditorBody class="drawer-body">
       <p class="lead drawer-lead">An <strong>application</strong> is a reusable launch definition. When a link opens for a protocol this app is assigned to, SCALUS runs the command below, filling <code>%Tokens%</code> with values parsed from the incoming link.</p>
       <div class="field"><label for="app-name">Name</label><input id="app-name" class="input" [(ngModel)]="e.Name" (ngModelChange)="markDirty()" /></div>
-      <div class="field"><label for="app-id">Application ID</label><input id="app-id" class="input mono" [class.invalid]="idError()" [(ngModel)]="e.Id" (ngModelChange)="markDirty()" spellcheck="false" autocapitalize="off" /><div class="field-error" *ngIf="idError()">{{ idError() }}</div><div class="hint" *ngIf="!idError()">Stable identifier that protocol handlers and exports reference. Must be unique. Leave blank to generate one from the name.</div></div>
-      <div class="field"><label for="app-description">Description</label><textarea id="app-description" class="input" rows="2" [(ngModel)]="e.Description" (ngModelChange)="markDirty()"></textarea></div>
-      <div class="acc open"><div class="acc-head"><span class="ttl">Command <span class="n">— what gets launched</span></span></div><div class="acc-body"><div class="field"><label for="app-exec">Exec</label><input id="app-exec" class="input" [(ngModel)]="e.Exec" (ngModelChange)="markDirty()" /></div><div class="field"><label for="app-args">Args</label><textarea #argsBox id="app-args" class="input mono" rows="3" [ngModel]="argsText()" (ngModelChange)="setArgsText($event)"></textarea><div class="hint">One argument per line. Click a token below to insert it at the cursor.</div><div *ngFor="let group of tokenGroups()" class="token-section"><div class="picker-label">{{ group.label }} <ui-badge [tone]="group.tone">{{ e.Parser.ParserId }}</ui-badge></div><div class="token-picker"><button *ngFor="let token of group.tokens" type="button" class="token-chip" [class.inband]="group.tone === 'warn'" [title]="tokenTip(token)" (pointerdown)="insertTokenFromPointer($event, token, argsBox)" (click)="insertTokenFromKeyboard($event, token, argsBox)">{{ token }}</button></div></div></div><div class="preview"><span class="lbl">Live preview — example Safeguard link</span><div>{{ commandPreview() }}</div></div></div></div>
-      <div class="acc open"><div class="acc-head"><span class="ttl">Parser & generated file <span class="n">— advanced</span></span></div><div class="acc-body"><div class="row2"><div class="field"><label for="app-protocol">Protocol</label><ui-combo inputId="app-protocol" [options]="protocolSuggestions" [value]="e.Protocol" placeholder="rdp" (valueChange)="e.Protocol = $event; markDirty()"></ui-combo><div class="hint">Pick a known scheme or type a custom one (without <code>://</code>).</div></div><div class="field"><label for="app-parser">Parser</label><select id="app-parser" class="select" [ngModel]="e.Parser.ParserId" (ngModelChange)="parserChanged($event)"><option *ngFor="let parser of parsers" [value]="parser">{{ parser }}</option></select></div></div><div class="field" *ngIf="e.Parser.ParserId === 'ssh' || e.Parser.ParserId === 'telnet'"><label class="tgl-row"><ui-toggle [checked]="!!e.Parser.RunInTerminal" (changed)="toggleRunInTerminal($event)"></ui-toggle><span>Run in a terminal window</span></label><p class="hint">Opens this client inside your <strong>preferred terminal</strong> (set on the <em>Settings</em> tab) — Windows Terminal when available, otherwise the platform default. Leave off for clients that manage their own window.</p></div><div class="field"><label class="tgl-row"><ui-toggle [checked]="templateEnabled()" (changed)="toggleTemplate($event)"></ui-toggle><span>Generate a connection file</span></label><p class="hint">When on, SCALUS writes the template content to a temp file and passes its path as <code>%GeneratedFile%</code>. Leave off for command-line-only clients.</p></div><ng-container *ngIf="templateEnabled()"><div class="field"><div class="lbl-row"><label for="template-content">Template content</label><ui-button *ngIf="e.Parser.ParserId === 'rdp'" variant="ghost" (click)="resetTemplateToDefault()">Reset to default</ui-button></div><textarea id="template-content" class="input mono" rows="10" spellcheck="false" [ngModel]="templateContentText()" (ngModelChange)="setTemplateContentText($event)"></textarea></div><div class="row2"><div class="field"><label for="template-ext">File extension</label><input id="template-ext" class="input" placeholder=".rdp" [(ngModel)]="e.Parser.TemplateExtension" (ngModelChange)="markDirty()" /></div><div class="field"><label for="template-eol">Line endings</label><select id="template-eol" class="select" [ngModel]="e.Parser.LineEnding || 'Default'" (ngModelChange)="setLineEnding($event)"><option *ngFor="let eol of lineEndings" [value]="eol">{{ eolLabels[eol] }}</option></select></div></div><div class="field"><label for="template-enc">Encoding</label><select id="template-enc" class="select" [ngModel]="e.Parser.Encoding || 'Default'" (ngModelChange)="setEncoding($event)"><option *ngFor="let enc of encodings" [value]="enc">{{ encLabels[enc] }}</option></select></div></ng-container><div class="field"><label for="wait-mode">When launched, SCALUS should…</label><select id="wait-mode" class="select" [ngModel]="waitMode()" (ngModelChange)="setWaitMode($event)"><option value="default">Pause briefly, then return</option><option value="inputidle">Wait until the client is ready</option><option value="exit">Wait until the client exits</option><option value="timed">Wait a fixed number of seconds</option></select><p class="hint">Choose "wait until the client exits" when a generated file must stay on disk for the whole session — SCALUS removes it afterward.</p></div><div class="field" *ngIf="waitMode() === 'timed'"><label for="wait-seconds">Seconds to wait</label><input id="wait-seconds" class="input" type="number" min="0" [ngModel]="waitSeconds()" (ngModelChange)="setWaitSeconds($event)" /></div></div></div>
-      <div class="acc open"><div class="acc-head"><span class="ttl">Platforms <span class="n">— where this applies</span></span></div><div class="acc-body platform-list"><label *ngFor="let platformName of platformOptions" class="platform-chip"><input type="checkbox" [checked]="e.Platforms.includes(platformName)" (change)="togglePlatform(platformName, $any($event.target).checked)" />{{ platformName }}</label></div></div>
-    </div>
-    <div class="drawer-error" *ngIf="editorErrors.length">
-      <div class="error-list"><strong>Fix before saving:</strong><ul><li *ngFor="let error of editorErrors">{{ error }}</li></ul></div>
-    </div>
-    <div class="drawer-foot">
-    <ui-button variant="danger" *ngIf="editorMode === 'edit'" (click)="removeApplication(e)">Remove</ui-button><span></span><div class="foot-actions"><ui-button variant="ghost" (click)="closeEditor()">Cancel</ui-button><ui-button variant="primary" (click)="saveEditor()" [disabled]="(!editorDirty && editorMode === 'edit') || !!idError()">Save changes</ui-button></div></div>
-  </ng-container>
+      <div class="field"><label for="app-id">Application ID</label><input id="app-id" class="input mono" [class.invalid]="idError()" [(ngModel)]="e.Id" (ngModelChange)="markDirty()" spellcheck="false" autocapitalize="off" />@if (idError()) {
+      <div class="field-error">{{ idError() }}</div>
+      }@if (!idError()) {
+      <div class="hint">Stable identifier that protocol handlers and exports reference. Must be unique. Leave blank to generate one from the name.</div>
+    }</div>
+    <div class="field"><label for="app-description">Description</label><textarea id="app-description" class="input" rows="2" [(ngModel)]="e.Description" (ngModelChange)="markDirty()"></textarea></div>
+    <div class="acc open"><div class="acc-head"><span class="ttl">Command <span class="n">— what gets launched</span></span></div><div class="acc-body"><div class="field"><label for="app-exec">Exec</label><input id="app-exec" class="input" [(ngModel)]="e.Exec" (ngModelChange)="markDirty()" /></div><div class="field"><label for="app-args">Args</label><textarea #argsBox id="app-args" class="input mono" rows="3" [ngModel]="argsText()" (ngModelChange)="setArgsText($event)"></textarea><div class="hint">One argument per line. Click a token below to insert it at the cursor.</div>@for (group of tokenGroups(); track group.label) {
+    <div class="token-section"><div class="picker-label">{{ group.label }} <ui-badge [tone]="group.tone">{{ e.Parser.ParserId }}</ui-badge></div><div class="token-picker">@for (token of group.tokens; track token) {
+    <button type="button" class="token-chip" [class.inband]="group.tone === 'warn'" [title]="tokenTip(token)" (pointerdown)="insertTokenFromPointer($event, token, argsBox)" (click)="insertTokenFromKeyboard($event, token, argsBox)">{{ token }}</button>
+  }</div></div>
+  }</div><div class="preview"><span class="lbl">Live preview — example Safeguard link</span><div>{{ commandPreview() }}</div></div></div></div>
+  <div class="acc open"><div class="acc-head"><span class="ttl">Parser & generated file <span class="n">— advanced</span></span></div><div class="acc-body"><div class="row2"><div class="field"><label for="app-protocol">Protocol</label><ui-combo inputId="app-protocol" [options]="protocolSuggestions" [value]="e.Protocol" placeholder="rdp" (valueChange)="e.Protocol = $event; markDirty()"></ui-combo><div class="hint">Pick a known scheme or type a custom one (without <code>://</code>).</div></div><div class="field"><label for="app-parser">Parser</label><select id="app-parser" class="select" [ngModel]="e.Parser.ParserId" (ngModelChange)="parserChanged($event)">@for (parser of parsers; track parser) {
+  <option [value]="parser">{{ parser }}</option>
+}</select></div></div>@if (e.Parser.ParserId === 'ssh' || e.Parser.ParserId === 'telnet') {
+<div class="field"><label class="tgl-row"><ui-toggle [checked]="!!e.Parser.RunInTerminal" (changed)="toggleRunInTerminal($event)"></ui-toggle><span>Run in a terminal window</span></label><p class="hint">Opens this client inside your <strong>preferred terminal</strong> (set on the <em>Settings</em> tab) — Windows Terminal when available, otherwise the platform default. Leave off for clients that manage their own window.</p></div>
+}<div class="field"><label class="tgl-row"><ui-toggle [checked]="templateEnabled()" (changed)="toggleTemplate($event)"></ui-toggle><span>Generate a connection file</span></label><p class="hint">When on, SCALUS writes the template content to a temp file and passes its path as <code>%GeneratedFile%</code>. Leave off for command-line-only clients.</p></div>@if (templateEnabled()) {
+<div class="field"><div class="lbl-row"><label for="template-content">Template content</label>@if (e.Parser.ParserId === 'rdp') {
+<ui-button variant="ghost" (click)="resetTemplateToDefault()">Reset to default</ui-button>
+}</div><textarea id="template-content" class="input mono" rows="10" spellcheck="false" [ngModel]="templateContentText()" (ngModelChange)="setTemplateContentText($event)"></textarea></div><div class="row2"><div class="field"><label for="template-ext">File extension</label><input id="template-ext" class="input" placeholder=".rdp" [(ngModel)]="e.Parser.TemplateExtension" (ngModelChange)="markDirty()" /></div><div class="field"><label for="template-eol">Line endings</label><select id="template-eol" class="select" [ngModel]="e.Parser.LineEnding || 'Default'" (ngModelChange)="setLineEnding($event)">@for (eol of lineEndings; track eol) {
+<option [value]="eol">{{ eolLabels[eol] }}</option>
+}</select></div></div><div class="field"><label for="template-enc">Encoding</label><select id="template-enc" class="select" [ngModel]="e.Parser.Encoding || 'Default'" (ngModelChange)="setEncoding($event)">@for (enc of encodings; track enc) {
+<option [value]="enc">{{ encLabels[enc] }}</option>
+}</select></div>
+}<div class="field"><label for="wait-mode">When launched, SCALUS should…</label><select id="wait-mode" class="select" [ngModel]="waitMode()" (ngModelChange)="setWaitMode($event)"><option value="default">Pause briefly, then return</option><option value="inputidle">Wait until the client is ready</option><option value="exit">Wait until the client exits</option><option value="timed">Wait a fixed number of seconds</option></select><p class="hint">Choose "wait until the client exits" when a generated file must stay on disk for the whole session — SCALUS removes it afterward.</p></div>@if (waitMode() === 'timed') {
+<div class="field"><label for="wait-seconds">Seconds to wait</label><input id="wait-seconds" class="input" type="number" min="0" [ngModel]="waitSeconds()" (ngModelChange)="setWaitSeconds($event)" /></div>
+}</div></div>
+<div class="acc open"><div class="acc-head"><span class="ttl">Platforms <span class="n">— where this applies</span></span></div><div class="acc-body platform-list">@for (platformName of platformOptions; track platformName) {
+<label class="platform-chip"><input type="checkbox" [checked]="e.Platforms.includes(platformName)" (change)="togglePlatform(platformName, $any($event.target).checked)" />{{ platformName }}</label>
+}</div></div>
+</div>
+@if (editorErrors.length) {
+  <div class="drawer-error">
+    <div class="error-list"><strong>Fix before saving:</strong><ul>@for (error of editorErrors; track error) {
+    <li>{{ error }}</li>
+  }</ul></div>
+</div>
+}
+<div class="drawer-foot">
+  @if (editorMode === 'edit') {
+    <ui-button variant="danger" (click)="removeApplication(e)">Remove</ui-button>
+    }<span></span><div class="foot-actions"><ui-button variant="ghost" (click)="closeEditor()">Cancel</ui-button><ui-button variant="primary" (click)="saveEditor()" [disabled]="(!editorDirty && editorMode === 'edit') || !!idError()">Save changes</ui-button></div></div>
+  }
 </ui-drawer>
 
 <ui-drawer [open]="!!selectedLaunch" (close)="closeLaunch()">
-  <ng-container *ngIf="selectedLaunch as r">
+  @if (selectedLaunch; as r) {
     <div class="drawer-head">
       <div><h3>{{ launchTitle(r) }}</h3><div class="sub">{{ launchTime(r) }} · {{ r.DurationMs }} ms</div></div>
       <button class="btn-icon" type="button" (click)="closeLaunch()" aria-label="Close">×</button>
     </div>
     <div class="drawer-body">
-      <div class="launch-status"><ui-badge [tone]="launchOutcomeTone(r)">{{ launchOutcomeLabel(r) }}</ui-badge><span class="exit" *ngIf="r.ExitCode != null">exit code {{ r.ExitCode }}</span></div>
-      <dl class="launch-kv">
-        <ng-container *ngIf="r.LaunchId"><dt>Launch ID</dt><dd><div class="copyable"><code>{{ r.LaunchId }}</code><button class="copy-btn" [class.copied]="copiedKey==='launchId'" type="button" title="Copy Launch ID" aria-label="Copy Launch ID" (click)="copyField(r.LaunchId, 'launchId')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='launchId' ? 'check' : 'copy')" /></svg></button></div></dd></ng-container>
-        <ng-container *ngIf="r.LauncherBinary"><dt>Launcher</dt><dd><div class="copyable"><span class="val">{{ r.LauncherBinary }}</span><button class="copy-btn" [class.copied]="copiedKey==='launcher'" type="button" title="Copy launcher path" aria-label="Copy launcher path" (click)="copyField(r.LauncherBinary, 'launcher')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='launcher' ? 'check' : 'copy')" /></svg></button></div></dd></ng-container>
-        <ng-container *ngIf="r.ApplicationId"><dt>Application</dt><dd><div class="copyable"><span class="val">{{ r.ApplicationId }}</span><button class="copy-btn" [class.copied]="copiedKey==='application'" type="button" title="Copy application id" aria-label="Copy application id" (click)="copyField(r.ApplicationId, 'application')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='application' ? 'check' : 'copy')" /></svg></button></div></dd></ng-container>
-        <ng-container *ngIf="r.Url"><dt>Link</dt><dd><div class="copyable block"><code class="wrap">{{ r.Url }}</code><button class="copy-btn" [class.copied]="copiedKey==='link'" type="button" title="Copy link" aria-label="Copy link" (click)="copyField(r.Url, 'link')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='link' ? 'check' : 'copy')" /></svg></button></div></dd></ng-container>
-        <ng-container *ngIf="r.Command"><dt>Command</dt><dd><div class="copyable block"><code class="wrap">{{ r.Command }}</code><button class="copy-btn" [class.copied]="copiedKey==='command'" type="button" title="Copy command" aria-label="Copy command" (click)="copyField(r.Command, 'command')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='command' ? 'check' : 'copy')" /></svg></button></div></dd></ng-container>
-        <ng-container *ngIf="r.Args"><dt>Arguments</dt><dd><div class="copyable block"><code class="wrap">{{ r.Args }}</code><button class="copy-btn" [class.copied]="copiedKey==='args'" type="button" title="Copy arguments" aria-label="Copy arguments" (click)="copyField(r.Args, 'args')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='args' ? 'check' : 'copy')" /></svg></button></div></dd></ng-container>
-      </dl>
-      <div class="error-list" *ngIf="r.Error"><strong>Error</strong><p>{{ r.Error }}</p></div>
-      <div class="launch-file" *ngIf="r.GeneratedFile">
+      <div class="launch-status"><ui-badge [tone]="launchOutcomeTone(r)">{{ launchOutcomeLabel(r) }}</ui-badge>@if (r.ExitCode != null) {
+      <span class="exit">exit code {{ r.ExitCode }}</span>
+    }</div>
+    <dl class="launch-kv">
+      @if (r.LaunchId) {
+        <dt>Launch ID</dt><dd><div class="copyable"><code>{{ r.LaunchId }}</code><button class="copy-btn" [class.copied]="copiedKey==='launchId'" type="button" title="Copy Launch ID" aria-label="Copy Launch ID" (click)="copyField(r.LaunchId, 'launchId')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='launchId' ? 'check' : 'copy')" /></svg></button></div></dd>
+      }
+      @if (r.LauncherBinary) {
+        <dt>Launcher</dt><dd><div class="copyable"><span class="val">{{ r.LauncherBinary }}</span><button class="copy-btn" [class.copied]="copiedKey==='launcher'" type="button" title="Copy launcher path" aria-label="Copy launcher path" (click)="copyField(r.LauncherBinary, 'launcher')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='launcher' ? 'check' : 'copy')" /></svg></button></div></dd>
+      }
+      @if (r.ApplicationId) {
+        <dt>Application</dt><dd><div class="copyable"><span class="val">{{ r.ApplicationId }}</span><button class="copy-btn" [class.copied]="copiedKey==='application'" type="button" title="Copy application id" aria-label="Copy application id" (click)="copyField(r.ApplicationId, 'application')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='application' ? 'check' : 'copy')" /></svg></button></div></dd>
+      }
+      @if (r.Url) {
+        <dt>Link</dt><dd><div class="copyable block"><code class="wrap">{{ r.Url }}</code><button class="copy-btn" [class.copied]="copiedKey==='link'" type="button" title="Copy link" aria-label="Copy link" (click)="copyField(r.Url, 'link')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='link' ? 'check' : 'copy')" /></svg></button></div></dd>
+      }
+      @if (r.Command) {
+        <dt>Command</dt><dd><div class="copyable block"><code class="wrap">{{ r.Command }}</code><button class="copy-btn" [class.copied]="copiedKey==='command'" type="button" title="Copy command" aria-label="Copy command" (click)="copyField(r.Command, 'command')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='command' ? 'check' : 'copy')" /></svg></button></div></dd>
+      }
+      @if (r.Args) {
+        <dt>Arguments</dt><dd><div class="copyable block"><code class="wrap">{{ r.Args }}</code><button class="copy-btn" [class.copied]="copiedKey==='args'" type="button" title="Copy arguments" aria-label="Copy arguments" (click)="copyField(r.Args, 'args')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='args' ? 'check' : 'copy')" /></svg></button></div></dd>
+      }
+    </dl>
+    @if (r.Error) {
+      <div class="error-list"><strong>Error</strong><p>{{ r.Error }}</p></div>
+    }
+    @if (r.GeneratedFile) {
+      <div class="launch-file">
         <div class="launch-file-head"><span class="ttl">Generated file</span><code>{{ r.GeneratedFile }}</code><button class="copy-btn" [class.copied]="copiedKey==='genpath'" type="button" title="Copy file path" aria-label="Copy generated file path" (click)="copyField(r.GeneratedFile, 'genpath')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='genpath' ? 'check' : 'copy')" /></svg></button></div>
-        <div class="logs-note" *ngIf="loadingLaunchFile">Loading file…</div>
-        <div class="pre-wrap" *ngIf="!loadingLaunchFile && selectedLaunchFile">
-          <button class="copy-btn floating" [class.copied]="copiedKey==='gencontent'" type="button" title="Copy file contents" aria-label="Copy generated file contents" (click)="copyField(selectedLaunchFile, 'gencontent')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='gencontent' ? 'check' : 'copy')" /></svg></button>
-          <pre>{{ selectedLaunchFile }}</pre>
-        </div>
-        <div class="logs-note" *ngIf="!loadingLaunchFile && !selectedLaunchFile">This file is no longer on disk (pruned or cleaned up).</div>
+        @if (loadingLaunchFile) {
+          <div class="logs-note">Loading file…</div>
+        }
+        @if (!loadingLaunchFile && selectedLaunchFile) {
+          <div class="pre-wrap">
+            <button class="copy-btn floating" [class.copied]="copiedKey==='gencontent'" type="button" title="Copy file contents" aria-label="Copy generated file contents" (click)="copyField(selectedLaunchFile, 'gencontent')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='gencontent' ? 'check' : 'copy')" /></svg></button>
+            <pre>{{ selectedLaunchFile }}</pre>
+          </div>
+        }
+        @if (!loadingLaunchFile && !selectedLaunchFile) {
+          <div class="logs-note">This file is no longer on disk (pruned or cleaned up).</div>
+        }
       </div>
-    </div>
-  </ng-container>
+    }
+  </div>
+}
 </ui-drawer>
 
 <ui-modal [open]="protocolModalOpen" (close)="closeProtocolModal()"><form (ngSubmit)="addProtocol()"><div class="modal-head"><h3>New protocol</h3><p>Register a custom URI scheme with the operating system.</p></div><div class="modal-body"><label for="proto-scheme">Scheme name</label><div class="scheme-row"><input id="proto-scheme" name="proto" class="input" [(ngModel)]="newProtocol" autocomplete="off" placeholder="myapp" /><span>://</span></div><div class="modal-err">{{ protocolError }}</div></div><div class="modal-foot"><ui-button variant="ghost" type="button" (click)="closeProtocolModal()">Cancel</ui-button><ui-button variant="primary" type="submit">Register</ui-button></div></form></ui-modal>
 
 <ui-modal [open]="confirm.open" (close)="resolveConfirm(false)"><div class="modal-head"><h3>{{ confirm.title }}</h3></div><div class="modal-body confirm-body"><p>{{ confirm.message }}</p></div><div class="modal-foot"><ui-button variant="ghost" type="button" (click)="resolveConfirm(false)">Cancel</ui-button><ui-button [variant]="confirm.variant" type="button" (click)="resolveConfirm(true)">{{ confirm.confirmLabel }}</ui-button></div></ui-modal>
 
-<div class="toast" *ngIf="message">{{ message }}</div>
+@if (message) {
+  <div class="toast">{{ message }}</div>
+}

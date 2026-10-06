@@ -46,8 +46,8 @@ namespace OneIdentity.Scalus.Unregister
             };
             var root = new Option<bool>("--root", "-r") { Description = "Update system files as well as user files" };
             var sudo = new Option<bool>("--sudo", "-s") { Description = "use (passwordless) sudo to update system files on supported platforms" };
-            var quiet = new Option<bool>("--quiet", "-q") { Hidden = true };
-            var removeConfiguration = new Option<bool>("--remove-configuration") { Hidden = true };
+            var quiet = new Option<bool>("--quiet", "-q") { Description = "Suppress command output" };
+            var removeConfiguration = new Option<bool>("--remove-configuration") { Description = "Remove the current user's configuration and UI window settings" };
             var command = new Command("unregister", "Unregister SCALUS for URL handling");
             command.Add(protocols);
             command.Add(root);

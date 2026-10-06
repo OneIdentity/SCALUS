@@ -1,5 +1,5 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 
 // Editable combobox: pick a known option or type a free-text value. Styled to match
@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'ui-combo',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div class="combo" [class.open]="open">
       <input #field class="input combo-input" type="text" [attr.id]="inputId || null"
@@ -15,21 +15,28 @@ import { FormsModule } from '@angular/forms';
         role="combobox" aria-autocomplete="list" [attr.aria-expanded]="open"
         [ngModel]="value" (ngModelChange)="onInput($event)"
         (focus)="open = true" (keydown)="onKeydown($event)" />
-      <button type="button" class="chev" tabindex="-1"
-        [attr.aria-label]="open ? 'Hide options' : 'Show options'"
-        (mousedown)="$event.preventDefault()" (click)="toggle()">
-        <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M208 96l-80 80-80-80" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <ul *ngIf="open && filtered.length" class="panel" role="listbox">
-        <li *ngFor="let opt of filtered; let i = index" role="option"
-          [attr.aria-selected]="opt === value" [class.active]="i === activeIndex" [class.selected]="opt === value"
-          (mousedown)="$event.preventDefault(); choose(opt)" (mousemove)="activeIndex = i">
-          <span>{{ opt }}</span>
-          <svg *ngIf="opt === value" class="tick" viewBox="0 0 256 256" aria-hidden="true"><path d="M232 56L104 184l-56-56" fill="none" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </li>
-      </ul>
-    </div>
-  `,
+        <button type="button" class="chev" tabindex="-1"
+          [attr.aria-label]="open ? 'Hide options' : 'Show options'"
+          (mousedown)="$event.preventDefault()" (click)="toggle()">
+          <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M208 96l-80 80-80-80" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        @if (open && filtered.length) {
+          <ul class="panel" role="listbox">
+            @for (opt of filtered; track opt; let i = $index) {
+              <li role="option"
+                [attr.aria-selected]="opt === value" [class.active]="i === activeIndex" [class.selected]="opt === value"
+                (mousedown)="$event.preventDefault(); choose(opt)" (mousemove)="activeIndex = i">
+                <span>{{ opt }}</span>
+                @if (opt === value) {
+                  <svg class="tick" viewBox="0 0 256 256" aria-hidden="true"><path d="M232 56L104 184l-56-56" fill="none" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .combo { position: relative; }
     .combo-input { padding-right: 34px; }
