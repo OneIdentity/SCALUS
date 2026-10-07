@@ -9,21 +9,22 @@
 #       Version = X.Y.Z, IsPrerelease=false; the tag MUST match <VersionPrefix> or the
 #       build FAILS (drift guard).
 #   Trunk / PR / manual build (any non-tag ref):
-#       Version = X.Y.Z.<BuildId>, IsPrerelease=true (incrementing, installer-safe).
+#       Version = X.Y.Z.<BuildCounter>, IsPrerelease=true (incrementing product version).
 #
 # Emits pipeline variables: Version, IsPrerelease, IsTagBuild, ReleaseTag.
 #
-# Usage: scripts/version.sh [--source-branch <ref>] [--build-id <n>]
-#   Defaults come from the Azure DevOps env vars BUILD_SOURCEBRANCH / BUILD_BUILDID.
+# Usage: scripts/version.sh [--source-branch <ref>] [--build-counter <n>]
+#   SourceBranch defaults from BUILD_SOURCEBRANCH. BuildCounter is passed from
+#   the pipeline's counter expression.
 set -euo pipefail
 
 source_branch="${BUILD_SOURCEBRANCH:-}"
-build_id="${BUILD_BUILDID:-}"
+build_counter="${BUILDCOUNTER:-}"
 
 while (( "$#" )); do
     case "$1" in
         --source-branch) source_branch="$2"; shift 2 ;;
-        --build-id)      build_id="$2";      shift 2 ;;
+        --build-counter) build_counter="$2"; shift 2 ;;
         *) echo "Unknown argument: $1" >&2; exit 1 ;;
     esac
 done
@@ -42,8 +43,6 @@ if ! [[ "$base" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "Error: VersionPrefix '$base' must be a 3-part version (X.Y.Z)." >&2
     exit 1
 fi
-
-[ -z "$build_id" ] && build_id="0"
 
 # 2. Decide the build kind from the ref.
 is_tag_build="false"
@@ -72,12 +71,18 @@ if [[ "$source_branch" == refs/tags/* ]]; then
     version="$base"
 else
     # Trunk / PR / manual: incrementing 4-part numeric, marked prerelease.
-    version="$base.$build_id"
+    [ -z "$build_counter" ] && build_counter="0"
+    if ! [[ "$build_counter" =~ ^[0-9]+$ ]] || (( 10#$build_counter > 65535 )); then
+        echo "Error: BuildCounter '$build_counter' must be an integer from 0 through 65535." >&2
+        exit 1
+    fi
+
+    version="$base.$build_counter"
 fi
 
 # 3. Report + publish as pipeline variables.
 echo "SourceBranch : $source_branch"
-echo "BuildId      : $build_id"
+echo "BuildCounter : $build_counter"
 echo "VersionPrefix: $base"
 echo "Version      : $version"
 echo "IsTagBuild   : $is_tag_build"

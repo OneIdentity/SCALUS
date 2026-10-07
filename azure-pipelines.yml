@@ -11,7 +11,7 @@
 #
 # The version is NEVER hardcoded here - scripts/version.ps1 / version.sh derive
 # it from the git ref + Directory.Build.props and publish it as $(Version):
-#   trunk/PR build  -> 2.0.0.<BuildId>  (incrementing, prerelease, installer-safe)
+#   trunk/PR build  -> 2.0.0.<buildCounter> (incrementing, prerelease, installer-safe)
 #   tag build vX.Y.Z -> X.Y.Z            (clean release semver)
 # =============================================================================
 
@@ -40,7 +40,7 @@ variables:
   # only on a `v*` tag.
   isTagBuild: $[ startsWith(variables['Build.SourceBranch'], 'refs/tags/') ]
   isPr: $[ eq(variables['Build.Reason'], 'PullRequest') ]
-
+  buildCounter: "$[counter('scalus',1)]"
 jobs:
 # ---------------------------------------------------------------------------
 # Build & unit tests. Runs for PRs, trunk and tags. The version step here also
@@ -51,7 +51,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   steps:
-  - script: bash $(Build.SourcesDirectory)/scripts/version.sh
+  - script: bash $(Build.SourcesDirectory)/scripts/version.sh --build-counter $(buildCounter)
     displayName: 'Derive version (drift guard)'
 
   - task: UseDotNet@2
@@ -81,7 +81,7 @@ jobs:
         rid: 'win-arm64'
   steps:
   - powershell: |
-      & $(Build.SourcesDirectory)\scripts\version.ps1
+      & $(Build.SourcesDirectory)\scripts\version.ps1 -BuildCounter '$(buildCounter)'
     displayName: 'Derive version'
 
   - task: AzureKeyVault@2
@@ -191,7 +191,7 @@ jobs:
       arm64:
         rid: 'linux-arm64'
   steps:
-  - script: bash $(Build.SourcesDirectory)/scripts/version.sh
+  - script: bash $(Build.SourcesDirectory)/scripts/version.sh --build-counter $(buildCounter)
     displayName: 'Derive version'
 
   - task: UseDotNet@2
@@ -256,7 +256,7 @@ jobs:
       arm64:
         rid: 'osx-arm64'
   steps:
-  - script: bash $(Build.SourcesDirectory)/scripts/version.sh
+  - script: bash $(Build.SourcesDirectory)/scripts/version.sh --build-counter $(buildCounter)
     displayName: 'Derive version'
 
   - task: UseDotNet@2

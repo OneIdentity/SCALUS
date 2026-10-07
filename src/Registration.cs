@@ -278,7 +278,9 @@ namespace OneIdentity.Scalus
 
             try
             {
-                return Path.GetFileName(path);
+                return Path.GetFileName(
+                    path.Replace('\\', Path.DirectorySeparatorChar)
+                        .Replace('/', Path.DirectorySeparatorChar));
             }
             catch (Exception)
             {

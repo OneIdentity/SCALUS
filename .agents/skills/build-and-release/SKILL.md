@@ -18,7 +18,7 @@ omitted, so local builds match CI.
 `scripts/version.ps1` (Windows) and `scripts/version.sh` (Linux/macOS) are the
 CI version-derivation logic and are identical in behavior:
 
-- **Non-tag build** (trunk / PR / manual): `Version = X.Y.Z.<BuildId>`,
+- **Non-tag build** (trunk / PR / manual): `Version = X.Y.Z.<buildCounter>`,
   `IsPrerelease = true`. Installer versions are always purely numeric (WiX/fpm
   reject semver pre-release suffixes); "prerelease" is a flag, not a `-pre`
   string.
@@ -28,6 +28,10 @@ CI version-derivation logic and are identical in behavior:
 
 They emit pipeline variables `Version`, `IsPrerelease`, `IsTagBuild`,
 `ReleaseTag`, and set the build number.
+
+Azure's bounded `buildCounter` is used instead of `Build.BuildId`, so the complete
+CI version can also be used for CLR `AssemblyVersion` and Windows `FileVersion`;
+their numeric components are limited to 65535.
 
 ## Cutting a release
 

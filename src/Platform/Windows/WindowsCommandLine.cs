@@ -65,7 +65,7 @@ namespace OneIdentity.Scalus
             string full;
             try
             {
-                full = Path.GetFullPath(executable);
+                full = GetFullPath(executable);
             }
             catch (Exception)
             {
@@ -96,8 +96,8 @@ namespace OneIdentity.Scalus
             try
             {
                 return string.Equals(
-                    Path.GetFullPath(executable),
-                    Path.GetFullPath(binaryPath),
+                    GetFullPath(executable),
+                    GetFullPath(binaryPath),
                     StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception)
@@ -157,7 +157,7 @@ namespace OneIdentity.Scalus
             try
             {
                 var root = GetInstallRoot(binaryDirectory);
-                var full = Path.GetFullPath(launcherPath);
+                var full = GetFullPath(launcherPath);
                 var cli = Path.Combine(root, "scalus.exe");
                 var ui = Path.Combine(root, "ui", "scalus-ui.exe");
                 var colocatedUi = Path.Combine(root, "scalus-ui.exe");
@@ -193,8 +193,16 @@ namespace OneIdentity.Scalus
                 return path;
             }
 
-            return Path.GetFullPath(path)
+            return GetFullPath(path)
                 .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
+
+        // These helpers reason about Windows command lines, but the unit tests also run on
+        // Linux CI. Convert Windows separators to the host separator before using System.IO.Path
+        // so directory names such as "ui" are recognized consistently on every test host.
+        private static string GetFullPath(string path) =>
+            Path.GetFullPath(
+                path.Replace('\\', Path.DirectorySeparatorChar)
+                    .Replace('/', Path.DirectorySeparatorChar));
     }
 }
