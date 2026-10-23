@@ -91,8 +91,7 @@ namespace OneIdentity.Scalus.UrlParser
 
         public void GetDefaults()
         {
-            var str = GetResource("Default.rdp");
-            var list = str?.Split(Environment.NewLine);
+            var list = GetDefaultTemplateText().Split('\n');
 
             defaultArgs = ParseTemplate(list);
             return;
