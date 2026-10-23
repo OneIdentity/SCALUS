@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Optional configuration removal on uninstall** — `scalus unregister` now accepts
+  `--delete-config` (remove the current user's `SCALUS.json` and templates) and
+  `--prompt-delete-config` (ask first, via a modal dialog on Windows or a terminal
+  prompt elsewhere; the default answer keeps the data). The Windows installer uses
+  this during an interactive uninstall to let the user choose whether to keep their
+  settings; a silent uninstall (`/qn`) only purges when `DELETECONFIG=1` is passed to
+  `msiexec`.
+
 ## [2.0.0]
 
 SCALUS 2.0 is a major release that reworks the technology stack, user interface,

@@ -35,6 +35,10 @@ namespace OneIdentity.Scalus.Unregister
 
         public bool Quiet { get; set; }
 
+        public bool DeleteConfig { get; set; }
+
+        public bool PromptDeleteConfig { get; set; }
+
         public Command CreateCommand(Action<object> onParsed)
         {
             var protocols = new Option<string[]>("--protocols", "-p")
@@ -46,11 +50,21 @@ namespace OneIdentity.Scalus.Unregister
             var root = new Option<bool>("--root", "-r") { Description = "Update system files as well as user files" };
             var sudo = new Option<bool>("--sudo", "-s") { Description = "use (passwordless) sudo to update system files on supported platforms" };
             var quiet = new Option<bool>("--quiet", "-q") { Hidden = true };
+            var deleteConfig = new Option<bool>("--delete-config")
+            {
+                Description = "Also remove the current user's SCALUS configuration data (SCALUS.json and templates)",
+            };
+            var promptDeleteConfig = new Option<bool>("--prompt-delete-config")
+            {
+                Description = "Ask (via a dialog, or a terminal prompt) whether to remove the current user's SCALUS configuration data",
+            };
             var command = new Command("unregister", "Unregister SCALUS for URL handling");
             command.Add(protocols);
             command.Add(root);
             command.Add(sudo);
             command.Add(quiet);
+            command.Add(deleteConfig);
+            command.Add(promptDeleteConfig);
             command.SetAction(result =>
             {
                 onParsed(new Options
@@ -59,6 +73,8 @@ namespace OneIdentity.Scalus.Unregister
                     RootMode = result.GetValue(root),
                     UseSudo = result.GetValue(sudo),
                     Quiet = result.GetValue(quiet),
+                    DeleteConfig = result.GetValue(deleteConfig),
+                    PromptDeleteConfig = result.GetValue(promptDeleteConfig),
                 });
                 return 0;
             });

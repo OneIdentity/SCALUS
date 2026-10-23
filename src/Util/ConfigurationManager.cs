@@ -301,6 +301,46 @@ namespace OneIdentity.Scalus.Util
 
         public static bool LogToConsole => ParseConsoleLogging();
 
+        // Remove the per-user configuration directory (SCALUS.json plus any templates and support
+        // files). Exposed so an uninstall can optionally purge the user's configuration via
+        // `scalus unregister --delete-config`. Best-effort and never throws: logging is flushed first
+        // because on Windows the log directory is a child of the config directory, so an open launcher
+        // log would otherwise lock the recursive delete. Returns whether an existing configuration was
+        // found and the directory that was targeted.
+        public static (bool Removed, string Path) DeleteConfiguration()
+        {
+            var path = ProdAppPath;
+            var hadConfig = Directory.Exists(path) && File.Exists(Path.Combine(path, JsonFile));
+
+            // Release the launcher log file handle before deleting (Windows keeps it under the config
+            // directory); otherwise the active log would block the recursive delete.
+            Serilog.Log.CloseAndFlush();
+
+            TryDeleteDirectory(path);
+            return (hadConfig, path);
+        }
+
+        // Recursively delete a directory, swallowing any error. Separated out so the deletion behaviour
+        // can be unit tested without touching the real per-user configuration location.
+        internal static bool TryDeleteDirectory(string path)
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // Best-effort cleanup: a locked or partially removed directory must never block an
+                // uninstall.
+            }
+
+            return false;
+        }
+
         private static string FullPath(string path, string baseDir)
         {
             if (Path.IsPathFullyQualified(path))

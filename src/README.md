@@ -122,6 +122,23 @@ Commands:
 The configuration GUI is a separate binary (`scalus-ui`), not a `scalus`
 sub-command.
 
+## Uninstalling and removing configuration
+
+SCALUS stores its settings in a per-user `SCALUS.json` (run `scalus info` for the
+exact path). Uninstalling the application leaves that configuration in place by
+default so a future install keeps your settings. To remove it as well:
+
+- **Interactive Windows uninstall** — the uninstaller shows a Yes/No dialog asking
+  whether to delete your configuration data. Choose *No* (the default) to keep it.
+- **Silent Windows uninstall** — pass `DELETECONFIG=1` to also purge the current
+  user's configuration, e.g. `msiexec /x {ProductCode} /qn DELETECONFIG=1`. Without
+  it, a silent uninstall never deletes configuration.
+- **Any platform, from the CLI** — `scalus unregister --delete-config` removes the
+  current user's configuration data, and `scalus unregister --prompt-delete-config`
+  asks first (a dialog on Windows, a `[y/N]` terminal prompt elsewhere). On
+  macOS/Linux, where the package managers cannot prompt during removal, use these
+  flags to clean up per-user data.
+
 ## Working with the SCALUS GUI
 
 See the [UI developer guide](../ui/README.md).

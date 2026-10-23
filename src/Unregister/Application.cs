@@ -21,12 +21,15 @@
 
 namespace OneIdentity.Scalus.Unregister
 {
+    using OneIdentity.Scalus.Util;
+
     internal class Application : IApplication
     {
         public Application(Options options, IRegistration registration, IUserInteraction userInteraction)
         {
             Options = options;
             Registration = registration;
+            UserInteraction = userInteraction;
         }
 
         private Options Options { get; }
@@ -43,6 +46,21 @@ namespace OneIdentity.Scalus.Unregister
             }
 
             Registration.UnRegister(Options.Protocols, Options.RootMode, Options.UseSudo);
+
+            var shouldDelete = Options.DeleteConfig;
+            if (!shouldDelete && Options.PromptDeleteConfig)
+            {
+                shouldDelete = UninstallPrompt.ConfirmDeleteConfiguration();
+            }
+
+            if (shouldDelete)
+            {
+                var (removed, path) = ConfigurationManager.DeleteConfiguration();
+                UserInteraction.Message(removed
+                    ? $"Removed SCALUS configuration data: {path}"
+                    : "No SCALUS configuration data to remove.");
+            }
+
             return 0;
         }
     }

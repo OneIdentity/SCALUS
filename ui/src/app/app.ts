@@ -598,7 +598,7 @@ export class App implements OnInit {
   }
   commandPreview(): string {
     if (!this.editor) return '';
-    const sample: Record<string, string> = { '%Host%': 'sps.example.com', '%Port%': '3389', '%User%': 'gwuser\\account~svc-admin%asset~db01%token~a1b2c3', '%GeneratedFile%': 'C:\\Users\\dan\\AppData\\Local\\Temp\\scalus-8f21.rdp', '%OriginalUrl%': 'rdp://â€¦', '%RelativeUrl%': 'full address:s:sps.example.com', '%Token%': 'a1b2c3', '%TargetHost%': 'db01.internal' };
+    const sample: Record<string, string> = { '%Host%': 'sps.example.com', '%Port%': '3389', '%User%': 'gwuser\\account~svc-admin%asset~db01%token~a1b2c3', '%GeneratedFile%': 'C:\\Users\\you\\AppData\\Local\\Temp\\scalus-8f21.rdp', '%OriginalUrl%': 'rdp://â€¦', '%RelativeUrl%': 'full address:s:sps.example.com', '%Token%': 'a1b2c3', '%TargetHost%': 'db01.internal' };
     return `${this.editor.Exec || 'client.exe'} ${(this.editor.Args || []).join(' ')}`.replace(/%[A-Za-z]+%/g, token => sample[token] || token);
   }
   async saveEditor(): Promise<void> {

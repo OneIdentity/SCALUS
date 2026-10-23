@@ -38,12 +38,30 @@
     <WixVariable Id="WixUIDialogBmp" Value="$(var.tmpdir)\dialog.bmp" />
     <ui:WixUI Id="WixUI_Minimal" />
 
-    <!-- Deregister protocol handlers on uninstall (not on upgrade). -->
-    <CustomAction Id="UninstallScalus" Return="check" Impersonate="yes" Execute="deferred"
+    <!--
+      Deregister protocol handlers on uninstall (not on upgrade), and optionally remove the user's
+      configuration data. The existing scalus.exe (a native C# binary) is itself the "custom action":
+      on an interactive uninstall it shows a modal Yes/No dialog (the prompt-delete-config flag) so the
+      user chooses whether to keep or delete their settings; a fully silent uninstall (/qn) never
+      prompts and only purges when DELETECONFIG=1 is passed. These run immediate + impersonated so the
+      dialog appears on the uninstalling user's desktop and the user's own per-user config/registration
+      is the one acted on. Return="ignore" keeps a cleanup hiccup from ever blocking the uninstall.
+    -->
+    <Property Id="DELETECONFIG" Secure="yes" />
+
+    <CustomAction Id="UninstallScalusPrompt" Return="ignore" Impersonate="yes" Execute="immediate"
+                  Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister --prompt-delete-config" />
+    <CustomAction Id="UninstallScalusSilentPurge" Return="ignore" Impersonate="yes" Execute="immediate"
+                  Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister --delete-config" />
+    <CustomAction Id="UninstallScalusSilent" Return="ignore" Impersonate="yes" Execute="immediate"
                   Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]scalus.exe unregister" />
     <InstallExecuteSequence>
-      <Custom Action="UninstallScalus" After="InstallInitialize"
-              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+      <Custom Action="UninstallScalusPrompt" After="InstallInitialize"
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;) AND (UILevel &gt; 2)" />
+      <Custom Action="UninstallScalusSilentPurge" After="UninstallScalusPrompt"
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;) AND (UILevel &lt;= 2) AND DELETECONFIG" />
+      <Custom Action="UninstallScalusSilent" After="UninstallScalusSilentPurge"
+              Condition="(NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;) AND (UILevel &lt;= 2) AND (NOT DELETECONFIG)" />
     </InstallExecuteSequence>
 
     <Feature Id="DefaultFeature" Title="SCALUS" Level="1">
