@@ -38,7 +38,7 @@ namespace OneIdentity.Scalus
 
         public IProtocolHandler GetProtocolHandler(string uri)
         {
-            Serilog.Log.Information($"Checking configuration for url:{uri}");
+            Serilog.Log.Information($"Checking configuration for url: {uri}");
             uri = uri.Replace("rdp:", "rdp://");
             // var manually parse out the protocol
             var index = uri.IndexOf("://", StringComparison.Ordinal);
@@ -50,7 +50,7 @@ namespace OneIdentity.Scalus
 
             if (string.IsNullOrEmpty(protocol))
             {
-                Serilog.Log.Warning($"No protocol was specified in the url:{uri}");
+                Serilog.Log.Warning($"No protocol was specified in the url: {uri}");
                 return null;
             }
 

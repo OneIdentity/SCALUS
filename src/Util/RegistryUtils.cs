@@ -242,14 +242,14 @@ namespace OneIdentity.Scalus.Util
             }
             catch (Exception e)
             {
-                Serilog.Log.Error(e, $"Failed to create registry key from path:{path}");
+                Serilog.Log.Error(e, $"Failed to create registry key from path: {path}");
                 return null;
             }
             finally
             {
                 if (curKey == null)
                 {
-                    Serilog.Log.Error($"Failed to create registry key from path:{path}");
+                    Serilog.Log.Error($"Failed to create registry key from path: {path}");
                 }
             }
         }

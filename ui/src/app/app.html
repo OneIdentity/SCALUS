@@ -50,9 +50,17 @@
                 <ui-badge tone="muted">Custom</ui-badge>
                 }</div><div class="line2">{{ protocolLine(protocol) }}</div></div>
                 <ui-select class="app-select-host" [options]="appOptionsFor(protocol)" [value]="protocol.AppId" placeholder="Choose an application…" (valueChange)="onAppForProtocol(protocol, $event)"></ui-select>
-                <div class="handler"><ui-toggle [checked]="isRegistered(protocol.Protocol)" [disabled]="!protocol.AppId" (changed)="toggleRegistration(protocol, $event)"></ui-toggle><div class="handler-label"><span class="t">Register handler</span><span class="s" [class.on]="isRegistered(protocol.Protocol)" [class.conflict]="isConflict(protocol.Protocol)">{{ handlerStatusLine(protocol) }}@if (isConflict(protocol.Protocol)) {
-                <span class="warn-tri" [title]="conflictTooltip(protocol.Protocol)" tabindex="0" role="img" [attr.aria-label]="conflictTooltip(protocol.Protocol)"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('warning')" /></svg></span>
-              }</span></div></div>
+                <div class="handler">
+                  <ui-toggle [checked]="isRegistered(protocol.Protocol)" [disabled]="!protocol.AppId" (changed)="toggleRegistration(protocol, $event)"></ui-toggle>
+                  <div class="handler-label">
+                    <span class="t">Register handler</span>
+                    <span class="s" [class.on]="isRegistered(protocol.Protocol)" [class.conflict]="isConflict(protocol)">{{ handlerStatusLine(protocol) }}
+                      @if (isConflict(protocol)) {
+                        <span class="warn-tri" [title]="conflictTooltip(protocol.Protocol)" tabindex="0" role="img" [attr.aria-label]="conflictTooltip(protocol.Protocol)"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath('warning')" /></svg></span>
+                      }
+                    </span>
+                </div>
+              </div>
               <button class="row-remove" type="button" [attr.aria-label]="'Remove ' + protocol.Protocol + ' protocol'" title="Remove protocol" (click)="removeProtocol(protocol)">×</button>
             </article>
           }
@@ -257,7 +265,7 @@
           <div class="logs-note">Loading file…</div>
         }
         @if (!loadingLaunchFile && selectedLaunchFile) {
-          <div class="pre-wrap">
+          <div class="launch-file-contents">
             <button class="copy-btn floating" [class.copied]="copiedKey==='gencontent'" type="button" title="Copy file contents" aria-label="Copy generated file contents" (click)="copyField(selectedLaunchFile, 'gencontent')"><svg viewBox="0 0 256 256"><path [attr.d]="iconPath(copiedKey==='gencontent' ? 'check' : 'copy')" /></svg></button>
             <pre>{{ selectedLaunchFile }}</pre>
           </div>

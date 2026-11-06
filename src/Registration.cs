@@ -47,7 +47,7 @@ namespace OneIdentity.Scalus
         {
             if (!ProtocolMapping.ValidateProtocol(protocol, out string err))
             {
-                Serilog.Log.Error($"Invalid protocol:{protocol}");
+                Serilog.Log.Error($"Invalid protocol: {protocol}");
                 UserInteraction.Message($"{protocol}: The protocol is invalid.");
                 return false;
             }
@@ -79,7 +79,7 @@ namespace OneIdentity.Scalus
 
             if (!ProtocolMapping.ValidateProtocol(protocol, out string err))
             {
-                Serilog.Log.Error($"Invalid protocol:{protocol}");
+                Serilog.Log.Error($"Invalid protocol: {protocol}");
                 return status;
             }
 
@@ -165,7 +165,7 @@ namespace OneIdentity.Scalus
                         if (!force)
                         {
                             UserInteraction.Error(
-                                $"{protocol}: another application is already registered with {registrar.Name} to launch:{command}. Use -f to overwrite.");
+                                $"{protocol}: another application is already registered with {registrar.Name} to launch: {command}. Use -f to overwrite.");
                             continue;
                         }
 

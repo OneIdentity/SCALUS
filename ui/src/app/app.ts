@@ -170,7 +170,7 @@ export class App implements OnInit {
     return [...this.config.Applications].sort((left, right) =>
       left.Name.localeCompare(right.Name, undefined, { sensitivity: 'base' }));
   }
-  get conflictCount(): number { return this.config.Protocols.filter(p => this.isConflict(p.Protocol)).length; }
+  get conflictCount(): number { return this.config.Protocols.filter(p => this.isConflict(p)).length; }
   get handlerStatus(): string {
     const total = this.config.Protocols.length;
     if (!total) return 'No protocols configured';
@@ -355,7 +355,7 @@ export class App implements OnInit {
   isBuiltIn(protocol: string): boolean { return BUILT_IN_PROTOCOLS.has(protocol); }
   registrationState(protocol: string): 'registered' | 'conflict' | 'unregistered' { return this.registrations.get(protocol)?.State ?? 'unregistered'; }
   isRegistered(protocol: string): boolean { return this.registrationState(protocol) === 'registered'; }
-  isConflict(protocol: string): boolean { return this.registrationState(protocol) === 'conflict'; }
+  isConflict(protocol: ProtocolMapping): boolean { return !!protocol.AppId && this.registrationState(protocol.Protocol) === 'conflict'; }
   conflictInfo(protocol: string): RegistrationStatus | undefined {
     const status = this.registrations.get(protocol);
     return status?.State === 'conflict' ? status : undefined;
@@ -380,7 +380,7 @@ export class App implements OnInit {
     const app = this.appById(mapping.AppId);
     if (!app) return 'Assign an application to enable its handler';
     if (this.isRegistered(mapping.Protocol)) return `${app.Name} is the registered OS handler`;
-    if (this.isConflict(mapping.Protocol)) {
+    if (this.isConflict(mapping)) {
       const who = this.conflictInfo(mapping.Protocol)?.Program || 'Another application';
       return `${who} currently handles this protocol — turn on to replace it with ${app.Name}`;
     }
@@ -402,7 +402,7 @@ export class App implements OnInit {
   async toggleRegistration(protocol: ProtocolMapping, on: boolean): Promise<void> {
     if (on && !protocol.AppId) return;
     if (on) {
-      if (this.isConflict(protocol.Protocol)) {
+      if (this.isConflict(protocol)) {
         const info = this.conflictInfo(protocol.Protocol);
         const who = info?.Program || info?.Path || 'Another application';
         const ok = await this.askConfirm({

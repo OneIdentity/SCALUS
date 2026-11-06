@@ -138,7 +138,7 @@ namespace OneIdentity.Scalus
             var defpath = ConfigurationManager.ScalusJsonDefault;
             if (!File.Exists(defpath))
             {
-                Log.Logger.Warning($"Config file not found:{ConfigurationManager.ScalusJson} and installed default file not found:{defpath}");
+                Log.Logger.Warning($"Config file not found: {ConfigurationManager.ScalusJson} and installed default file not found: {defpath}");
                 return;
             }
 
@@ -150,7 +150,7 @@ namespace OneIdentity.Scalus
                     Directory.CreateDirectory(dir);
                 }
 
-                Log.Logger.Information($"Initializing config file:{ConfigurationManager.ScalusJson} from the installed file:{defpath}");
+                Log.Logger.Information($"Initializing config file: {ConfigurationManager.ScalusJson} from the installed file: {defpath}");
 
                 // The shipped default lists applications for every platform; seed only the ones
                 // valid on this OS so a fresh config never offers, e.g., a macOS client on Windows.
@@ -189,7 +189,7 @@ namespace OneIdentity.Scalus
             }
             catch (Exception e)
             {
-                Log.Logger.Information($"Failed to initialize config file:{ConfigurationManager.ScalusJson} from installed file:{defpath}: {e.Message}");
+                Log.Logger.Information($"Failed to initialize config file: {ConfigurationManager.ScalusJson} from installed file: {defpath}: {e.Message}");
             }
         }
 

@@ -112,7 +112,7 @@ namespace OneIdentity.Scalus
                 Serilog.Log.Debug($"Starting external application: '{cmd}' with args: '{result.Args}'");
                 if (!File.Exists(cmd))
                 {
-                    var msg = $"Selected application does not exist:{cmd}";
+                    var msg = $"Selected application does not exist: {cmd}";
                     Serilog.Log.Error(msg);
 
                     result.Outcome = LaunchOutcome.ConfigError;
@@ -146,7 +146,7 @@ namespace OneIdentity.Scalus
                 var process = OsServices.Execute(execCmd, execArgs);
                 if (process == null)
                 {
-                    var msg = $"Failed to create process for cmd:{execCmd}";
+                    var msg = $"Failed to create process for cmd: {execCmd}";
                     Serilog.Log.Error(msg);
                     throw new ProtocolException(msg);
                 }

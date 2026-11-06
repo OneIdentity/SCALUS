@@ -145,7 +145,7 @@ namespace OneIdentity.Scalus.UrlParser
 
                     if (res != 0)
                     {
-                        Serilog.Log.Warning($"Failed to sign temp file: {res}, output:{output}, err:{err}");
+                        Serilog.Log.Warning($"Failed to sign temp file: {res}, output: {output}, err: {err}");
                     }
                 }
             }
@@ -164,10 +164,10 @@ namespace OneIdentity.Scalus.UrlParser
             {
                 if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
                 {
-                    throw new ParserException($"The RDP parser cannot parse the URL:{url}");
+                    throw new ParserException($"The RDP parser cannot parse the URL: {url}");
                 }
 
-                Log.Information($"Parsing URL{url} as a default URL");
+                Log.Information($"Parsing URL: {url} as a default URL");
                 foreach (var (key, value) in defaultArgs)
                 {
                     if (key.Equals(FullAddressKey, StringComparison.Ordinal))
@@ -188,7 +188,7 @@ namespace OneIdentity.Scalus.UrlParser
             }
             else
             {
-                Log.Information($"Parsing URL{url} as an rdp URL");
+                Log.Information($"Parsing URL: {url} as an rdp URL");
                 ParseArgs(Dictionary[Token.RelativeUrl]);
                 ParseConfig();
             }
@@ -197,12 +197,12 @@ namespace OneIdentity.Scalus.UrlParser
 
             if (!Dictionary.TryGetValue(Token.User, out var userToken) || string.IsNullOrEmpty(userToken))
             {
-                Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
+                Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url: {url}");
             }
 
             if (!Dictionary.TryGetValue(Token.Host, out var hostToken) || string.IsNullOrEmpty(hostToken))
             {
-                Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
+                Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url: {url}");
             }
 
             return Dictionary;
@@ -337,7 +337,7 @@ namespace OneIdentity.Scalus.UrlParser
 
             if (res != 0)
             {
-                Serilog.Log.Warning($"Failed to create SCALUS signing cert: {res}, output:{output}, err:{err}");
+                Serilog.Log.Warning($"Failed to create SCALUS signing cert: {res}, output: {output}, err: {err}");
             }
 
             var cert = GetScalusSigningCert();

@@ -87,7 +87,7 @@ namespace OneIdentity.Scalus.Dto
             var supported = ProtocolHandlerFactory.GetSupportedParsers();
             if (!supported.Contains(ParserId))
             {
-                errors.Add($"Selected parser '{ParserId}' is not in the supported list:{string.Join(',', supported.ToArray())}");
+                errors.Add($"Selected parser '{ParserId}' is not in the supported list: {string.Join(", ", supported.ToArray())}");
             }
 
             if (Options?.Count > 0)
@@ -108,7 +108,7 @@ namespace OneIdentity.Scalus.Dto
                             continue;
                         }
 
-                        errors.Add($"Invalid Processing Option:{opt}. Valid values are:[{opts}]");
+                        errors.Add($"Invalid Processing Option: {opt}. Valid values are: [{opts}]");
                     }
                 }
             }

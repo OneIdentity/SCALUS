@@ -83,7 +83,7 @@ namespace OneIdentity.Scalus
             }
             catch (Exception e)
             {
-                ValidationErrors.Add($"Error deserialising json configuration:{e.Message}");
+                ValidationErrors.Add($"Error deserialising json configuration: {e.Message}");
             }
 
             try
@@ -92,7 +92,7 @@ namespace OneIdentity.Scalus
             }
             catch (Exception e)
             {
-                ValidationErrors.Add($"Error validating json configuration:{e.Message}");
+                ValidationErrors.Add($"Error validating json configuration: {e.Message}");
                 return (false, config);
             }
 
@@ -224,7 +224,7 @@ namespace OneIdentity.Scalus
 
             if (!File.Exists(path))
             {
-                ValidationErrors.Add($"Missing config file:{path}");
+                ValidationErrors.Add($"Missing config file: {path}");
             }
             else
             {

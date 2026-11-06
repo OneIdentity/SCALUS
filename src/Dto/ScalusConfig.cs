@@ -77,15 +77,15 @@ namespace OneIdentity.Scalus.Dto
 
                     if (foundapp == null)
                     {
-                        errors.Add($"Protocol:{one.Protocol} is mapped to undefined application id:{one.AppId}");
+                        errors.Add($"Protocol: {one.Protocol} is mapped to undefined application id: {one.AppId}");
                     }
                     else if (string.IsNullOrEmpty(foundapp.Protocol))
                     {
-                        errors.Add($"Protocol:{one.Protocol} is mapped to application:{foundapp.Name}({one.AppId}) which has no protocol defined");
+                        errors.Add($"Protocol: {one.Protocol} is mapped to application: {foundapp.Name} ({one.AppId}) which has no protocol defined");
                     }
                     else if (!foundapp.Protocol.Equals(one.Protocol, StringComparison.OrdinalIgnoreCase))
                     {
-                        errors.Add($"Protocol:{one.Protocol} is mapped to application:{foundapp.Name}({one.AppId}) which has a different protocol defined: {foundapp.Protocol}");
+                        errors.Add($"Protocol: {one.Protocol} is mapped to application: {foundapp.Name} ({one.AppId}) which has a different protocol defined: {foundapp.Protocol}");
                     }
                 }
 
