@@ -50,7 +50,7 @@ namespace OneIdentity.Scalus.Platform
                 return Process.Start("open", url);
             }
 
-            Log.Information($"unknown platform {RuntimeInformation.OSDescription}- cant prompt");
+            Log.Information($"unknown platform {RuntimeInformation.OSDescription} - can't prompt");
             return null;
         }
 
@@ -72,9 +72,9 @@ namespace OneIdentity.Scalus.Platform
                 startupInfo.ArgumentList.Add(arg.Trim());
             }
 
-            Log.Logger.Information($"Running process:{command} with args:{string.Join(' ', args)}");
+            Log.Logger.Information($"Running process: {command} with args: {string.Join(' ', args)}");
             var process = Process.Start(startupInfo);
-            Log.Logger.Information($"Started process, id:{process?.Id}, exited:{process?.HasExited}");
+            Log.Logger.Information($"Started process, id: {process?.Id}, exited: {process?.HasExited}");
             return process;
         }
 
@@ -88,7 +88,7 @@ namespace OneIdentity.Scalus.Platform
                 throw new PlatformException("missing command");
             }
 
-            Log.Logger.Information($"Running:{command}, args:{string.Join(',', args)}");
+            Log.Logger.Information($"Running: {command}, args: {string.Join(", ", args)}");
             var startupInfo = new ProcessStartInfo(command)
             {
                 CreateNoWindow = true,
@@ -107,13 +107,13 @@ namespace OneIdentity.Scalus.Platform
             var process = Process.Start(startupInfo);
             if (process == null)
             {
-                throw new PlatformException($"Failed to run:{command}");
+                throw new PlatformException($"Failed to run: {command}");
             }
 
             process.WaitForExit();
             stdOut = process.StandardOutput.ReadToEnd();
             stdErr = process.StandardError.ReadToEnd();
-            Log.Logger.Information($"Result:{process.ExitCode}, output:{stdOut}, err:{stdErr}");
+            Log.Logger.Information($"Result: {process.ExitCode}, output: {stdOut}, err: {stdErr}");
             return process.ExitCode;
         }
 

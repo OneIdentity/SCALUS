@@ -86,14 +86,14 @@ namespace OneIdentity.Scalus.UrlParser
 
             if (!File.Exists(fileProcessorExe))
             {
-                Log.Error($"Selected file preprocessor does not exist:{fileProcessorExe}");
+                Log.Error($"Selected file preprocessor does not exist: {fileProcessorExe}");
                 return;
             }
 
             string output;
             string err;
             var res = services.Execute(fileProcessorExe, fileProcessorArgs, out output, out err);
-            Log.Information($"File preprocess result:{res}, output:{output}, err:{err}");
+            Log.Information($"File preprocess result: {res}, output: {output}, err: {err}");
         }
 
         public virtual void PostExecute(Process process)
@@ -363,14 +363,14 @@ namespace OneIdentity.Scalus.UrlParser
             }
             else if (!string.IsNullOrEmpty(Config.UseTemplateFile))
             {
-                Log.Information($"Using template :{Config.UseTemplateFile}");
+                Log.Information($"Using template: {Config.UseTemplateFile}");
                 var templatefile = ReplaceTokens(Config.UseTemplateFile);
                 templatefile = GetFullPath(templatefile);
-                Log.Information($"Using template file:{templatefile}");
+                Log.Information($"Using template file: {templatefile}");
 
                 if (!File.Exists(templatefile))
                 {
-                    Log.Error($"Application template does not exist:{templatefile}");
+                    Log.Error($"Application template does not exist: {templatefile}");
                     throw new ParserException($"Application template file does not exist: {templatefile}");
                 }
 
@@ -556,7 +556,7 @@ namespace OneIdentity.Scalus.UrlParser
                 }
 
                 Log.Information(
-                    $"Preprocessing cmd:{fileProcessorExe} args:{string.Join(',', fileProcessorArgs)}");
+                    $"Preprocessing cmd: {fileProcessorExe} args: {string.Join(", ", fileProcessorArgs)}");
             }
             catch (Exception e)
             {

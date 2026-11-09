@@ -105,7 +105,7 @@ namespace OneIdentity.Scalus.UrlParser
             {
                 if (!Uri.TryCreate(url, UriKind.Absolute, out Uri result))
                 {
-                    throw new ParserException($"The SSH parser cannot parse URL:{url}");
+                    throw new ParserException($"The SSH parser cannot parse URL: {url}");
                 }
 
                 Parse(result);
@@ -123,12 +123,12 @@ namespace OneIdentity.Scalus.UrlParser
 
             if (!Dictionary.TryGetValue(Token.User, out var userToken) || string.IsNullOrEmpty(userToken))
             {
-                Log.Warning($"The RDP parser could not extract the '{Token.User}' token from the url:{url}");
+                Log.Warning($"The SSH parser could not extract the '{Token.User}' token from the url: {url}");
             }
 
             if (!Dictionary.TryGetValue(Token.Host, out var hostToken) || string.IsNullOrEmpty(hostToken))
             {
-                Log.Warning($"The RDP parser could not extract the '{Token.Host}' token from the url:{url}");
+                Log.Warning($"The SSH parser could not extract the '{Token.Host}' token from the url: {url}");
             }
 
             return Dictionary;

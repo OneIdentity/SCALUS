@@ -11,7 +11,7 @@ namespace OneIdentity.Scalus.Test
     // otherwise-unregistered reading so the UI can offer to replace it.
     public class TestRegistrationStatus
     {
-        private const string ForeignCommand = "\"C:\\Program Files\\PuTTY\\putty.exe\" -ssh %1";
+        private const string ForeignCommand = "\"C:\\__scalus_test_missing__\\putty.exe\" -ssh %1";
 
         private static Registration Build(params FakeRegistrar[] registrars) =>
             new Registration(registrars, null, null);
@@ -37,7 +37,7 @@ namespace OneIdentity.Scalus.Test
             var status = Build(new FakeRegistrar(false, ForeignCommand), new FakeRegistrar(false, null)).GetStatus("ssh");
             Assert.Equal(RegistrationStatus.Conflict, status.State);
             Assert.Equal(ForeignCommand, status.Command);
-            Assert.Equal("C:\\Program Files\\PuTTY\\putty.exe", status.Path);
+            Assert.Equal("C:\\__scalus_test_missing__\\putty.exe", status.Path);
             // The exe does not exist on the test box, so the friendly name falls back to the file name.
             Assert.Equal("putty.exe", status.Program);
         }

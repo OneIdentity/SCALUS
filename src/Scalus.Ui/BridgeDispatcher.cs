@@ -283,13 +283,18 @@ namespace OneIdentity.Scalus.Ui
                 return false;
             }
 
+            var configuredExtension = Path.GetExtension(defaultName);
+            var exportExtension = string.IsNullOrWhiteSpace(configuredExtension)
+                ? "json"
+                : configuredExtension.TrimStart('.');
+
             // Photino's native save dialog skips display entirely when defaultPath does not
             // resolve to an existing item, so open in an existing folder rather than passing a
             // suggested (non-existent) file name.
             var target = this.window.ShowSaveFile(
                 title: "Export configuration",
                 defaultPath: Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                filters: new (string, string[])[] { ("JSON", new[] { "json" }), ("All files", new[] { "*" }) });
+                filters: new (string, string[])[] { ($"{exportExtension.ToUpperInvariant()}", new[] { exportExtension }), ("All files", new[] { "*" }) });
 
             if (string.IsNullOrEmpty(target))
             {
@@ -300,7 +305,7 @@ namespace OneIdentity.Scalus.Ui
             // chosen name has none.
             if (string.IsNullOrEmpty(Path.GetExtension(target)))
             {
-                target = Path.ChangeExtension(target, "json");
+                target = Path.ChangeExtension(target, exportExtension);
             }
 
             File.WriteAllText(target, contents);

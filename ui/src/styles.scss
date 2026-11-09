@@ -229,10 +229,11 @@ textarea.input { resize: vertical; }
 .copy-btn:hover { background: var(--oi-bg-secondary); color: var(--oi-content-primary); }
 .copy-btn svg { width: 15px; height: 15px; }
 .copy-btn.copied, .copy-btn.copied:hover { color: var(--oi-content-success); background: var(--oi-bg-success); }
-.pre-wrap { position: relative; }
-.pre-wrap .copy-btn.floating { position: absolute; top: 8px; right: 8px; background: var(--oi-bg-primary); border: 1px solid var(--oi-border-muted); opacity: .5; }
-.pre-wrap:hover .copy-btn.floating, .pre-wrap .copy-btn.floating:hover, .pre-wrap .copy-btn.floating:focus-visible { opacity: 1; }
-.pre-wrap .copy-btn.floating.copied { opacity: 1; }
+.launch-file-contents { position: relative; }
+.launch-file-contents .copy-btn.floating { position: absolute; top: 8px; right: 8px; background: var(--oi-bg-primary); border: 1px solid var(--oi-border-muted); opacity: .5; }
+.launch-file-contents:hover .copy-btn.floating, .launch-file-contents .copy-btn.floating:hover, .launch-file-contents .copy-btn.floating:focus-visible { opacity: 1; }
+.launch-file-contents .copy-btn.floating.copied { opacity: 1; }
+.launch-file-contents pre { overflow-x: auto;  }
 
 @media (max-width: 900px) { .app-shell { grid-template-columns: 68px 1fr; } .brand { justify-content: center; padding-left: 0; padding-right: 0; } .brand > div:not(.logo), .footer { display: none; } .nav-item { justify-content: center; gap: 0; padding-left: 0; padding-right: 0; font-size: 0; } .topbar, .content { padding-left: var(--oi-space-l); padding-right: var(--oi-space-l); } }
 @media (max-width: 820px) { .proto-row { grid-template-columns: 48px minmax(0,1fr) auto; grid-template-areas: 'icon sentence sentence' 'icon select handler'; } }

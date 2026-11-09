@@ -81,7 +81,7 @@ namespace OneIdentity.Scalus.Dto
 
             if (string.IsNullOrEmpty(Exec))
             {
-                errors.Add($"An Exec must be configured for application:{Name}({Id})");
+                errors.Add($"An Exec must be configured for application: {Name} ({Id})");
             }
 
             if (!ProtocolMapping.ValidateProtocol(Protocol, out string err))
@@ -91,12 +91,12 @@ namespace OneIdentity.Scalus.Dto
 
             if (string.IsNullOrEmpty(Name))
             {
-                errors.Add($"Application:{Id} must have a name");
+                errors.Add($"Application: {Id} must have a name");
             }
 
             if (Platforms.Count == 0)
             {
-                errors.Add($"Application:{Name}({Id}) does not have any platforms defined.");
+                errors.Add($"Application: {Name} ({Id}) does not have any platforms defined.");
             }
 
             Parser?.Validate(errors);
