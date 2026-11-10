@@ -121,7 +121,9 @@ namespace OneIdentity.Scalus.Ui
             window.RegisterSizeChangedHandler((sender, size) =>
             {
                 var self = (PhotinoWindow)sender;
-                if (!self.Maximized)
+                // A minimized window reports a tiny size; don't let it overwrite the restored size.
+                var isUsableSize = size.Width >= UiWindowSettings.MinimumWidth && size.Height >= UiWindowSettings.MinimumHeight;
+                if (!self.Maximized && !self.Minimized && isUsableSize)
                 {
                     restoredWidth = size.Width;
                     restoredHeight = size.Height;
