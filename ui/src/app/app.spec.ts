@@ -212,6 +212,35 @@ describe('App', () => {
     expect(app.config.Applications[0].Parser.UseTemplateFile).toBeUndefined();
   });
 
+  it('clears protocol applications that do not run on this platform after an import', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.platform = 'Windows';
+    const bridge = TestBed.inject(MockBridge);
+    const mkApp = (Id: string, Platforms: any[], Protocol: string) => ({
+      Id, Name: Id, Platforms, Protocol, Parser: { ParserId: Protocol, Options: [] }, Exec: 'x', Args: []
+    });
+    spyOn(bridge, 'importFromFile').and.resolveTo(JSON.stringify({
+      Protocols: [
+        { Protocol: 'rdp', AppId: 'win-rdp' },
+        { Protocol: 'ssh', AppId: 'mac-ssh' },
+        { Protocol: 'telnet', AppId: 'missing' }
+      ],
+      Applications: [mkApp('win-rdp', ['Windows'], 'rdp'), mkApp('mac-ssh', ['Mac'], 'ssh')]
+    }));
+    spyOn(bridge, 'saveConfig').and.callFake(async config => ({ errors: [], config }));
+
+    const importing = app.importReplace();
+    await Promise.resolve();
+    app.resolveConfirm(true);
+    await importing;
+
+    const appIdOf = (p: string) => app.config.Protocols.find(m => m.Protocol === p)?.AppId;
+    expect(appIdOf('rdp')).toBe('win-rdp');
+    expect(appIdOf('ssh')).toBeNull();
+    expect(appIdOf('telnet')).toBeNull();
+  });
+
   it('scrolls the application editor to the top when opening a tile', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

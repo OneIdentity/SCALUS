@@ -749,8 +749,25 @@ export class App implements OnInit {
       variant: 'danger'
     })) return;
     this.config = parsed;
-    await this.saveCurrentConfig('Configuration replaced.');
+    const cleared = this.clearUnsupportedProtocolApps(this.config);
+    await this.saveCurrentConfig(cleared.length
+      ? `Configuration replaced. Cleared the application for ${cleared.join(', ')} (not available on ${this.platform}).`
+      : 'Configuration replaced.');
     await this.reloadStatuses();
+  }
+
+  // An imported config may come from another OS; unassign any protocol whose application
+  // doesn't run on this platform. Returns the protocols that were cleared.
+  private clearUnsupportedProtocolApps(config: ScalusConfig): string[] {
+    const cleared: string[] = [];
+    for (const mapping of config.Protocols) {
+      if (!mapping.AppId) continue;
+      const app = config.Applications.find(a => a.Id === mapping.AppId);
+      if (app?.Platforms?.includes(this.platform)) continue;
+      mapping.AppId = null;
+      cleared.push(`${mapping.Protocol}://`);
+    }
+    return cleared;
   }
 
   private async saveCurrentConfig(success: string): Promise<void> {
