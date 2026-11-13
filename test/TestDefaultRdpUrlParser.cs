@@ -56,6 +56,25 @@ namespace OneIdentity.Scalus.Test
             }
         }
 
+        [Fact]
+        public void ParsesSingleColonRdpUri()
+        {
+            // The Microsoft-style "rdp:" form has no "//" after the scheme.
+            using (var sut = new DefaultRdpUrlParser(new ParserConfig()))
+            {
+                var url = "rdp:full+address=s:10.5.34.132:3389&username=s:localhost%5cvaultaddress%7e10.5.34.130%25token%7eabc123%25test1%2510.5.32.75:3389";
+                var dictionary = sut.Parse(url);
+
+                Assert.Equal(url, dictionary[Token.OriginalUrl]);
+                Assert.Equal("rdp", dictionary[Token.Protocol]);
+                Assert.Equal("10.5.34.132", dictionary[Token.Host]);
+                Assert.Equal("3389", dictionary[Token.Port]);
+                Assert.Equal("localhost\\vaultaddress~10.5.34.130%token~abc123%test1%10.5.32.75:3389", dictionary[Token.User]);
+                Assert.Equal("10.5.34.130", dictionary[Token.Vault]);
+                Assert.Equal("abc123", dictionary[Token.Token]);
+            }
+        }
+
         private static bool check(string line, string name, string val, List<string> names, ref int count, string sep = ":")
         {
             if (Regex.IsMatch(line, $"^{name}{sep}"))
