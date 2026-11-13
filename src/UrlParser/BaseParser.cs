@@ -517,9 +517,18 @@ namespace OneIdentity.Scalus.UrlParser
                 }
 
                 var newlines = new List<string>();
+                var isKeyFile = string.Equals(ext, ".remmina", StringComparison.OrdinalIgnoreCase);
                 foreach (var line in lines)
                 {
-                    newlines.Add(ReplaceTokens(line));
+                    var replaced = ReplaceTokens(line);
+                    if (isKeyFile)
+                    {
+                        // Remmina reads GLib key files, where a backslash starts an escape sequence;
+                        // "domain\user" would otherwise be rejected and the value dropped.
+                        replaced = replaced.Replace("\\", "\\\\");
+                    }
+
+                    newlines.Add(replaced);
                 }
 
                 var dir = Path.GetDirectoryName(tempFile);

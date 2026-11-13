@@ -75,6 +75,26 @@ namespace OneIdentity.Scalus.Test
             }
         }
 
+        [Fact]
+        public void RemminaTemplateEscapesBackslashes()
+        {
+            var template = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".remmina");
+            File.WriteAllLines(template, new[] { $"username=%{Token.User}%", $"server=%{Token.Host}%" });
+            try
+            {
+                using (var sut = new DefaultRdpUrlParser(new Dto.ParserConfig { UseTemplateFile = template }))
+                {
+                    var dictionary = sut.Parse("rdp:full+address=s:myhost:3389&username=s:dom%5cuser");
+                    var fileLines = File.ReadAllLines(dictionary[Token.GeneratedFile]);
+                    Assert.Equal("username=dom\\\\user", fileLines[0]);
+                }
+            }
+            finally
+            {
+                File.Delete(template);
+            }
+        }
+
         private static bool check(string line, string name, string val, List<string> names, ref int count, string sep = ":")
         {
             if (Regex.IsMatch(line, $"^{name}{sep}"))
