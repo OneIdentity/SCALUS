@@ -65,7 +65,7 @@ Each release provides installers per OS and architecture (x64 and arm64).
   tarball:
 
     ```
-    sudo dpkg -i scalus_<version>-1_amd64.deb      # Debian / Ubuntu
+    sudo dpkg -i scalus-<version>-1-amd64.deb      # Debian / Ubuntu
     sudo rpm -i  scalus-<version>-1.x86_64.rpm     # RHEL / Fedora / SUSE
     ```
 

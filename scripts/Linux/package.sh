@@ -4,7 +4,7 @@
 #
 # Produces, under Output/<config>/<rid>/:
 #   scalus-<version>-<rid>.tar.gz    - portable tarball + setup.sh (manual install)
-#   scalus_<version>-1_<debarch>.deb - Debian/Ubuntu package  (if fpm is available)
+#   scalus-<version>-1-<debarch>.deb - Debian/Ubuntu package  (if fpm is available)
 #   scalus-<version>-1.<rpmarch>.rpm - RHEL/Fedora/SUSE package (if fpm is available)
 #
 # The .deb/.rpm install the FHS-native layout:
@@ -149,7 +149,7 @@ common_args=(
 )
 
 echo "==> Building .deb ($debarch)"
-deb="$outputdir/scalus_${version}-1_${debarch}.deb"
+deb="$outputdir/scalus-${version}-1-${debarch}.deb"
 rm -f "$deb"
 fpm "${common_args[@]}" \
     -t deb -a "$debarch" -p "$deb" \
