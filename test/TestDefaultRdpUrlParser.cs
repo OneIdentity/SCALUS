@@ -315,6 +315,11 @@ namespace OneIdentity.Scalus.Test
                 Assert.Equal("tel", dictionary[Token.Protocol]);
                 Assert.Equal("myuser", dictionary[Token.User]);
                 Assert.Equal("myhost", dictionary[Token.Host]);
+                Assert.Equal("23", dictionary[Token.Port]);
+
+                dictionary = sut.Parse("telnet://vaultaddress=10.0.0.1@token=abc@telnetd@10.0.0.2@10.0.0.3:2223");
+                Assert.Equal("10.0.0.3", dictionary[Token.Host]);
+                Assert.Equal("2223", dictionary[Token.Port]);
             }
 
         }

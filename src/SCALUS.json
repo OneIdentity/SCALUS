@@ -201,6 +201,8 @@
       "Exec": "C:\\Program Files\\PuTTY\\putty.exe",
       "Args": [
         "-ssh",
+        "-P",
+        "%Port%",
         "%user%@%host%"
       ]
     },
@@ -219,6 +221,8 @@
       "Exec": "C:\\Program Files\\PuTTY\\putty.exe",
       "Args": [
         "-telnet",
+        "-P",
+        "%Port%",
         "%user%@%host%"
       ]
     },

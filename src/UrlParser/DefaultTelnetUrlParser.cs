@@ -43,5 +43,7 @@ namespace OneIdentity.Scalus.UrlParser
                 Dictionary = dictionary;
             }
         }
+
+        public override string DefaultPort => "23";
     }
 }
