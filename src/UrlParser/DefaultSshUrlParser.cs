@@ -58,6 +58,8 @@ namespace OneIdentity.Scalus.UrlParser
             }
         }
 
+        public virtual string DefaultPort => "22";
+
         public override void PreExecute(IOsServices services)
         {
             base.PreExecute(services);
@@ -115,7 +117,7 @@ namespace OneIdentity.Scalus.UrlParser
                 SetValue(match, 2, Token.Protocol, false, "ssh");
                 SetValue(match, 4, Token.User, true);
                 SetValue(match, 5, Token.Host, false);
-                SetValue(match, 7, Token.Port, false, "22");
+                SetValue(match, 7, Token.Port, false, DefaultPort);
 
                 GetSafeguardUserValue(Dictionary);
                 ParseConfig();

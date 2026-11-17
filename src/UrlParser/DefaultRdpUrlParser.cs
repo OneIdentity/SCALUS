@@ -81,6 +81,7 @@ namespace OneIdentity.Scalus.UrlParser
 
         private Regex rdpPattern = new Regex("^[^:]+:\\/\\/(([^:=]+)(:|=).:([^&]*))");
         private Regex rdpPatt = new Regex("&");
+        private static readonly Regex SingleColonRdpUri = new Regex("^([A-Za-z][A-Za-z0-9+.-]*):([^:=/]+[=:][si]:.*)$", RegexOptions.Singleline);
 
         public DefaultRdpUrlParser(ParserConfig config)
             : base(config)
@@ -153,8 +154,10 @@ namespace OneIdentity.Scalus.UrlParser
 
         public override IDictionary<Token, string> Parse(string url)
         {
+            var originalUrl = url;
+            url = NormalizeSingleColonUri(url);
             Dictionary = DefaultDictionary();
-            Dictionary[Token.OriginalUrl] = url;
+            Dictionary[Token.OriginalUrl] = originalUrl;
             Dictionary[Token.Protocol] = Protocol(url) ?? "rdp";
             Dictionary[Token.RelativeUrl] = StripProtocol(url).TrimEnd('/');
             Dictionary[Token.Port] = "3389";
@@ -280,6 +283,19 @@ namespace OneIdentity.Scalus.UrlParser
             }
 
             return lines;
+        }
+
+        // The Microsoft-style "rdp:name=s:value&..." form has no "//" after the scheme. Rewrite it to
+        // "rdp://name=s:value&..." so it takes the same parsing path as the documented form.
+        private static string NormalizeSingleColonUri(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                return url;
+            }
+
+            var match = SingleColonRdpUri.Match(url);
+            return match.Success ? match.Groups[1].Value + "://" + match.Groups[2].Value : url;
         }
 
         private static string GetScalusThumbprint(IOsServices services)
